@@ -3,7 +3,7 @@ import { isCompileHeavyTask } from "../core/fs-guard.ts";
 import { JsonLogger } from "../core/logger.ts";
 import { exec } from "../core/shell.ts";
 import { runAgent } from "../agent/runner.ts";
-import { openAiChatCompletion } from "../agent/openai.ts";
+import { extractOutputText, openAiResponses } from "../agent/openai.ts";
 import { spriteEphemeralWorkflow } from "../tools/sprites.ts";
 import { gatherObservations } from "./observe.ts";
 import { appendJournal } from "./journal.ts";
@@ -71,17 +71,16 @@ async function generateDecision(goal: string): Promise<EvolutionDecision> {
     JSON.stringify(observations)
   ].join("\n");
 
-  const result = await openAiChatCompletion(
-    config.openAiApiKey,
-    config.openAiModel,
-    [
+  const result = await openAiResponses(config.openAiApiKey, {
+    model: config.openAiModel,
+    input: [
       { role: "system", content: "You are an autonomous software improvement planner." },
       { role: "user", content: prompt }
     ],
-    []
-  );
+    tools: []
+  });
 
-  return parseDecision(result.message.content ?? "{}");
+  return parseDecision(extractOutputText(result.output) || "{}");
 }
 
 function openIssueForUncertainty(change: string, rationale: string): void {
