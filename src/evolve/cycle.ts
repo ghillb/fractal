@@ -131,11 +131,17 @@ async function runSpriteChecks(): Promise<{ lint: boolean; test: boolean }> {
 }
 
 function commitEvolution(change: string): void {
+  const pending = exec("git diff --name-only");
+  if (!pending.stdout.trim()) {
+    throw new Error("no file changes produced by evolve action");
+  }
+
   exec("git add -A");
   const subject = change.replaceAll("\n", " ").slice(0, 72) || "automated improvement";
   const result = exec(`git commit -m ${JSON.stringify(`evolve(agent): ${subject}`)}`);
   if (result.code !== 0) {
-    throw new Error(`commit failed: ${result.stderr}`);
+    const details = [result.stdout.trim(), result.stderr.trim()].filter(Boolean).join(" | ");
+    throw new Error(`commit failed: ${details}`);
   }
 }
 

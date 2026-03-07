@@ -46,7 +46,11 @@ jobs:
             git config user.email "fractal-bot@users.noreply.github.com"
             git add -A
             git commit -m "chore: persist evolve cycle output" || true
+          fi
+
+          AHEAD_COUNT="$(git rev-list --count origin/${GITHUB_REF_NAME}..HEAD)"
+          if [ "${AHEAD_COUNT}" -gt 0 ]; then
             git push origin HEAD:${GITHUB_REF_NAME}
           else
-            echo "No changes to push"
+            echo "No commits to push"
           fi
