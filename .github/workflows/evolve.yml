@@ -27,7 +27,7 @@ jobs:
       FRACTAL_GIT_AUTHOR_EMAIL: fractal-bot@users.noreply.github.com
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
