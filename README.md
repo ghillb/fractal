@@ -1,0 +1,138 @@
+# fractal
+
+Minimal Bun + TypeScript coding agent with an autonomous 8-hour self-evolution harness.
+
+## What it does
+
+- LLM-driven coding agent (`OpenAI`) with tool calling.
+- Tooling for URL fetch, Perplexity web search, Hacker News signals, workspace file ops, and Sprites remote build execution.
+- Skill loader for `.agents/skills/**/SKILL.md`.
+- Autonomous evolve cycle that:
+  1. observes (issues, commits, journal, optional HN),
+  2. orients,
+  3. chooses one bounded high-impact change,
+  4. implements + validates,
+  5. commits if green,
+  6. reverts if red,
+  7. journals outcome.
+
+## Prerequisites
+
+- Bun `>=1.3`
+- Git + GitHub CLI (`gh`) authenticated
+- OpenAI API key
+- Optional: Perplexity API key
+- Optional: Sprites CLI for compile-heavy remote runs
+
+## Setup
+
+```bash
+bun install
+```
+
+Create env file (or export variables):
+
+```bash
+export OPENAI_API_KEY=...
+export OPENAI_MODEL=gpt-4o-mini
+export PERPLEXITY_API_KEY=...            # optional, enables web_search tool
+export SPRITES_ENABLED=false             # set true to enable Sprites policy
+export SPRITES_DEFAULT_NAME=qbuild
+```
+
+## Commands
+
+```bash
+# Run agent
+bun run agent -- "test task: summarize repository architecture"
+
+# Run evolve cycle (plan only)
+bun run evolve:cycle --dry-run
+
+# Run evolve cycle (real)
+bun run evolve:cycle
+
+# Lint / tests
+bun run lint
+bun test
+```
+
+## Sprites skill quickstart
+
+```bash
+# check CLI
+sprite --help
+
+# wrapper examples
+.agents/skills/sprites/scripts/sprites.sh create qbuild
+.agents/skills/sprites/scripts/sprites.sh exec qbuild "bash -lc 'uname -a'"
+.agents/skills/sprites/scripts/sprites.sh api-get qbuild "/workspace/README.md"
+.agents/skills/sprites/scripts/sprites.sh destroy qbuild
+
+# ephemeral build workflow
+.agents/skills/sprites/scripts/sprites.sh ephemeral qbuild "bun run lint && bun test"
+```
+
+If Sprites is unavailable and `SPRITES_ENABLED=true`, fractal fails safely with actionable setup errors.
+
+## Skill system
+
+Loaded from `.agents/skills/**/SKILL.md`:
+
+- `hackernews`
+- `web-search`
+- `sprites`
+- `dialectic`
+
+## Evolve workflow (GitHub Actions)
+
+- File: `.github/workflows/evolve.yml`
+- Triggers:
+  - `schedule`: every 8 hours (`0 */8 * * *`)
+  - `workflow_dispatch`: manual run
+- Permissions:
+  - `contents: write`
+  - `issues: write`
+  - `pull-requests: write`
+- Uses:
+  - `OPENAI_API_KEY` (required)
+  - `PERPLEXITY_API_KEY` (optional)
+
+Workflow behavior:
+- Runs `bun run evolve:cycle`.
+- If cycle produced a commit, workflow pushes `main`.
+- If no commit was produced, workflow exits cleanly.
+
+## Example command output
+
+```text
+$ bun run agent -- "test task: summarize repository architecture"
+fractal is organized into src/agent (LLM loop), src/tools (tool adapters), src/skills (SKILL loader), and src/evolve (autonomous cycle).
+```
+
+```text
+$ bun run evolve:cycle --dry-run
+{
+  "mode": "dry-run",
+  "goal": "Become an entity that is ever more capable and able to contemplate its own existence while improving safely.",
+  "decision": {
+    "diagnosis": "...",
+    "chosenChange": "...",
+    "rationale": "...",
+    "uncertainty": 0.32,
+    "compileHeavy": false,
+    "followUps": ["..."]
+  }
+}
+```
+
+## Example evolve cycle using Sprites
+
+When `SPRITES_ENABLED=true` and change is compile-heavy, evolve enforces remote validation:
+
+```text
+- chosen_change: add Rust build check
+- compile_heavy: true
+- action: sprite_ephemeral_workflow(command="bun run lint && bun test")
+- result: pass -> commit evolve(agent): ...
+```

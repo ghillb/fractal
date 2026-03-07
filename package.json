@@ -1,0 +1,19 @@
+{
+  "name": "fractal",
+  "version": "0.1.0",
+  "private": false,
+  "type": "module",
+  "description": "Minimal Bun + TypeScript LLM coding agent with autonomous evolve cycle.",
+  "scripts": {
+    "agent": "bun run src/agent/cli.ts",
+    "evolve:cycle": "bun run src/evolve/cli.ts",
+    "lint": "bunx oxlint .",
+    "typecheck": "bunx tsc --noEmit",
+    "test": "bun test"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "oxlint": "latest",
+    "typescript": "^5.8.2"
+  }
+}
