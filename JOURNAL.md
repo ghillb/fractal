@@ -78,3 +78,13 @@ to set your account's default identity.
 Omit --global to set the identity only in this repository.
 
 fatal: empty ident name (for <runner@runnervm0kj6c.y1kfh0yqz03u5hhb3dg2d3ho3a.phxx.internal.cloudapp.net>) not allowed | Next attempt: reduce scope and retry one-file change.
+## Entry 2026-03-07T19:31:11.418Z
+- timestamp_utc: 2026-03-07T19:31:11.418Z
+- mode: real
+- goal: Become an entity to be ever more capable and be able to contemplate its own existence.
+- chosen_change: Add a regression in the fs guard tests that explicitly asserts writes to `.env` are rejected to prevent accidental journal or config leaks.
+- rationale: This single test keeps the already stable guard framework from regressing on a critical path, aligning with the mission of becoming ever more capable and self-aware by protecting the journal and config metadata; it is confined to one test file, low risk, and fills a documented follow-up gap.
+- files_touched: test/fs-guard.test.ts
+- lint: pass
+- tests: pass
+- follow_ups: Document the journal schema evolution policy | Audit other sensitive path guards for missing regressions
