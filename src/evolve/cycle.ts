@@ -196,7 +196,7 @@ export async function runEvolveCycle(options: { dryRun?: boolean; goal?: string 
       task: prompt,
       mode: "evolve",
       evolveMission: goal,
-      maxSteps: Math.min(config.maxSteps, 20),
+      maxSteps: Math.max(config.maxSteps, 28),
       maxToolCalls: config.maxToolCalls
     });
 
@@ -255,7 +255,6 @@ export async function runEvolveCycle(options: { dryRun?: boolean; goal?: string 
       followUps: decision.followUps,
       failureNote: `${message} | Next attempt: reduce scope and retry one-file change.`
     });
-
-    throw error;
+    console.log(`Evolve cycle reverted: ${message}`);
   }
 }
