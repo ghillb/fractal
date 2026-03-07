@@ -14,11 +14,12 @@ export type FractalConfig = {
 export function readConfig(): FractalConfig {
   const workspaceRoot = process.cwd();
   const openAiApiKey = process.env.OPENAI_API_KEY ?? "";
+  const openAiModel = process.env.OPENAI_MODEL ?? "gpt-5.1-codex-mini";
 
   return {
     workspaceRoot,
     openAiApiKey,
-    openAiModel: process.env.OPENAI_MODEL ?? "gpt-4o-mini",
+    openAiModel,
     perplexityApiKey: process.env.PERPLEXITY_API_KEY,
     spritesEnabled: (process.env.SPRITES_ENABLED ?? "false") === "true",
     spritesDefaultName: process.env.SPRITES_DEFAULT_NAME ?? "qbuild",

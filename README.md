@@ -5,6 +5,7 @@ Minimal Bun + TypeScript coding agent with an autonomous 8-hour self-evolution h
 ## What it does
 
 - LLM-driven coding agent (`OpenAI`) with tool calling.
+- OpenAI integration uses the Responses API (`/v1/responses`) for codex-compatible models.
 - Tooling for URL fetch, Perplexity web search, Hacker News signals, workspace file ops, and Sprites remote build execution.
 - Skill loader for `.agents/skills/**/SKILL.md`.
 - Autonomous evolve cycle that:
@@ -34,7 +35,7 @@ Create env file (or export variables):
 
 ```bash
 export OPENAI_API_KEY=...
-export OPENAI_MODEL=gpt-4o-mini
+export OPENAI_MODEL=gpt-5.1-codex-mini
 export PERPLEXITY_API_KEY=...            # optional, enables web_search tool
 export SPRITES_ENABLED=false             # set true to enable Sprites policy
 export SPRITES_DEFAULT_NAME=qbuild

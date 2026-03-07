@@ -3,8 +3,13 @@ import { isCompileHeavyTask } from "../core/fs-guard.ts";
 import { JsonLogger } from "../core/logger.ts";
 import { loadSkills } from "../skills/loader.ts";
 import { createTools } from "../tools/index.ts";
-import type { OpenAiToolSpec, ToolCallInput } from "../tools/types.ts";
-import { type ChatMessage, openAiChatCompletion } from "./openai.ts";
+import type { ToolCallInput } from "../tools/types.ts";
+import {
+  extractFunctionCalls,
+  extractOutputText,
+  openAiResponses,
+  type ResponsesTool
+} from "./openai.ts";
 
 export type AgentRunOptions = {
   task: string;
@@ -55,6 +60,15 @@ function buildSystemPrompt(
   return base.join("\n");
 }
 
+function toResponsesTools(toolsMap: ReturnType<typeof createTools>): ResponsesTool[] {
+  return Array.from(toolsMap.values()).map((entry) => ({
+    type: "function",
+    name: entry.spec.function.name,
+    description: entry.spec.function.description,
+    parameters: entry.spec.function.parameters
+  }));
+}
+
 export async function runAgent(options: AgentRunOptions): Promise<AgentRunResult> {
   const config = readConfig();
   mustHaveOpenAiKey(config);
@@ -69,9 +83,10 @@ export async function runAgent(options: AgentRunOptions): Promise<AgentRunResult
     .join("\n");
 
   const toolsMap = createTools();
-  const toolSpecs: OpenAiToolSpec[] = Array.from(toolsMap.values()).map((entry) => entry.spec);
+  const tools = toResponsesTools(toolsMap);
 
-  const messages: ChatMessage[] = [
+  let previousResponseId: string | undefined;
+  let nextInput: unknown = [
     {
       role: "system",
       content: buildSystemPrompt(config, skillSummary, mode, compileHeavy, options.evolveMission)
@@ -85,74 +100,76 @@ export async function runAgent(options: AgentRunOptions): Promise<AgentRunResult
   while (step < (options.maxSteps ?? config.maxSteps)) {
     step += 1;
 
-    const completion = await openAiChatCompletion(
-      config.openAiApiKey,
-      config.openAiModel,
-      messages,
-      toolSpecs
-    );
-
-    const assistantMessage = completion.message;
-    messages.push(assistantMessage);
-
-    logger.info("assistant_message", {
-      step,
-      content: assistantMessage.content,
-      toolCalls: assistantMessage.tool_calls?.map((call) => call.function.name)
+    const completion = await openAiResponses(config.openAiApiKey, {
+      model: config.openAiModel,
+      previousResponseId,
+      input: nextInput,
+      tools
     });
 
-    if (!assistantMessage.tool_calls || assistantMessage.tool_calls.length === 0) {
+    previousResponseId = completion.id;
+    const outputText = extractOutputText(completion.output);
+    const functionCalls = extractFunctionCalls(completion.output);
+
+    logger.info("assistant_response", {
+      step,
+      outputText,
+      toolCalls: functionCalls.map((call) => call.name)
+    });
+
+    if (functionCalls.length === 0) {
       return {
-        output: assistantMessage.content ?? "",
+        output: outputText,
         steps: step,
         toolCalls
       };
     }
 
-    for (const call of assistantMessage.tool_calls) {
+    const toolOutputs: Array<{ type: "function_call_output"; call_id: string; output: string }> = [];
+
+    for (const call of functionCalls) {
       toolCalls += 1;
       if (toolCalls > (options.maxToolCalls ?? config.maxToolCalls)) {
         throw new Error("tool call limit exceeded");
       }
 
-      const tool = toolsMap.get(call.function.name);
+      const tool = toolsMap.get(call.name);
       if (!tool) {
-        messages.push({
-          role: "tool",
-          tool_call_id: call.id,
-          name: call.function.name,
-          content: JSON.stringify({ error: `unknown tool: ${call.function.name}` })
+        toolOutputs.push({
+          type: "function_call_output",
+          call_id: call.callId,
+          output: JSON.stringify({ error: `unknown tool: ${call.name}` })
         });
         continue;
       }
 
       let parsedInput: ToolCallInput;
       try {
-        parsedInput = JSON.parse(call.function.arguments || "{}") as ToolCallInput;
+        parsedInput = JSON.parse(call.argumentsText || "{}") as ToolCallInput;
       } catch {
         parsedInput = {};
       }
 
       try {
         const result = await tool.run(parsedInput, { workspaceRoot: config.workspaceRoot });
-        messages.push({
-          role: "tool",
-          tool_call_id: call.id,
-          name: call.function.name,
-          content: JSON.stringify(result)
+        toolOutputs.push({
+          type: "function_call_output",
+          call_id: call.callId,
+          output: JSON.stringify(result)
         });
-        logger.info("tool_ok", { step, name: call.function.name });
+        logger.info("tool_ok", { step, name: call.name });
       } catch (error) {
         const err = error instanceof Error ? error.message : String(error);
-        messages.push({
-          role: "tool",
-          tool_call_id: call.id,
-          name: call.function.name,
-          content: JSON.stringify({ error: err })
+        toolOutputs.push({
+          type: "function_call_output",
+          call_id: call.callId,
+          output: JSON.stringify({ error: err })
         });
-        logger.warn("tool_error", { step, name: call.function.name, error: err });
+        logger.warn("tool_error", { step, name: call.name, error: err });
       }
     }
+
+    nextInput = toolOutputs;
   }
 
   throw new Error("max steps exceeded");

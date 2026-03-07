@@ -1,88 +1,111 @@
 import { fetchWithTimeout } from "../core/http.ts";
-import type { OpenAiToolSpec } from "../tools/types.ts";
 
-export type ChatMessage = {
-  role: "system" | "user" | "assistant" | "tool";
-  content?: string;
+export type ResponsesTool = {
+  type: "function";
+  name: string;
+  description: string;
+  parameters: unknown;
+};
+
+export type ResponseOutputItem = {
+  type: string;
+  id?: string;
+  call_id?: string;
   name?: string;
-  tool_call_id?: string;
-  tool_calls?: Array<{
-    id: string;
-    type: "function";
-    function: {
-      name: string;
-      arguments: string;
-    };
+  arguments?: string;
+  role?: string;
+  content?: Array<{
+    type?: string;
+    text?: string;
   }>;
 };
 
-export type OpenAiChatResponse = {
-  message: ChatMessage;
-  usage?: { total_tokens?: number };
+export type OpenAiResponse = {
+  id: string;
+  output?: ResponseOutputItem[];
 };
 
-function normalizeContent(content: unknown): string {
-  if (typeof content === "string") {
-    return content;
-  }
-
-  if (Array.isArray(content)) {
-    return content
-      .map((part) => {
-        const maybe = part as { type?: string; text?: string };
-        return maybe.type === "text" ? maybe.text ?? "" : "";
-      })
-      .join("\n")
-      .trim();
-  }
-
-  return "";
-}
-
-export async function openAiChatCompletion(
+export async function openAiResponses(
   apiKey: string,
-  model: string,
-  messages: ChatMessage[],
-  tools: OpenAiToolSpec[]
-): Promise<OpenAiChatResponse> {
+  payload: {
+    model: string;
+    input: unknown;
+    tools?: ResponsesTool[];
+    previousResponseId?: string;
+  }
+): Promise<OpenAiResponse> {
+  const body: Record<string, unknown> = {
+    model: payload.model,
+    input: payload.input
+  };
+
+  if (payload.tools && payload.tools.length > 0) {
+    body.tools = payload.tools;
+  }
+
+  if (payload.previousResponseId) {
+    body.previous_response_id = payload.previousResponseId;
+  }
+
   const response = await fetchWithTimeout(
-    "https://api.openai.com/v1/chat/completions",
+    "https://api.openai.com/v1/responses",
     {
       method: "POST",
       headers: {
         Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({
-        model,
-        messages,
-        tools,
-        tool_choice: "auto",
-        temperature: 0.2
-      })
+      body: JSON.stringify(body)
     },
-    30000
+    45000
   );
 
   if (!response.ok) {
     throw new Error(`OpenAI error ${response.status}: ${(await response.text()).slice(0, 1200)}`);
   }
 
-  const data = (await response.json()) as {
-    choices?: Array<{ message?: ChatMessage & { content?: unknown } }>;
-    usage?: { total_tokens?: number };
-  };
-
-  const choice = data.choices?.[0]?.message;
-  if (!choice) {
-    throw new Error("OpenAI returned empty completion");
+  const data = (await response.json()) as OpenAiResponse;
+  if (!data.id) {
+    throw new Error("OpenAI returned invalid response id");
   }
 
-  return {
-    message: {
-      ...choice,
-      content: normalizeContent(choice.content)
-    },
-    usage: data.usage
-  };
+  return data;
+}
+
+export function extractOutputText(items: ResponseOutputItem[] | undefined): string {
+  if (!items) {
+    return "";
+  }
+
+  const chunks: string[] = [];
+  for (const item of items) {
+    if (item.type !== "message" || !item.content) {
+      continue;
+    }
+    for (const part of item.content) {
+      if (part.type === "output_text" && typeof part.text === "string") {
+        chunks.push(part.text);
+      }
+    }
+  }
+  return chunks.join("\n").trim();
+}
+
+export function extractFunctionCalls(items: ResponseOutputItem[] | undefined): Array<{
+  callId: string;
+  name: string;
+  argumentsText: string;
+}> {
+  if (!items) {
+    return [];
+  }
+
+  return items
+    .filter((item) => item.type === "function_call")
+    .map((item) => ({
+      callId: item.call_id ?? "",
+      name: item.name ?? "",
+      argumentsText: item.arguments ?? "{}"
+    }))
+    .filter((call) => call.callId && call.name);
 }
