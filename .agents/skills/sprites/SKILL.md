@@ -29,6 +29,7 @@ Use `.agents/skills/sprites/scripts/sprites.sh` wrappers.
 
 - `SPRITES_ENABLED=true|false`
 - `SPRITES_DEFAULT_NAME=qbuild`
+- `SPRITE_TOKEN=<org/token/...>` (for CI auth via `sprite auth setup --token`)
 
 ## Fallback
 

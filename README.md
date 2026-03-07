@@ -98,11 +98,28 @@ Loaded from `.agents/skills/**/SKILL.md`:
 - Uses:
   - `OPENAI_API_KEY` (required)
   - `PERPLEXITY_API_KEY` (optional)
+  - `SPRITE_TOKEN` (required only when `SPRITES_ENABLED=true`)
 
 Workflow behavior:
 - Runs `bun run evolve:cycle`.
-- If cycle produced a commit, workflow pushes `main`.
-- If no commit was produced, workflow exits cleanly.
+- Persists `JOURNAL.md` even when evolve fails/reverts, then pushes if ahead.
+- Fails workflow when evolve run reverts due to implementation error.
+- High-uncertainty defers remain non-error outcomes.
+
+## Enable Sprites in GitHub Actions
+
+Set these repository settings:
+
+```bash
+# required when using sprites
+gh secret set SPRITE_TOKEN --repo ghillb/fractal
+
+# enable sprites policy in evolve
+gh variable set SPRITES_ENABLED --body \"true\" --repo ghillb/fractal
+gh variable set SPRITES_DEFAULT_NAME --body \"qbuild\" --repo ghillb/fractal
+```
+
+The workflow installs Sprite CLI, runs `sprite auth setup --token "$SPRITE_TOKEN"`, then enables compile-heavy remote checks.
 
 ## Example command output
 
@@ -134,6 +151,6 @@ When `SPRITES_ENABLED=true` and change is compile-heavy, evolve enforces remote 
 ```text
 - chosen_change: add Rust build check
 - compile_heavy: true
-- action: sprite_ephemeral_workflow(command="bun run lint && bun test")
+- action: .agents/skills/sprites/scripts/sprites.sh ephemeral qbuild "bun run lint && bun test"
 - result: pass -> commit evolve(agent): ...
 ```

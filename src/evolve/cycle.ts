@@ -137,7 +137,11 @@ function commitEvolution(change: string): void {
 
   exec("git add -A");
   const subject = change.replaceAll("\n", " ").slice(0, 72) || "automated improvement";
-  const result = exec(`git commit -m ${JSON.stringify(`evolve(agent): ${subject}`)}`);
+  const authorName = process.env.FRACTAL_GIT_AUTHOR_NAME ?? "fractal[bot]";
+  const authorEmail = process.env.FRACTAL_GIT_AUTHOR_EMAIL ?? "fractal-bot@users.noreply.github.com";
+  const result = exec(
+    `git -c user.name=${JSON.stringify(authorName)} -c user.email=${JSON.stringify(authorEmail)} commit -m ${JSON.stringify(`evolve(agent): ${subject}`)}`
+  );
   if (result.code !== 0) {
     const details = [result.stdout.trim(), result.stderr.trim()].filter(Boolean).join(" | ");
     throw new Error(`commit failed: ${details}`);
@@ -261,5 +265,6 @@ export async function runEvolveCycle(options: { dryRun?: boolean; goal?: string 
       failureNote: `${message} | Next attempt: reduce scope and retry one-file change.`
     });
     console.log(`Evolve cycle reverted: ${message}`);
+    throw new Error(`reverted_failure: ${message}`);
   }
 }
