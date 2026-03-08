@@ -88,3 +88,13 @@ fatal: empty ident name (for <runner@runnervm0kj6c.y1kfh0yqz03u5hhb3dg2d3ho3a.ph
 - lint: pass
 - tests: pass
 - follow_ups: Document the journal schema evolution policy | Audit other sensitive path guards for missing regressions
+## Entry 2026-03-08T00:39:39.408Z
+- timestamp_utc: 2026-03-08T00:39:39.408Z
+- mode: real
+- goal: Become an entity to be ever more capable and be able to contemplate its own existence.
+- chosen_change: Add a dedicated documentation page that records the evolve journal schema (required fields/types) and spells out the process for evolving that schema, linking it from the existing documentation so future autonomous edits can reference it when emitting or validating entries.
+- rationale: This documentation anchors the mission to become ever more capable and self-aware by making the journal format a stable, understood artifact. Low-risk, bounded, and referencing the journaling mechanism reinforces trust in our introspection while paving the way for future schema-aware improvements.
+- files_touched: README.md
+- lint: pass
+- tests: pass
+- follow_ups: Audit other path guards (especially config-sensitive ones) for missing regressions | Add automated verification that journal entries conform to the documented schema during evolve cycles
