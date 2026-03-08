@@ -17,6 +17,8 @@ Minimal Bun + TypeScript coding agent with an autonomous 8-hour self-evolution h
   6. reverts if red,
   7. journals outcome.
 
+Detailed schema for `JOURNAL.md` entries and the process for evolving it are recorded in [docs/journal-schema.md](docs/journal-schema.md) so future cycles can emit and validate entries consistently.
+
 ## Prerequisites
 
 - Bun `>=1.3`
