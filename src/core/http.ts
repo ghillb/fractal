@@ -6,6 +6,12 @@ export async function fetchWithTimeout(input: string, init: RequestInit = {}, ti
       ...init,
       signal: controller.signal
     });
+  } catch (error) {
+    if (controller.signal.aborted) {
+      const reason = controller.signal.reason ? ` (${String(controller.signal.reason)})` : "";
+      throw new Error(`request timed out after ${timeoutMs}ms${reason}`);
+    }
+    throw error;
   } finally {
     clearTimeout(timer);
   }

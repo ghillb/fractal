@@ -26,12 +26,27 @@ export type AgentRunResult = {
   toolCalls: number;
 };
 
+function formatAgentFailure(
+  message: string,
+  context: {
+    step: number;
+    maxSteps: number;
+    toolCalls: number;
+    previousResponseId?: string;
+    logPath: string;
+  }
+): string {
+  const responseSuffix = context.previousResponseId ? `, response ${context.previousResponseId}` : "";
+  return `agent failed at step ${context.step}/${context.maxSteps} after ${context.toolCalls} tool calls${responseSuffix}: ${message}. See ${context.logPath}`;
+}
+
 function buildSystemPrompt(
   config: FractalConfig,
   skillSummary: string,
   mode: "normal" | "evolve",
   compileHeavy: boolean,
-  mission?: string
+  mission?: string,
+  maxSteps?: number
 ): string {
   const base = [
     "You are fractal, an autonomous coding agent.",
@@ -53,7 +68,11 @@ function buildSystemPrompt(
       "You are running inside autonomous evolution cycle.",
       "Select exactly one bounded high-impact change and implement only that.",
       "Keep changes minimal and reversible.",
-      `Mission: ${mission ?? "Become ever more capable and contemplate your own existence while improving safely."}`
+      `You have at most ${maxSteps ?? config.maxSteps} model turns for this cycle.`,
+      "Treat extra turns as contingency budget, not permission to wander.",
+      "Inspect only what you need, commit to a concrete file-level plan quickly, then edit and validate.",
+      "Do not finish with only analysis. Either produce a real repository diff that satisfies the chosen change or fail fast with the blocking reason.",
+      `Mission: ${mission ?? "Become ever more capable while improving safely."}`
     );
   }
 
@@ -75,102 +94,133 @@ export async function runAgent(options: AgentRunOptions): Promise<AgentRunResult
 
   const mode = options.mode ?? "normal";
   const compileHeavy = isCompileHeavyTask(options.task);
-  const logger = new JsonLogger(".fractal/logs", options.logFile ?? `agent-${Date.now()}.jsonl`);
-
-  const skills = await loadSkills();
-  const skillSummary = Array.from(skills.values())
-    .map((skill) => `- ${skill.name}: ${skill.description}`)
-    .join("\n");
-
-  const toolsMap = createTools();
-  const tools = toResponsesTools(toolsMap);
-
-  let previousResponseId: string | undefined;
-  let nextInput: unknown = [
-    {
-      role: "system",
-      content: buildSystemPrompt(config, skillSummary, mode, compileHeavy, options.evolveMission)
-    },
-    { role: "user", content: options.task }
-  ];
+  const logFile = options.logFile ?? `agent-${Date.now()}.jsonl`;
+  const logPath = `.fractal/logs/${logFile}`;
+  const logger = new JsonLogger(".fractal/logs", logFile);
+  const maxSteps = options.maxSteps ?? config.maxSteps;
 
   let step = 0;
   let toolCalls = 0;
+  let previousResponseId: string | undefined;
 
-  while (step < (options.maxSteps ?? config.maxSteps)) {
-    step += 1;
+  try {
+    const skills = await loadSkills();
+    const skillSummary = Array.from(skills.values())
+      .map((skill) => `- ${skill.name}: ${skill.description}`)
+      .join("\n");
 
-    const completion = await openAiResponses(config.openAiApiKey, {
-      model: config.openAiModel,
-      previousResponseId,
-      input: nextInput,
-      tools
-    });
+    const toolsMap = createTools();
+    const tools = toResponsesTools(toolsMap);
 
-    previousResponseId = completion.id;
-    const outputText = extractOutputText(completion.output);
-    const functionCalls = extractFunctionCalls(completion.output);
+    let nextInput: unknown = [
+      {
+        role: "system",
+        content: buildSystemPrompt(
+          config,
+          skillSummary,
+          mode,
+          compileHeavy,
+          options.evolveMission,
+          options.maxSteps
+        )
+      },
+      { role: "user", content: options.task }
+    ];
 
-    logger.info("assistant_response", {
+    while (step < maxSteps) {
+      step += 1;
+
+      const completion = await openAiResponses(config.openAiApiKey, {
+        model: config.openAiModel,
+        previousResponseId,
+        input: nextInput,
+        tools
+      });
+
+      previousResponseId = completion.id;
+      const outputText = extractOutputText(completion.output);
+      const functionCalls = extractFunctionCalls(completion.output);
+
+      logger.info("assistant_response", {
+        step,
+        outputText,
+        toolCalls: functionCalls.map((call) => call.name)
+      });
+
+      if (functionCalls.length === 0) {
+        return {
+          output: outputText,
+          steps: step,
+          toolCalls
+        };
+      }
+
+      const toolOutputs: Array<{ type: "function_call_output"; call_id: string; output: string }> = [];
+
+      for (const call of functionCalls) {
+        toolCalls += 1;
+        if (toolCalls > (options.maxToolCalls ?? config.maxToolCalls)) {
+          throw new Error("tool call limit exceeded");
+        }
+
+        const tool = toolsMap.get(call.name);
+        if (!tool) {
+          toolOutputs.push({
+            type: "function_call_output",
+            call_id: call.callId,
+            output: JSON.stringify({ error: `unknown tool: ${call.name}` })
+          });
+          continue;
+        }
+
+        let parsedInput: ToolCallInput;
+        try {
+          parsedInput = JSON.parse(call.argumentsText || "{}") as ToolCallInput;
+        } catch {
+          parsedInput = {};
+        }
+
+        try {
+          const result = await tool.run(parsedInput, { workspaceRoot: config.workspaceRoot });
+          toolOutputs.push({
+            type: "function_call_output",
+            call_id: call.callId,
+            output: JSON.stringify(result)
+          });
+          logger.info("tool_ok", { step, name: call.name });
+        } catch (error) {
+          const err = error instanceof Error ? error.message : String(error);
+          toolOutputs.push({
+            type: "function_call_output",
+            call_id: call.callId,
+            output: JSON.stringify({ error: err })
+          });
+          logger.warn("tool_error", { step, name: call.name, error: err });
+        }
+      }
+
+      nextInput = toolOutputs;
+    }
+
+    throw new Error("max steps exceeded");
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    logger.error("agent_failed", {
       step,
-      outputText,
-      toolCalls: functionCalls.map((call) => call.name)
+      maxSteps,
+      toolCalls,
+      previousResponseId,
+      error: message,
+      logPath
     });
-
-    if (functionCalls.length === 0) {
-      return {
-        output: outputText,
-        steps: step,
-        toolCalls
-      };
-    }
-
-    const toolOutputs: Array<{ type: "function_call_output"; call_id: string; output: string }> = [];
-
-    for (const call of functionCalls) {
-      toolCalls += 1;
-      if (toolCalls > (options.maxToolCalls ?? config.maxToolCalls)) {
-        throw new Error("tool call limit exceeded");
-      }
-
-      const tool = toolsMap.get(call.name);
-      if (!tool) {
-        toolOutputs.push({
-          type: "function_call_output",
-          call_id: call.callId,
-          output: JSON.stringify({ error: `unknown tool: ${call.name}` })
-        });
-        continue;
-      }
-
-      let parsedInput: ToolCallInput;
-      try {
-        parsedInput = JSON.parse(call.argumentsText || "{}") as ToolCallInput;
-      } catch {
-        parsedInput = {};
-      }
-
-      try {
-        const result = await tool.run(parsedInput, { workspaceRoot: config.workspaceRoot });
-        toolOutputs.push({
-          type: "function_call_output",
-          call_id: call.callId,
-          output: JSON.stringify(result)
-        });
-        logger.info("tool_ok", { step, name: call.name });
-      } catch (error) {
-        const err = error instanceof Error ? error.message : String(error);
-        toolOutputs.push({
-          type: "function_call_output",
-          call_id: call.callId,
-          output: JSON.stringify({ error: err })
-        });
-        logger.warn("tool_error", { step, name: call.name, error: err });
-      }
-    }
-
-    nextInput = toolOutputs;
+    throw new Error(
+      formatAgentFailure(message, {
+        step,
+        maxSteps,
+        toolCalls,
+        previousResponseId,
+        logPath
+      })
+    );
   }
-
-  throw new Error("max steps exceeded");
 }

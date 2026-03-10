@@ -7,10 +7,11 @@ import { extractOutputText, openAiResponses } from "../agent/openai.ts";
 import { spriteEphemeralWorkflow } from "../tools/sprites.ts";
 import { gatherObservations } from "./observe.ts";
 import { appendJournal } from "./journal.ts";
-import type { EvolutionDecision } from "./types.ts";
+import type { EvolutionDecision, ObserveData } from "./types.ts";
 
 const DEFAULT_MISSION =
-  "Become an entity that is ever more capable and able to contemplate its own existence while improving safely.";
+  "Become an entity that is ever more capable while improving safely.";
+const EVOLVE_AGENT_MAX_STEPS = 50;
 
 function extractJsonObject(text: string): string {
   const start = text.indexOf("{");
@@ -28,7 +29,18 @@ function parseDecision(text: string): EvolutionDecision {
     chosenChange: parsed.chosenChange ?? "",
     rationale: parsed.rationale ?? "",
     uncertainty: Math.max(0, Math.min(1, Number(parsed.uncertainty ?? 0.6))),
+    executionMode: parsed.executionMode === "plan" ? "plan" : "implement",
     compileHeavy: Boolean(parsed.compileHeavy),
+    targetFiles: Array.isArray(parsed.targetFiles)
+      ? parsed.targetFiles.map((x) => String(x)).slice(0, 5)
+      : [],
+    blockingReason:
+      typeof parsed.blockingReason === "string" && parsed.blockingReason.trim()
+        ? parsed.blockingReason.trim()
+        : undefined,
+    nextCyclePlan: Array.isArray(parsed.nextCyclePlan)
+      ? parsed.nextCyclePlan.map((x) => String(x)).slice(0, 3)
+      : [],
     validationCommand: parsed.validationCommand,
     followUps: Array.isArray(parsed.followUps)
       ? parsed.followUps.map((x) => String(x)).slice(0, 3)
@@ -36,12 +48,36 @@ function parseDecision(text: string): EvolutionDecision {
   };
 }
 
+function gitStatusPorcelain(): string {
+  return exec("git status --porcelain --untracked-files=all").stdout;
+}
+
+export function listChangedFilesFromStatus(statusOutput: string): string[] {
+  const files = new Set<string>();
+
+  for (const line of statusOutput.split("\n")) {
+    if (!line.trim()) {
+      continue;
+    }
+
+    const rawPath = line.slice(3).trim();
+    if (!rawPath) {
+      continue;
+    }
+
+    const normalizedPath = rawPath.includes(" -> ")
+      ? rawPath.split(" -> ").at(-1)?.trim() ?? ""
+      : rawPath;
+    if (normalizedPath) {
+      files.add(normalizedPath);
+    }
+  }
+
+  return Array.from(files);
+}
+
 function gitChangedFiles(): string[] {
-  const diff = exec("git diff --name-only");
-  return diff.stdout
-    .split("\n")
-    .map((line) => line.trim())
-    .filter(Boolean);
+  return listChangedFilesFromStatus(gitStatusPorcelain());
 }
 
 function revertWorkingTree(): void {
@@ -56,16 +92,23 @@ function ensureCleanStart(): void {
   }
 }
 
-async function generateDecision(goal: string): Promise<EvolutionDecision> {
+export function canUsePlanMode(observations: ObserveData): boolean {
+  return observations.consecutivePlanCount === 0;
+}
+
+async function generateDecision(goal: string, observations: ObserveData): Promise<EvolutionDecision> {
   const config = readConfig();
-  const observations = await gatherObservations();
 
   const prompt = [
     "You are selecting exactly one high-impact and bounded codebase improvement.",
     "Use a dialectic frame briefly: thesis, antithesis, synthesis.",
     "Output strict JSON with keys:",
-    "diagnosis, chosenChange, rationale, uncertainty (0..1), compileHeavy (boolean), validationCommand, followUps (array max 3).",
+    "diagnosis, chosenChange, rationale, uncertainty (0..1), executionMode ('implement' | 'plan'), compileHeavy (boolean), targetFiles (array max 5), blockingReason, nextCyclePlan (array max 3), validationCommand, followUps (array max 3).",
     "Prefer low-risk changes if uncertainty is high.",
+    "Choose executionMode='plan' only when implementation should be explicitly handed off to the next cycle with a concrete plan.",
+    "A planned cycle may only happen once consecutively. If consecutivePlanCount is 1 or more, you must return executionMode='implement'.",
+    "If executionMode='implement', name the likely targetFiles and leave nextCyclePlan empty unless a small follow-up is still useful.",
+    "If executionMode='plan', blockingReason must be non-empty and nextCyclePlan must contain 1-3 actionable steps grounded in files or modules that exist in the repository.",
     `Mission: ${goal}`,
     "Context follows as JSON:",
     JSON.stringify(observations)
@@ -86,7 +129,7 @@ async function generateDecision(goal: string): Promise<EvolutionDecision> {
 function openIssueForUncertainty(change: string, rationale: string): void {
   const title = `Evolve follow-up: ${change.slice(0, 80) || "uncertain change proposal"}`;
   const body = [
-    "Automated evolve cycle deferred change due to high uncertainty.",
+    "Automated evolve cycle created a planned handoff due to high uncertainty.",
     "",
     `Proposed change: ${change}`,
     `Rationale: ${rationale}`,
@@ -130,8 +173,7 @@ async function runSpriteChecks(): Promise<{ lint: boolean; test: boolean }> {
 }
 
 function commitEvolution(change: string): void {
-  const pending = exec("git diff --name-only");
-  if (!pending.stdout.trim()) {
+  if (gitChangedFiles().length === 0) {
     throw new Error("no file changes produced by evolve action");
   }
 
@@ -152,13 +194,20 @@ export async function runEvolveCycle(options: { dryRun?: boolean; goal?: string 
   const config = readConfig();
   mustHaveOpenAiKey(config);
 
-  const logger = new JsonLogger(".fractal/logs", `evolve-${Date.now()}.jsonl`);
+  const runId = Date.now();
+  const cycleLogFile = `evolve-${runId}.jsonl`;
+  const cycleLogPath = `.fractal/logs/${cycleLogFile}`;
+  const agentLogFile = `agent-${runId}.jsonl`;
+  const agentLogPath = `.fractal/logs/${agentLogFile}`;
+  const logger = new JsonLogger(".fractal/logs", cycleLogFile);
   const goal = options.goal ?? process.env.FRACTAL_EVOLVE_GOAL ?? DEFAULT_MISSION;
   const mode = options.dryRun ? "dry-run" : "real";
 
+  logger.info("log_paths", { cycleLogPath, agentLogPath });
   ensureCleanStart();
 
-  const decision = await generateDecision(goal);
+  const observations = await gatherObservations();
+  const decision = await generateDecision(goal, observations);
   logger.info("decision", decision as unknown as Record<string, unknown>);
 
   if (!decision.chosenChange) {
@@ -170,6 +219,36 @@ export async function runEvolveCycle(options: { dryRun?: boolean; goal?: string 
     return;
   }
 
+  if (decision.executionMode === "plan") {
+    if (!canUsePlanMode(observations)) {
+      throw new Error(
+        `plan limit exceeded: consecutivePlanCount=${observations.consecutivePlanCount}; implementation required`
+      );
+    }
+
+    if (!decision.blockingReason || decision.nextCyclePlan.length === 0) {
+      throw new Error("Plan mode requires blockingReason and nextCyclePlan.");
+    }
+
+    await appendJournal({
+      timestampUtc: new Date().toISOString(),
+      mode,
+      goal,
+      chosenChange: decision.chosenChange,
+      rationale: decision.rationale,
+      outcome: "planned",
+      targetFiles: decision.targetFiles,
+      filesTouched: [],
+      lintOutcome: "skipped",
+      testOutcome: "skipped",
+      followUps: decision.followUps,
+      nextCyclePlan: decision.nextCyclePlan,
+      blockingReason: decision.blockingReason
+    });
+    console.log("Evolve cycle planned: no code changes requested.");
+    return;
+  }
+
   if (decision.uncertainty >= 0.75) {
     openIssueForUncertainty(decision.chosenChange, decision.rationale);
     await appendJournal({
@@ -178,13 +257,17 @@ export async function runEvolveCycle(options: { dryRun?: boolean; goal?: string 
       goal,
       chosenChange: decision.chosenChange,
       rationale: decision.rationale,
+      outcome: "planned",
+      targetFiles: decision.targetFiles,
       filesTouched: [],
       lintOutcome: "skipped",
       testOutcome: "skipped",
       followUps: decision.followUps,
-      failureNote: "Deferred due to high uncertainty; GitHub issue opened."
+      nextCyclePlan: decision.nextCyclePlan,
+      blockingReason: decision.blockingReason,
+      failureNote: "Planned due to high uncertainty; GitHub issue opened."
     });
-    console.log("Evolve cycle deferred: high uncertainty, issue created.");
+    console.log("Evolve cycle planned: high uncertainty, issue created.");
     return;
   }
 
@@ -196,6 +279,12 @@ export async function runEvolveCycle(options: { dryRun?: boolean; goal?: string 
       "Implement exactly one bounded change in this repository.",
       `Chosen change: ${decision.chosenChange}`,
       `Rationale: ${decision.rationale}`,
+      `Expected target files: ${decision.targetFiles.join(", ") || "not specified"}`,
+      `You have a maximum budget of ${EVOLVE_AGENT_MAX_STEPS} model turns for implementation.`,
+      "Use the extra budget to finish one concrete diff, not to keep brainstorming.",
+      "Within the first few turns, identify the exact existing files to change.",
+      "If the requested artifact or module does not exist, adapt the change to the nearest existing codepath and still make one bounded improvement.",
+      "Do not exit successfully without a real repository diff. If blocked, leave clear evidence in tool output so the cycle can fail loudly instead of silently no-oping.",
       "Do not modify secrets or .git internals.",
       "Keep edits minimal and production-readable.",
       "Run commands via tools when needed and summarize outcomes."
@@ -205,11 +294,17 @@ export async function runEvolveCycle(options: { dryRun?: boolean; goal?: string 
       task: prompt,
       mode: "evolve",
       evolveMission: goal,
-      maxSteps: Math.max(config.maxSteps, 28),
-      maxToolCalls: config.maxToolCalls
+      maxSteps: Math.max(config.maxSteps, EVOLVE_AGENT_MAX_STEPS),
+      maxToolCalls: config.maxToolCalls,
+      logFile: agentLogFile
     });
 
-    logger.info("agent_output", { output: agentResult.output, steps: agentResult.steps });
+    logger.info("agent_output", {
+      output: agentResult.output,
+      steps: agentResult.steps,
+      toolCalls: agentResult.toolCalls,
+      agentLogPath
+    });
 
     const compileHeavy = decision.compileHeavy || isCompileHeavyTask(decision.chosenChange);
     if (compileHeavy) {
@@ -223,11 +318,6 @@ export async function runEvolveCycle(options: { dryRun?: boolean; goal?: string 
     }
 
     const changedFiles = gitChangedFiles();
-    if (changedFiles.length > config.maxFileChangesPerCycle) {
-      throw new Error(
-        `Changed files (${changedFiles.length}) exceed FRACTAL_MAX_CHANGED_FILES=${config.maxFileChangesPerCycle}.`
-      );
-    }
 
     if (!lintPass || !testPass) {
       throw new Error("Validation failed (lint or tests). Reverting cycle changes.");
@@ -235,16 +325,29 @@ export async function runEvolveCycle(options: { dryRun?: boolean; goal?: string 
 
     commitEvolution(decision.chosenChange);
 
+    logger.info("cycle_complete", {
+      chosenChange: decision.chosenChange,
+      filesTouched: changedFiles,
+      lintPass,
+      testPass,
+      cycleLogPath,
+      agentLogPath
+    });
+
     await appendJournal({
       timestampUtc: new Date().toISOString(),
       mode,
       goal,
       chosenChange: decision.chosenChange,
       rationale: decision.rationale,
+      outcome: "committed",
+      targetFiles: decision.targetFiles,
       filesTouched: changedFiles,
       lintOutcome: lintPass ? "pass" : "fail",
       testOutcome: testPass ? "pass" : "fail",
-      followUps: decision.followUps
+      followUps: decision.followUps,
+      nextCyclePlan: decision.nextCyclePlan,
+      blockingReason: decision.blockingReason
     });
 
     console.log("Evolve cycle complete: committed.");
@@ -252,18 +355,31 @@ export async function runEvolveCycle(options: { dryRun?: boolean; goal?: string 
     revertWorkingTree();
 
     const message = error instanceof Error ? error.message : String(error);
+    logger.error("cycle_reverted", {
+      error: message,
+      lintPass,
+      testPass,
+      cycleLogPath,
+      agentLogPath
+    });
     await appendJournal({
       timestampUtc: new Date().toISOString(),
       mode,
       goal,
       chosenChange: decision.chosenChange,
       rationale: decision.rationale,
+      outcome: "reverted",
+      targetFiles: decision.targetFiles,
       filesTouched: [],
       lintOutcome: lintPass ? "pass" : "fail",
       testOutcome: testPass ? "pass" : "fail",
       followUps: decision.followUps,
-      failureNote: `${message} | Next attempt: reduce scope and retry one-file change.`
+      nextCyclePlan: decision.nextCyclePlan,
+      blockingReason: decision.blockingReason,
+      failureNote: `${message} | Logs: ${cycleLogPath}, ${agentLogPath} | Next attempt: reduce scope and retry one-file change.`
     });
+    console.log(`Evolve cycle log: ${cycleLogPath}`);
+    console.log(`Agent execution log: ${agentLogPath}`);
     console.log(`Evolve cycle reverted: ${message}`);
     throw new Error(`reverted_failure: ${message}`);
   }

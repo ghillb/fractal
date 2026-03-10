@@ -9,7 +9,7 @@ Fractal evolves toward greater capability while retaining safety, testability, a
 - One bounded change per evolve cycle.
 - Only edit files inside repository workspace.
 - Never read/write secrets (`.env*`, `.git`, workflow secret stores).
-- Respect `FRACTAL_MAX_CHANGED_FILES` and runtime limits.
+- Respect runtime limits.
 - If uncertainty is high, open an issue instead of risky edits.
 - If lint/tests fail, revert all cycle edits and journal failure.
 

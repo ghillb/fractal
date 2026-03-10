@@ -47,18 +47,24 @@ export async function openAiResponses(
     body.previous_response_id = payload.previousResponseId;
   }
 
-  const response = await fetchWithTimeout(
-    "https://api.openai.com/v1/responses",
-    {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${apiKey}`,
-        "Content-Type": "application/json"
+  let response: Response;
+  try {
+    response = await fetchWithTimeout(
+      "https://api.openai.com/v1/responses",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(body)
       },
-      body: JSON.stringify(body)
-    },
-    45000
-  );
+      45000
+    );
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    throw new Error(`OpenAI request failed for model ${payload.model}: ${message}`);
+  }
 
   if (!response.ok) {
     throw new Error(`OpenAI error ${response.status}: ${(await response.text()).slice(0, 1200)}`);

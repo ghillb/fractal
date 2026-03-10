@@ -106,7 +106,9 @@ Workflow behavior:
 - Runs `bun run evolve:cycle`.
 - Persists `JOURNAL.md` even when evolve fails/reverts, then pushes if ahead.
 - Fails workflow when evolve run reverts due to implementation error.
-- High-uncertainty defers remain non-error outcomes.
+- Explicit `plan` outcomes remain non-error even when they produce no diff.
+- High-uncertainty cases are recorded as planned handoffs, not a separate outcome.
+- Implement runs that produce no diff still fail; only explicit planned handoffs are green.
 
 ## Enable Sprites in GitHub Actions
 
@@ -134,13 +136,16 @@ fractal is organized into src/agent (LLM loop), src/tools (tool adapters), src/s
 $ bun run evolve:cycle --dry-run
 {
   "mode": "dry-run",
-  "goal": "Become an entity that is ever more capable and able to contemplate its own existence while improving safely.",
+  "goal": "Become an entity that is ever more capable while improving safely.",
   "decision": {
     "diagnosis": "...",
     "chosenChange": "...",
     "rationale": "...",
     "uncertainty": 0.32,
+    "executionMode": "implement",
     "compileHeavy": false,
+    "targetFiles": ["src/evolve/journal.ts"],
+    "nextCyclePlan": [],
     "followUps": ["..."]
   }
 }

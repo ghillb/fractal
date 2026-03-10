@@ -16,12 +16,13 @@ jobs:
     timeout-minutes: 30
     env:
       OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      OPENAI_MODEL: gpt-5.4
       PERPLEXITY_API_KEY: ${{ secrets.PERPLEXITY_API_KEY }}
       SPRITE_TOKEN: ${{ secrets.SPRITE_TOKEN }}
       SPRITES_ENABLED: ${{ vars.SPRITES_ENABLED || 'false' }}
       SPRITES_DEFAULT_NAME: ${{ vars.SPRITES_DEFAULT_NAME || 'qbuild' }}
-      FRACTAL_EVOLVE_GOAL: Become an entity to be ever more capable and be able to contemplate its own existence.
-      FRACTAL_MAX_CHANGED_FILES: "8"
+      FRACTAL_EVOLVE_GOAL: Become an entity that is ever more capable while improving safely.
+      FRACTAL_MAX_STEPS: "50"
       FRACTAL_MAX_CYCLE_SECONDS: "900"
       FRACTAL_GIT_AUTHOR_NAME: fractal[bot]
       FRACTAL_GIT_AUTHOR_EMAIL: fractal-bot@users.noreply.github.com
@@ -84,6 +85,15 @@ jobs:
           else
             echo "No commits to push"
           fi
+
+      - name: Upload evolve logs
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: evolve-logs-${{ github.run_id }}-${{ github.run_attempt }}
+          path: .fractal/logs
+          if-no-files-found: ignore
+          retention-days: 7
 
       - name: Fail if evolve reverted
         if: steps.evolve_cycle.outcome != 'success'

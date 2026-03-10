@@ -1,6 +1,7 @@
 import { readFile } from "node:fs/promises";
 import { exec } from "../core/shell.ts";
 import { hackernewsTrendingTool } from "../tools/hackernews.ts";
+import { countTrailingPlannedEntries, extractLatestPlanFromJournal } from "./journal.ts";
 import type { ObserveData } from "./types.ts";
 
 function parseJson<T>(text: string, fallback: T): T {
@@ -41,11 +42,17 @@ export async function gatherObservations(): Promise<ObserveData> {
     });
 
   let journalTail = "";
+  let consecutivePlanCount = 0;
+  let latestPlan: ObserveData["latestPlan"];
   try {
     const journal = await readFile("JOURNAL.md", "utf8");
     journalTail = tail(journal, 12000);
+    consecutivePlanCount = countTrailingPlannedEntries(journal);
+    latestPlan = extractLatestPlanFromJournal(journal);
   } catch {
     journalTail = "";
+    consecutivePlanCount = 0;
+    latestPlan = undefined;
   }
 
   let hnSignal: Array<Record<string, unknown>> = [];
@@ -63,6 +70,8 @@ export async function gatherObservations(): Promise<ObserveData> {
     issues,
     commits,
     journalTail,
+    consecutivePlanCount,
+    latestPlan,
     hnSignal
   };
 }
