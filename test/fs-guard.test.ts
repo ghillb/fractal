@@ -24,6 +24,13 @@ describe("fs-guard", () => {
     expect(() => assertWithinWorkspace(root, ".env")).toThrow("Blocked path segment: .env");
   });
 
+  test("blocks writes to .git config metadata", () => {
+    const root = mkdtempSync(join(tmpdir(), "fractal-test-"));
+    expect(() => assertWithinWorkspace(root, ".git/config")).toThrow(
+      "Blocked path segment: .git"
+    );
+  });
+
   test("detects compile-heavy keywords", () => {
     expect(isCompileHeavyTask("build rust toolchain")).toBe(true);
     expect(isCompileHeavyTask("edit README")).toBe(false);
