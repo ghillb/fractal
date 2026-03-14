@@ -19,30 +19,23 @@ describe("fs-guard", () => {
     expect(() => assertWithinWorkspace(root, "../outside.txt")).toThrow();
   });
 
-  test("blocks writes to .env", () => {
+  test("rejects writes to all documented protected high-sensitivity paths", () => {
     const root = mkdtempSync(join(tmpdir(), "fractal-test-"));
-    expect(() => assertWithinWorkspace(root, ".env")).toThrow("Blocked path segment: .env");
-  });
+    const protectedCases = [
+      { path: ".env", message: "Blocked path segment: .env" },
+      { path: ".git/config", message: "Blocked path segment: .git" },
+      { path: "state/.env.keys/active.json", message: "Blocked path segment: .env" },
+      { path: ".env.keys/active.json", message: "Blocked path segment: .env" },
+      { path: "JOURNAL.md", message: "Blocked protected path: JOURNAL.md" },
+      {
+        path: "src/evolve/journal.ts",
+        message: "Blocked protected path: src/evolve/journal.ts"
+      }
+    ] as const;
 
-  test("blocks writes to .git config metadata", () => {
-    const root = mkdtempSync(join(tmpdir(), "fractal-test-"));
-    expect(() => assertWithinWorkspace(root, ".git/config")).toThrow(
-      "Blocked path segment: .git"
-    );
-  });
-
-  test("blocks writes to nested .env.keys self-state", () => {
-    const root = mkdtempSync(join(tmpdir(), "fractal-test-"));
-    expect(() => assertWithinWorkspace(root, "state/.env.keys/active.json")).toThrow(
-      "Blocked path segment: .env"
-    );
-  });
-
-  test("blocks writes to evolve journal path", () => {
-    const root = mkdtempSync(join(tmpdir(), "fractal-test-"));
-    expect(() => assertWithinWorkspace(root, "JOURNAL.md")).toThrow(
-      "Blocked protected path: JOURNAL.md"
-    );
+    for (const { path, message } of protectedCases) {
+      expect(() => assertWithinWorkspace(root, path)).toThrow(message);
+    }
   });
 
   test("detects compile-heavy keywords", () => {
