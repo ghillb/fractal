@@ -2,6 +2,7 @@ import { realpathSync } from "node:fs";
 import { resolve, sep } from "node:path";
 
 const BLOCKED_SEGMENTS = [".git", ".env", ".env.keys"];
+const BLOCKED_PATHS = ["JOURNAL.md", "src/evolve/journal.ts"];
 
 export function assertWithinWorkspace(workspaceRoot: string, targetPath: string): string {
   const root = realpathSync(workspaceRoot);
@@ -9,6 +10,13 @@ export function assertWithinWorkspace(workspaceRoot: string, targetPath: string)
 
   if (!(resolved === root || resolved.startsWith(root + sep))) {
     throw new Error(`Path escapes workspace: ${targetPath}`);
+  }
+
+  for (const blockedPath of BLOCKED_PATHS) {
+    const blockedResolved = resolve(root, blockedPath);
+    if (resolved === blockedResolved) {
+      throw new Error(`Blocked protected path: ${blockedPath}`);
+    }
   }
 
   for (const segment of BLOCKED_SEGMENTS) {

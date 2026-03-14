@@ -38,6 +38,13 @@ describe("fs-guard", () => {
     );
   });
 
+  test("blocks writes to evolve journal path", () => {
+    const root = mkdtempSync(join(tmpdir(), "fractal-test-"));
+    expect(() => assertWithinWorkspace(root, "JOURNAL.md")).toThrow(
+      "Blocked protected path: JOURNAL.md"
+    );
+  });
+
   test("detects compile-heavy keywords", () => {
     expect(isCompileHeavyTask("build rust toolchain")).toBe(true);
     expect(isCompileHeavyTask("edit README")).toBe(false);
