@@ -31,6 +31,13 @@ describe("fs-guard", () => {
     );
   });
 
+  test("blocks writes to nested .env.keys self-state", () => {
+    const root = mkdtempSync(join(tmpdir(), "fractal-test-"));
+    expect(() => assertWithinWorkspace(root, "state/.env.keys/active.json")).toThrow(
+      "Blocked path segment: .env"
+    );
+  });
+
   test("detects compile-heavy keywords", () => {
     expect(isCompileHeavyTask("build rust toolchain")).toBe(true);
     expect(isCompileHeavyTask("edit README")).toBe(false);
