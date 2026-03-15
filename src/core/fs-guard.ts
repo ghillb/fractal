@@ -8,7 +8,7 @@ const BLOCKED_SEGMENTS = [".git", ".env", ".env.keys"];
 // and src/evolve/journal.ts are existing guarded cases for the evolution
 // journal/self-state path, so future sensitive files should only be added here
 // with the same level of rationale rather than expanding broad path matching.
-const BLOCKED_PATHS = ["JOURNAL.md", "src/evolve/journal.ts"];
+export const BLOCKED_PATHS = ["JOURNAL.md", "src/evolve/journal.ts"];
 
 export function assertWithinWorkspace(workspaceRoot: string, targetPath: string): string {
   const root = realpathSync(workspaceRoot);
