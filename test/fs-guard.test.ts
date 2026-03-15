@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
   assertWithinWorkspace,
-  BLOCKED_PATHS,
+  PROTECTED_PATH_RULES,
   isCompileHeavyTask
 } from "../src/core/fs-guard.ts";
 
@@ -26,9 +26,9 @@ describe("fs-guard", () => {
   test("rejects every documented protected path for write access", () => {
     const root = mkdtempSync(join(tmpdir(), "fractal-test-"));
 
-    expect(BLOCKED_PATHS.length).toBeGreaterThan(0);
+    expect(PROTECTED_PATH_RULES.paths.length).toBeGreaterThan(0);
 
-    for (const blockedPath of BLOCKED_PATHS) {
+    for (const blockedPath of PROTECTED_PATH_RULES.paths) {
       expect(() => assertWithinWorkspace(root, blockedPath)).toThrow(
         `Blocked protected path: ${blockedPath}`
       );
@@ -38,15 +38,22 @@ describe("fs-guard", () => {
   test("blocks sensitive segment cases", () => {
     const root = mkdtempSync(join(tmpdir(), "fractal-test-"));
     const protectedCases = [
-      { path: ".env", message: "Blocked path segment: .env" },
-      { path: ".git/config", message: "Blocked path segment: .git" },
-      { path: "state/.env.keys/active.json", message: "Blocked path segment: .env" },
-      { path: ".env.keys/active.json", message: "Blocked path segment: .env" }
+      [".git", ".git/config"],
+      [".env", ".env"],
+      [".env", "state/.env.keys/active.json"],
+      [".env", ".env.keys/active.json"]
     ] as const;
 
-    for (const { path, message } of protectedCases) {
-      expect(() => assertWithinWorkspace(root, path)).toThrow(message);
+    for (const [segment, path] of protectedCases) {
+      expect(PROTECTED_PATH_RULES.segments).toContain(segment);
+      expect(() => assertWithinWorkspace(root, path)).toThrow(
+        `Blocked path segment: ${segment}`
+      );
     }
+  });
+
+  test("documents nested protected segment precedence", () => {
+    expect(PROTECTED_PATH_RULES.segments).toEqual([".git", ".env", ".env.keys"]);
   });
 
   test("detects compile-heavy keywords", () => {

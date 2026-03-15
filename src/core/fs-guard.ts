@@ -1,14 +1,17 @@
 import { realpathSync } from "node:fs";
 import { resolve, sep } from "node:path";
 
-const BLOCKED_SEGMENTS = [".git", ".env", ".env.keys"];
-
 // Keep this list short and explicit: it documents the protection contract for
-// repository state that should not be rewritten by autonomous edits. JOURNAL.md
-// and src/evolve/journal.ts are existing guarded cases for the evolution
-// journal/self-state path, so future sensitive files should only be added here
-// with the same level of rationale rather than expanding broad path matching.
-export const BLOCKED_PATHS = ["JOURNAL.md", "src/evolve/journal.ts"];
+// repository state that should not be rewritten by autonomous edits.
+// `segments` guards sensitive names anywhere in the path, while `paths`
+// enumerates exact workspace-relative files that represent protected self-state.
+export const PROTECTED_PATH_RULES = {
+  segments: [".git", ".env", ".env.keys"],
+  paths: ["JOURNAL.md", "src/evolve/journal.ts"]
+} as const;
+
+export const BLOCKED_SEGMENTS = PROTECTED_PATH_RULES.segments;
+export const BLOCKED_PATHS = PROTECTED_PATH_RULES.paths;
 
 export function assertWithinWorkspace(workspaceRoot: string, targetPath: string): string {
   const root = realpathSync(workspaceRoot);
