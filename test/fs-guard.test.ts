@@ -19,7 +19,7 @@ describe("fs-guard", () => {
     expect(() => assertWithinWorkspace(root, "../outside.txt")).toThrow();
   });
 
-  test("rejects writes to all documented protected high-sensitivity paths", () => {
+  test("documents guarded journal/self-state paths alongside sensitive segment cases", () => {
     const root = mkdtempSync(join(tmpdir(), "fractal-test-"));
     const protectedCases = [
       { path: ".env", message: "Blocked path segment: .env" },
