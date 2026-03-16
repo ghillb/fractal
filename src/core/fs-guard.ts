@@ -3,8 +3,13 @@ import { resolve, sep } from "node:path";
 
 // Keep this list short and explicit: it documents the protection contract for
 // repository state that should not be rewritten by autonomous edits.
-// `segments` guards sensitive names anywhere in the path, while `paths`
-// enumerates exact workspace-relative files that represent protected self-state.
+//
+// Access-mode contract: these rules are for mutating access only. Callers may
+// still inspect protected paths for legitimate read/non-mutating workflows, but
+// any write/create/delete/rename operation targeting these paths must be
+// rejected. `segments` guards sensitive names anywhere in the path, while
+// `paths` enumerates exact workspace-relative files that represent protected
+// self-state.
 export const PROTECTED_PATH_RULES = {
   segments: [".git", ".env", ".env.keys"],
   paths: ["JOURNAL.md", "src/evolve/journal.ts"]
