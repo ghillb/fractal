@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { mkdtempSync, mkdirSync, writeFileSync } from "node:fs";
+import { mkdtempSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
@@ -54,6 +54,24 @@ describe("fs-guard", () => {
 
   test("documents nested protected segment precedence", () => {
     expect(PROTECTED_PATH_RULES.segments).toEqual([".git", ".env", ".env.keys"]);
+  });
+
+  test("rejects protected writes without blocking corresponding reads", () => {
+    const root = mkdtempSync(join(tmpdir(), "fractal-test-"));
+
+    writeFileSync(join(root, "JOURNAL.md"), "journal", "utf8");
+    mkdirSync(join(root, "src", "evolve"), { recursive: true });
+    writeFileSync(join(root, "src", "evolve", "journal.ts"), "export {};", "utf8");
+    writeFileSync(join(root, "README.md"), "docs", "utf8");
+
+    for (const blockedPath of PROTECTED_PATH_RULES.paths) {
+      expect(() => assertWithinWorkspace(root, blockedPath)).toThrow(
+        `Blocked protected path: ${blockedPath}`
+      );
+      expect(readFileSync(join(root, blockedPath), "utf8").length).toBeGreaterThan(0);
+    }
+
+    expect(assertWithinWorkspace(root, "README.md").endsWith("README.md")).toBe(true);
   });
 
   test("detects compile-heavy keywords", () => {
