@@ -18,13 +18,29 @@ export const PROTECTED_PATH_RULES = {
 export const BLOCKED_SEGMENTS = PROTECTED_PATH_RULES.segments;
 export const BLOCKED_PATHS = PROTECTED_PATH_RULES.paths;
 
-export function assertWithinWorkspace(workspaceRoot: string, targetPath: string): string {
+export enum WorkspaceAccessMode {
+  Read = "read",
+  Mutate = "mutate"
+}
+
+function resolveWithinWorkspace(workspaceRoot: string, targetPath: string): string {
   const root = realpathSync(workspaceRoot);
   const resolved = resolve(root, targetPath);
 
   if (!(resolved === root || resolved.startsWith(root + sep))) {
     throw new Error(`Path escapes workspace: ${targetPath}`);
   }
+
+  return resolved;
+}
+
+export function assertReadableWithinWorkspace(workspaceRoot: string, targetPath: string): string {
+  return resolveWithinWorkspace(workspaceRoot, targetPath);
+}
+
+export function assertMutableWithinWorkspace(workspaceRoot: string, targetPath: string): string {
+  const root = realpathSync(workspaceRoot);
+  const resolved = resolveWithinWorkspace(root, targetPath);
 
   for (const blockedPath of BLOCKED_PATHS) {
     const blockedResolved = resolve(root, blockedPath);
@@ -40,6 +56,20 @@ export function assertWithinWorkspace(workspaceRoot: string, targetPath: string)
   }
 
   return resolved;
+}
+
+export function assertWithinWorkspace(workspaceRoot: string, targetPath: string): string {
+  return assertMutableWithinWorkspace(workspaceRoot, targetPath);
+}
+
+export function assertWithinWorkspaceForAccess(
+  workspaceRoot: string,
+  targetPath: string,
+  accessMode: WorkspaceAccessMode
+): string {
+  return accessMode === WorkspaceAccessMode.Read
+    ? assertReadableWithinWorkspace(workspaceRoot, targetPath)
+    : assertMutableWithinWorkspace(workspaceRoot, targetPath);
 }
 
 export function isCompileHeavyTask(task: string): boolean {

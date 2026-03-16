@@ -3,8 +3,12 @@ import { mkdtempSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
+  assertMutableWithinWorkspace,
+  assertReadableWithinWorkspace,
   assertWithinWorkspace,
+  assertWithinWorkspaceForAccess,
   PROTECTED_PATH_RULES,
+  WorkspaceAccessMode,
   isCompileHeavyTask
 } from "../src/core/fs-guard.ts";
 
@@ -23,19 +27,19 @@ describe("fs-guard", () => {
     expect(() => assertWithinWorkspace(root, "../outside.txt")).toThrow();
   });
 
-  test("rejects every documented protected path for write access", () => {
+  test("rejects every documented protected path for mutating access", () => {
     const root = mkdtempSync(join(tmpdir(), "fractal-test-"));
 
     expect(PROTECTED_PATH_RULES.paths.length).toBeGreaterThan(0);
 
     for (const blockedPath of PROTECTED_PATH_RULES.paths) {
-      expect(() => assertWithinWorkspace(root, blockedPath)).toThrow(
+      expect(() => assertMutableWithinWorkspace(root, blockedPath)).toThrow(
         `Blocked protected path: ${blockedPath}`
       );
     }
   });
 
-  test("blocks sensitive segment cases", () => {
+  test("blocks sensitive segment cases for mutating access", () => {
     const root = mkdtempSync(join(tmpdir(), "fractal-test-"));
     const protectedCases = [
       [".git", ".git/config"],
@@ -46,7 +50,7 @@ describe("fs-guard", () => {
 
     for (const [segment, path] of protectedCases) {
       expect(PROTECTED_PATH_RULES.segments).toContain(segment);
-      expect(() => assertWithinWorkspace(root, path)).toThrow(
+      expect(() => assertMutableWithinWorkspace(root, path)).toThrow(
         `Blocked path segment: ${segment}`
       );
     }
@@ -56,7 +60,7 @@ describe("fs-guard", () => {
     expect(PROTECTED_PATH_RULES.segments).toEqual([".git", ".env", ".env.keys"]);
   });
 
-  test("rejects protected writes without blocking corresponding reads", () => {
+  test("readable helper allows protected reads while mutating helper blocks them", () => {
     const root = mkdtempSync(join(tmpdir(), "fractal-test-"));
 
     writeFileSync(join(root, "JOURNAL.md"), "journal", "utf8");
@@ -65,13 +69,35 @@ describe("fs-guard", () => {
     writeFileSync(join(root, "README.md"), "docs", "utf8");
 
     for (const blockedPath of PROTECTED_PATH_RULES.paths) {
-      expect(() => assertWithinWorkspace(root, blockedPath)).toThrow(
+      expect(() => assertMutableWithinWorkspace(root, blockedPath)).toThrow(
         `Blocked protected path: ${blockedPath}`
       );
+      expect(assertReadableWithinWorkspace(root, blockedPath).endsWith(blockedPath)).toBe(true);
       expect(readFileSync(join(root, blockedPath), "utf8").length).toBeGreaterThan(0);
     }
 
-    expect(assertWithinWorkspace(root, "README.md").endsWith("README.md")).toBe(true);
+    expect(assertMutableWithinWorkspace(root, "README.md").endsWith("README.md")).toBe(true);
+  });
+
+  test("access-mode enum dispatches to the matching helper", () => {
+    const root = mkdtempSync(join(tmpdir(), "fractal-test-"));
+    writeFileSync(join(root, "JOURNAL.md"), "journal", "utf8");
+
+    expect(assertWithinWorkspaceForAccess(root, "JOURNAL.md", WorkspaceAccessMode.Read)).toBe(
+      assertReadableWithinWorkspace(root, "JOURNAL.md")
+    );
+    expect(() =>
+      assertWithinWorkspaceForAccess(root, "JOURNAL.md", WorkspaceAccessMode.Mutate)
+    ).toThrow("Blocked protected path: JOURNAL.md");
+  });
+
+  test("legacy assertWithinWorkspace remains mutating", () => {
+    const root = mkdtempSync(join(tmpdir(), "fractal-test-"));
+    writeFileSync(join(root, "JOURNAL.md"), "journal", "utf8");
+
+    expect(() => assertWithinWorkspace(root, "JOURNAL.md")).toThrow(
+      "Blocked protected path: JOURNAL.md"
+    );
   });
 
   test("detects compile-heavy keywords", () => {
