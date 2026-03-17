@@ -58,6 +58,11 @@ export function assertMutableWithinWorkspace(workspaceRoot: string, targetPath: 
   return resolved;
 }
 
+/**
+ * @deprecated Compatibility alias for mutating access only.
+ * Use `assertMutableWithinWorkspace` for mutating operations or
+ * `assertReadableWithinWorkspace` for non-mutating access.
+ */
 export function assertWithinWorkspace(workspaceRoot: string, targetPath: string): string {
   return assertMutableWithinWorkspace(workspaceRoot, targetPath);
 }

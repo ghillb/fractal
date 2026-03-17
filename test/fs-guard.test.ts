@@ -100,6 +100,15 @@ describe("fs-guard", () => {
     );
   });
 
+  test("legacy assertWithinWorkspace stays equivalent to the explicit mutating helper", () => {
+    const root = mkdtempSync(join(tmpdir(), "fractal-test-"));
+    writeFileSync(join(root, "README.md"), "docs", "utf8");
+
+    expect(assertWithinWorkspace(root, "README.md")).toBe(
+      assertMutableWithinWorkspace(root, "README.md")
+    );
+  });
+
   test("detects compile-heavy keywords", () => {
     expect(isCompileHeavyTask("build rust toolchain")).toBe(true);
     expect(isCompileHeavyTask("edit README")).toBe(false);
