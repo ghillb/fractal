@@ -91,10 +91,36 @@ describe("fs-guard", () => {
     ).toThrow("Blocked protected path: JOURNAL.md");
   });
 
-  test("legacy assertWithinWorkspace remains mutating", () => {
+  test("preferred access-mode names remain the supported path for current callers", () => {
+    const root = mkdtempSync(join(tmpdir(), "fractal-test-"));
+    writeFileSync(join(root, "README.md"), "docs", "utf8");
+    writeFileSync(join(root, "JOURNAL.md"), "journal", "utf8");
+
+    expect(assertReadableWithinWorkspace(root, "README.md")).toBe(
+      assertWithinWorkspaceForAccess(root, "README.md", WorkspaceAccessMode.Read)
+    );
+    expect(assertMutableWithinWorkspace(root, "README.md")).toBe(
+      assertWithinWorkspaceForAccess(root, "README.md", WorkspaceAccessMode.Mutate)
+    );
+    expect(() =>
+      assertWithinWorkspaceForAccess(root, "JOURNAL.md", WorkspaceAccessMode.Mutate)
+    ).toThrow("Blocked protected path: JOURNAL.md");
+  });
+
+  test("deprecated compatibility alias is not required by current callers", () => {
+    const fileOpsSource = readFileSync(join(process.cwd(), "src", "tools", "file-ops.ts"), "utf8");
+
+    expect(fileOpsSource).toContain("assertReadableWithinWorkspace");
+    expect(fileOpsSource).toContain("assertMutableWithinWorkspace");
+    expect(fileOpsSource).not.toContain("assertWithinWorkspace(");
+    expect(fileOpsSource).not.toContain("assertWithinWorkspaceForAccess(");
+  });
+
+  test("legacy assertWithinWorkspace remains a deprecated mutating alias", () => {
     const root = mkdtempSync(join(tmpdir(), "fractal-test-"));
     writeFileSync(join(root, "JOURNAL.md"), "journal", "utf8");
 
+    expect(assertWithinWorkspace.toString()).toContain("assertMutableWithinWorkspace");
     expect(() => assertWithinWorkspace(root, "JOURNAL.md")).toThrow(
       "Blocked protected path: JOURNAL.md"
     );
