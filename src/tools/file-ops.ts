@@ -1,6 +1,9 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, relative } from "node:path";
-import { assertWithinWorkspace } from "../core/fs-guard.ts";
+import {
+  assertMutableWithinWorkspace,
+  assertReadableWithinWorkspace
+} from "../core/fs-guard.ts";
 import type { ToolCallInput, ToolContext } from "./types.ts";
 
 export async function listFilesTool(input: ToolCallInput, context: ToolContext): Promise<Record<string, unknown>> {
@@ -33,7 +36,7 @@ export async function readFileTool(input: ToolCallInput, context: ToolContext): 
     throw new Error("path is required");
   }
 
-  const resolved = assertWithinWorkspace(context.workspaceRoot, path);
+  const resolved = assertReadableWithinWorkspace(context.workspaceRoot, path);
   const content = await readFile(resolved, "utf8");
   return {
     path: relative(context.workspaceRoot, resolved),
@@ -49,7 +52,7 @@ export async function writeFileTool(input: ToolCallInput, context: ToolContext):
     throw new Error("path is required");
   }
 
-  const resolved = assertWithinWorkspace(context.workspaceRoot, path);
+  const resolved = assertMutableWithinWorkspace(context.workspaceRoot, path);
   await mkdir(dirname(resolved), { recursive: true });
   await writeFile(resolved, content, "utf8");
 
