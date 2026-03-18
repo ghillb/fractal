@@ -107,13 +107,41 @@ describe("fs-guard", () => {
     ).toThrow("Blocked protected path: JOURNAL.md");
   });
 
-  test("deprecated compatibility alias is not required by current callers", () => {
-    const fileOpsSource = readFileSync(join(process.cwd(), "src", "tools", "file-ops.ts"), "utf8");
+  test("repository call sites avoid deprecated or ambiguous fs-guard access aliases", () => {
+    const disallowedPatterns = [
+      "assertWithinWorkspace(",
+      "assertWithinWorkspaceForAccess(",
+      "WorkspaceAccessMode.Read",
+      "WorkspaceAccessMode.Mutate"
+    ];
+    const sourceExpectations = [
+      {
+        file: "src/core/fs-guard.ts",
+        allowedPatterns: [
+          "export function assertWithinWorkspace(",
+          "export function assertWithinWorkspaceForAccess(",
+          "Read = \"read\"",
+          "Mutate = \"mutate\"",
+          "accessMode === WorkspaceAccessMode.Read"
+        ]
+      },
+      {
+        file: "src/tools/file-ops.ts",
+        allowedPatterns: []
+      }
+    ];
 
-    expect(fileOpsSource).toContain("assertReadableWithinWorkspace");
-    expect(fileOpsSource).toContain("assertMutableWithinWorkspace");
-    expect(fileOpsSource).not.toContain("assertWithinWorkspace(");
-    expect(fileOpsSource).not.toContain("assertWithinWorkspaceForAccess(");
+    for (const { file, allowedPatterns } of sourceExpectations) {
+      const source = readFileSync(join(process.cwd(), file), "utf8");
+      const sanitized = allowedPatterns.reduce(
+        (currentSource, allowedPattern) => currentSource.replaceAll(allowedPattern, ""),
+        source
+      );
+
+      for (const pattern of disallowedPatterns) {
+        expect(sanitized).not.toContain(pattern);
+      }
+    }
   });
 
   test("legacy assertWithinWorkspace remains a deprecated mutating alias", () => {
