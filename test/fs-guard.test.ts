@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { mkdtempSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdtempSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
@@ -11,6 +11,36 @@ import {
   WorkspaceAccessMode,
   isCompileHeavyTask
 } from "../src/core/fs-guard.ts";
+
+const FS_GUARD_ALIAS_SCAN_ROOTS = ["src/core", "src/tools"] as const;
+const FS_GUARD_ALIAS_SCAN_EXCLUDED_FILES = new Set(["src/core/fs-guard.ts"]);
+
+function collectScannedSourceFiles(scanRoots: readonly string[]): string[] {
+  const files: string[] = [];
+
+  for (const scanRoot of scanRoots) {
+    const stack = [scanRoot];
+
+    while (stack.length > 0) {
+      const currentPath = stack.pop();
+      if (!currentPath) continue;
+
+      const stats = statSync(join(process.cwd(), currentPath));
+      if (stats.isDirectory()) {
+        for (const entry of readdirSync(join(process.cwd(), currentPath))) {
+          stack.push(join(currentPath, entry));
+        }
+        continue;
+      }
+
+      if (currentPath.endsWith(".ts") && !FS_GUARD_ALIAS_SCAN_EXCLUDED_FILES.has(currentPath)) {
+        files.push(currentPath);
+      }
+    }
+  }
+
+  return files.sort();
+}
 
 describe("fs-guard", () => {
   test("allows files inside workspace", () => {
@@ -114,59 +144,10 @@ describe("fs-guard", () => {
       "WorkspaceAccessMode.Read",
       "WorkspaceAccessMode.Mutate"
     ];
-    const sourceExpectations = [
-      {
-        file: "src/core/shell.ts",
-        // Excluded: src/core/fs-guard.ts defines the legacy/exported compatibility surface on purpose.
-        allowedPatterns: []
-      },
-      {
-        file: "src/core/config.ts",
-        // Excluded: files outside current source consumer directories (for example tests, docs, and scripts)
-        // are intentionally ignored here to keep this regression guard focused on production callers.
-        allowedPatterns: []
-      },
-      {
-        file: "src/core/http.ts",
-        allowedPatterns: []
-      },
-      {
-        file: "src/core/logger.ts",
-        allowedPatterns: []
-      },
-      {
-        file: "src/tools/file-ops.ts",
-        allowedPatterns: []
-      },
-      {
-        file: "src/tools/command.ts",
-        allowedPatterns: []
-      },
-      {
-        file: "src/tools/fetch-url.ts",
-        allowedPatterns: []
-      },
-      {
-        file: "src/tools/hackernews.ts",
-        allowedPatterns: []
-      },
-      {
-        file: "src/tools/index.ts",
-        allowedPatterns: []
-      },
-      {
-        file: "src/tools/sprites.ts",
-        allowedPatterns: []
-      },
-      {
-        file: "src/tools/types.ts",
-        allowedPatterns: []
-      },
-      {
-        file: "src/tools/web-search.ts",
-        allowedPatterns: []
-      }
-    ];
+    const sourceExpectations = collectScannedSourceFiles(FS_GUARD_ALIAS_SCAN_ROOTS).map((file) => ({
+      file,
+      allowedPatterns: [] as string[]
+    }));
 
     for (const { file, allowedPatterns } of sourceExpectations) {
       const source = readFileSync(join(process.cwd(), file), "utf8");
