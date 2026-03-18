@@ -107,7 +107,7 @@ describe("fs-guard", () => {
     ).toThrow("Blocked protected path: JOURNAL.md");
   });
 
-  test("repository call sites avoid deprecated or ambiguous fs-guard access aliases", () => {
+  test("repository consumer call sites avoid deprecated or ambiguous fs-guard access aliases", () => {
     const disallowedPatterns = [
       "assertWithinWorkspace(",
       "assertWithinWorkspaceForAccess(",
@@ -116,17 +116,54 @@ describe("fs-guard", () => {
     ];
     const sourceExpectations = [
       {
-        file: "src/core/fs-guard.ts",
-        allowedPatterns: [
-          "export function assertWithinWorkspace(",
-          "export function assertWithinWorkspaceForAccess(",
-          "Read = \"read\"",
-          "Mutate = \"mutate\"",
-          "accessMode === WorkspaceAccessMode.Read"
-        ]
+        file: "src/core/shell.ts",
+        // Excluded: src/core/fs-guard.ts defines the legacy/exported compatibility surface on purpose.
+        allowedPatterns: []
+      },
+      {
+        file: "src/core/config.ts",
+        // Excluded: files outside current source consumer directories (for example tests, docs, and scripts)
+        // are intentionally ignored here to keep this regression guard focused on production callers.
+        allowedPatterns: []
+      },
+      {
+        file: "src/core/http.ts",
+        allowedPatterns: []
+      },
+      {
+        file: "src/core/logger.ts",
+        allowedPatterns: []
       },
       {
         file: "src/tools/file-ops.ts",
+        allowedPatterns: []
+      },
+      {
+        file: "src/tools/command.ts",
+        allowedPatterns: []
+      },
+      {
+        file: "src/tools/fetch-url.ts",
+        allowedPatterns: []
+      },
+      {
+        file: "src/tools/hackernews.ts",
+        allowedPatterns: []
+      },
+      {
+        file: "src/tools/index.ts",
+        allowedPatterns: []
+      },
+      {
+        file: "src/tools/sprites.ts",
+        allowedPatterns: []
+      },
+      {
+        file: "src/tools/types.ts",
+        allowedPatterns: []
+      },
+      {
+        file: "src/tools/web-search.ts",
         allowedPatterns: []
       }
     ];
