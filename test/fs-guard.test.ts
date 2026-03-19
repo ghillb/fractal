@@ -43,6 +43,28 @@ describe("fs-guard", () => {
     }
   });
 
+  test("blocks repository self-state/config writes via file ops and guard constants stay audited", async () => {
+    const root = mkdtempSync(join(tmpdir(), "fractal-test-"));
+    const protectedPaths = ["JOURNAL.md", "src/evolve/journal.ts"];
+    const sourceExpectations = collectTypeScriptFiles(
+      ["src/core", "src/tools"],
+      new Set(["src/core/fs-guard.ts"])
+    ).map((file) => ({ file }));
+
+    expect(PROTECTED_PATH_RULES.paths).toEqual(protectedPaths);
+    assertSourcesDoNotContainPatterns(sourceExpectations, protectedPaths.map((path) => `\"${path}\"`));
+
+    const { writeFileTool } = await import("../src/tools/file-ops.ts");
+    for (const blockedPath of protectedPaths) {
+      await expect(
+        writeFileTool(
+          { path: blockedPath, content: "mutated" },
+          { workspaceRoot: root }
+        )
+      ).rejects.toThrow(`Blocked protected path: ${blockedPath}`);
+    }
+  });
+
   test("blocks sensitive segment cases for mutating access", () => {
     const root = mkdtempSync(join(tmpdir(), "fractal-test-"));
     const protectedCases = [
