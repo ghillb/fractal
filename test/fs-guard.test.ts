@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { mkdtempSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
+import { mkdtempSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
@@ -11,36 +11,10 @@ import {
   WorkspaceAccessMode,
   isCompileHeavyTask
 } from "../src/core/fs-guard.ts";
+import { assertSourcesDoNotContainPatterns, collectTypeScriptFiles } from "./grep-policy-helper.ts";
 
 const FS_GUARD_ALIAS_SCAN_ROOTS = ["src/core", "src/tools"] as const;
 const FS_GUARD_ALIAS_SCAN_EXCLUDED_FILES = new Set(["src/core/fs-guard.ts"]);
-
-function collectScannedSourceFiles(scanRoots: readonly string[]): string[] {
-  const files: string[] = [];
-
-  for (const scanRoot of scanRoots) {
-    const stack = [scanRoot];
-
-    while (stack.length > 0) {
-      const currentPath = stack.pop();
-      if (!currentPath) continue;
-
-      const stats = statSync(join(process.cwd(), currentPath));
-      if (stats.isDirectory()) {
-        for (const entry of readdirSync(join(process.cwd(), currentPath))) {
-          stack.push(join(currentPath, entry));
-        }
-        continue;
-      }
-
-      if (currentPath.endsWith(".ts") && !FS_GUARD_ALIAS_SCAN_EXCLUDED_FILES.has(currentPath)) {
-        files.push(currentPath);
-      }
-    }
-  }
-
-  return files.sort();
-}
 
 describe("fs-guard", () => {
   test("allows files inside workspace", () => {
@@ -144,22 +118,12 @@ describe("fs-guard", () => {
       "WorkspaceAccessMode.Read",
       "WorkspaceAccessMode.Mutate"
     ];
-    const sourceExpectations = collectScannedSourceFiles(FS_GUARD_ALIAS_SCAN_ROOTS).map((file) => ({
-      file,
-      allowedPatterns: [] as string[]
-    }));
+    const sourceExpectations = collectTypeScriptFiles(
+      FS_GUARD_ALIAS_SCAN_ROOTS,
+      FS_GUARD_ALIAS_SCAN_EXCLUDED_FILES
+    ).map((file) => ({ file }));
 
-    for (const { file, allowedPatterns } of sourceExpectations) {
-      const source = readFileSync(join(process.cwd(), file), "utf8");
-      const sanitized = allowedPatterns.reduce(
-        (currentSource, allowedPattern) => currentSource.replaceAll(allowedPattern, ""),
-        source
-      );
-
-      for (const pattern of disallowedPatterns) {
-        expect(sanitized).not.toContain(pattern);
-      }
-    }
+    assertSourcesDoNotContainPatterns(sourceExpectations, disallowedPatterns);
   });
 
   test("legacy assertWithinWorkspace remains a deprecated mutating alias", () => {
