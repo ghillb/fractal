@@ -11,6 +11,10 @@ import {
   WorkspaceAccessMode,
   isCompileHeavyTask
 } from "../src/core/fs-guard.ts";
+import {
+  FS_GUARD_PROTECTED_SEGMENT_CASES,
+  FS_GUARD_PROTECTED_SELF_STATE_PATHS
+} from "./fs-guard-path-fixtures.ts";
 import { assertSourcesDoNotContainPatterns, collectTypeScriptFiles } from "./grep-policy-helper.ts";
 
 const FS_GUARD_ALIAS_SCAN_ROOTS = ["src/core", "src/tools"] as const;
@@ -45,17 +49,19 @@ describe("fs-guard", () => {
 
   test("blocks repository self-state/config writes via file ops and guard constants stay audited", async () => {
     const root = mkdtempSync(join(tmpdir(), "fractal-test-"));
-    const protectedPaths = ["JOURNAL.md", "src/evolve/journal.ts"];
     const sourceExpectations = collectTypeScriptFiles(
       ["src/core", "src/tools"],
       new Set(["src/core/fs-guard.ts"])
     ).map((file) => ({ file }));
 
-    expect(PROTECTED_PATH_RULES.paths).toEqual(protectedPaths);
-    assertSourcesDoNotContainPatterns(sourceExpectations, protectedPaths.map((path) => `\"${path}\"`));
+    expect(PROTECTED_PATH_RULES.paths).toEqual(FS_GUARD_PROTECTED_SELF_STATE_PATHS);
+    assertSourcesDoNotContainPatterns(
+      sourceExpectations,
+      FS_GUARD_PROTECTED_SELF_STATE_PATHS.map((path) => `\"${path}\"`)
+    );
 
     const { writeFileTool } = await import("../src/tools/file-ops.ts");
-    for (const blockedPath of protectedPaths) {
+    for (const blockedPath of FS_GUARD_PROTECTED_SELF_STATE_PATHS) {
       await expect(
         writeFileTool(
           { path: blockedPath, content: "mutated" },
@@ -67,14 +73,8 @@ describe("fs-guard", () => {
 
   test("blocks sensitive segment cases for mutating access", () => {
     const root = mkdtempSync(join(tmpdir(), "fractal-test-"));
-    const protectedCases = [
-      [".git", ".git/config"],
-      [".env", ".env"],
-      [".env", "state/.env.keys/active.json"],
-      [".env", ".env.keys/active.json"]
-    ] as const;
 
-    for (const [segment, path] of protectedCases) {
+    for (const [segment, path] of FS_GUARD_PROTECTED_SEGMENT_CASES) {
       expect(PROTECTED_PATH_RULES.segments).toContain(segment);
       expect(() => assertMutableWithinWorkspace(root, path)).toThrow(
         `Blocked path segment: ${segment}`
