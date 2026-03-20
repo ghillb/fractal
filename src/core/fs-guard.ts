@@ -11,8 +11,17 @@ import { resolve, sep } from "node:path";
 // `paths` enumerates exact workspace-relative files that represent protected
 // self-state.
 export const PROTECTED_PATH_RULES = {
-  segments: [".git", ".env", ".env.keys"],
-  paths: [".env", ".env.keys", "JOURNAL.md", "src/evolve/journal.ts"]
+  segments: [
+    ".git", // Prevent mutating VCS internals or history through nested path access.
+    ".env", // Block env file writes even when targeted from subdirectories or alternate relative paths.
+    ".env.keys" // Preserve checked-in secret/material key manifests from autonomous mutation anywhere in the tree.
+  ],
+  paths: [
+    ".env", // Exact-root protection keeps the canonical local environment file immutable.
+    ".env.keys", // Exact-root protection covers the repository's key/config companion file as self-state.
+    "JOURNAL.md", // Journal is protected self-state: agents may read prior context but should not rewrite the governing record.
+    "src/evolve/journal.ts" // Protect the codepath that manages journal/self-state semantics from self-modifying edits.
+  ]
 } as const;
 
 export const BLOCKED_SEGMENTS = PROTECTED_PATH_RULES.segments;
