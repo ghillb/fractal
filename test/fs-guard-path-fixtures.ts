@@ -1,4 +1,6 @@
 export const FS_GUARD_PROTECTED_SELF_STATE_PATHS = [
+  ".env",
+  ".env.keys",
   "JOURNAL.md",
   "src/evolve/journal.ts"
 ] as const;

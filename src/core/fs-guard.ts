@@ -12,7 +12,7 @@ import { resolve, sep } from "node:path";
 // self-state.
 export const PROTECTED_PATH_RULES = {
   segments: [".git", ".env", ".env.keys"],
-  paths: ["JOURNAL.md", "src/evolve/journal.ts"]
+  paths: [".env", ".env.keys", "JOURNAL.md", "src/evolve/journal.ts"]
 } as const;
 
 export const BLOCKED_SEGMENTS = PROTECTED_PATH_RULES.segments;

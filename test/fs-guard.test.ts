@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { mkdtempSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdtempSync, mkdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
@@ -76,9 +76,10 @@ describe("fs-guard", () => {
 
     for (const [segment, path] of FS_GUARD_PROTECTED_SEGMENT_CASES) {
       expect(PROTECTED_PATH_RULES.segments).toContain(segment);
-      expect(() => assertMutableWithinWorkspace(root, path)).toThrow(
-        `Blocked path segment: ${segment}`
-      );
+      const expectedMessage = PROTECTED_PATH_RULES.paths.includes(path as (typeof PROTECTED_PATH_RULES.paths)[number])
+        ? `Blocked protected path: ${path}`
+        : `Blocked path segment: ${segment}`;
+      expect(() => assertMutableWithinWorkspace(root, path)).toThrow(expectedMessage);
     }
   });
 
@@ -89,6 +90,9 @@ describe("fs-guard", () => {
   test("readable helper allows protected reads while mutating helper blocks them", () => {
     const root = mkdtempSync(join(tmpdir(), "fractal-test-"));
 
+    writeFileSync(join(root, ".env"), "KEY=value\n", "utf8");
+    mkdirSync(join(root, ".env.keys"), { recursive: true });
+    writeFileSync(join(root, ".env.keys", "active.json"), "{}", "utf8");
     writeFileSync(join(root, "JOURNAL.md"), "journal", "utf8");
     mkdirSync(join(root, "src", "evolve"), { recursive: true });
     writeFileSync(join(root, "src", "evolve", "journal.ts"), "export {};", "utf8");
@@ -98,8 +102,14 @@ describe("fs-guard", () => {
       expect(() => assertMutableWithinWorkspace(root, blockedPath)).toThrow(
         `Blocked protected path: ${blockedPath}`
       );
-      expect(assertReadableWithinWorkspace(root, blockedPath).endsWith(blockedPath)).toBe(true);
-      expect(readFileSync(join(root, blockedPath), "utf8").length).toBeGreaterThan(0);
+      const readablePath = assertReadableWithinWorkspace(root, blockedPath);
+      expect(readablePath.endsWith(blockedPath)).toBe(true);
+      const stats = statSync(readablePath);
+      if (stats.isFile()) {
+        expect(readFileSync(readablePath, "utf8").length).toBeGreaterThan(0);
+      } else {
+        expect(stats.isDirectory()).toBe(true);
+      }
     }
 
     expect(assertMutableWithinWorkspace(root, "README.md").endsWith("README.md")).toBe(true);
