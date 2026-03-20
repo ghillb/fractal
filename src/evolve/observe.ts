@@ -19,6 +19,24 @@ function tail(text: string, maxChars: number): string {
   return text.slice(text.length - maxChars);
 }
 
+export function summarizeRecentHotFilesFromHistory(historyOutput: string): string[] {
+  const counts = new Map<string, number>();
+
+  for (const rawLine of historyOutput.split("\n")) {
+    const file = rawLine.trim();
+    if (!file || file === "JOURNAL.md") {
+      continue;
+    }
+
+    counts.set(file, (counts.get(file) ?? 0) + 1);
+  }
+
+  return Array.from(counts.entries())
+    .filter(([, count]) => count >= 3)
+    .map(([file]) => file)
+    .sort();
+}
+
 export async function gatherObservations(): Promise<ObserveData> {
   const issuesResult = exec("gh issue list --state open --limit 20 --json number,title,updatedAt 2>/dev/null || echo '[]'");
   const issues = parseJson<Array<{ number: number; title: string; updatedAt: string }>>(
@@ -40,6 +58,8 @@ export async function gatherObservations(): Promise<ObserveData> {
         subject: subjectParts.join("|")
       };
     });
+  const recentFileHistory = exec("git log --name-only --pretty=format: -n 12 2>/dev/null || true").stdout;
+  const recentHotFiles = summarizeRecentHotFilesFromHistory(recentFileHistory);
 
   let journalTail = "";
   let consecutivePlanCount = 0;
@@ -72,6 +92,7 @@ export async function gatherObservations(): Promise<ObserveData> {
     journalTail,
     consecutivePlanCount,
     latestPlan,
+    recentHotFiles,
     hnSignal
   };
 }

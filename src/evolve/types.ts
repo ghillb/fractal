@@ -12,6 +12,7 @@ export type ObserveData = {
     blockingReason?: string;
     nextCyclePlan: string[];
   };
+  recentHotFiles: string[];
   hnSignal: Array<Record<string, unknown>>;
 };
 

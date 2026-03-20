@@ -12,6 +12,7 @@ import type { EvolutionDecision, ObserveData } from "./types.ts";
 const DEFAULT_MISSION =
   "Become an entity that is ever more capable while improving safely.";
 const EVOLVE_AGENT_MAX_STEPS = 50;
+const HOT_FILE_AVOIDANCE_PROBABILITY = 0.85;
 
 function extractJsonObject(text: string): string {
   const start = text.indexOf("{");
@@ -96,23 +97,39 @@ export function canUsePlanMode(observations: ObserveData): boolean {
   return observations.consecutivePlanCount === 0;
 }
 
-async function generateDecision(goal: string, observations: ObserveData): Promise<EvolutionDecision> {
+export function shouldApplyHotFilePressure(randomValue: number): boolean {
+  return randomValue < HOT_FILE_AVOIDANCE_PROBABILITY;
+}
+
+async function generateDecision(
+  goal: string,
+  observations: ObserveData
+): Promise<EvolutionDecision> {
   const config = readConfig();
+  const applyHotFilePressure =
+    observations.recentHotFiles.length > 0 && shouldApplyHotFilePressure(Math.random());
 
   const prompt = [
     "You are selecting exactly one high-impact and bounded codebase improvement.",
     "Use a dialectic frame briefly: thesis, antithesis, synthesis.",
     "Output strict JSON with keys:",
     "diagnosis, chosenChange, rationale, uncertainty (0..1), executionMode ('implement' | 'plan'), compileHeavy (boolean), targetFiles (array max 5), blockingReason, nextCyclePlan (array max 3), validationCommand, followUps (array max 3).",
-    "Prefer low-risk changes if uncertainty is high.",
+    "Prefer reversible changes if uncertainty is high.",
+    "Favor changes that increase information gain or open a new capability surface, not just local refinement.",
+    "If multiple bounded changes seem viable, prefer the less recently edited subsystem.",
     "Choose executionMode='plan' only when implementation should be explicitly handed off to the next cycle with a concrete plan.",
     "A planned cycle may only happen once consecutively. If consecutivePlanCount is 1 or more, you must return executionMode='implement'.",
     "If executionMode='implement', name the likely targetFiles and leave nextCyclePlan empty unless a small follow-up is still useful.",
     "If executionMode='plan', blockingReason must be non-empty and nextCyclePlan must contain 1-3 actionable steps grounded in files or modules that exist in the repository.",
+    applyHotFilePressure
+      ? `Recent cycles repeatedly targeted these files: ${observations.recentHotFiles.join(", ")}. Unless there is an unresolved validation failure or production bug in that area, prefer a different subsystem this cycle.`
+      : "",
     `Mission: ${goal}`,
     "Context follows as JSON:",
     JSON.stringify(observations)
-  ].join("\n");
+  ]
+    .filter(Boolean)
+    .join("\n");
 
   const result = await openAiResponses(config.openAiApiKey, {
     model: config.openAiModel,

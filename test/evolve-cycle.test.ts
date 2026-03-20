@@ -1,5 +1,10 @@
 import { describe, expect, test } from "bun:test";
-import { canUsePlanMode, listChangedFilesFromStatus } from "../src/evolve/cycle.ts";
+import {
+  canUsePlanMode,
+  listChangedFilesFromStatus,
+  shouldApplyHotFilePressure
+} from "../src/evolve/cycle.ts";
+import { summarizeRecentHotFilesFromHistory } from "../src/evolve/observe.ts";
 
 describe("evolve cycle change detection", () => {
   test("treats untracked files as pending changes", () => {
@@ -33,6 +38,7 @@ describe("evolve cycle change detection", () => {
         journalTail: "",
         consecutivePlanCount: 0,
         latestPlan: undefined,
+        recentHotFiles: [],
         hnSignal: []
       })
     ).toBe(true);
@@ -52,8 +58,32 @@ describe("evolve cycle change detection", () => {
           blockingReason: "need one cycle of planning",
           nextCyclePlan: ["find schema module"]
         },
+        recentHotFiles: [],
         hnSignal: []
       })
     ).toBe(false);
+  });
+
+  test("applies hot-file pressure most of the time", () => {
+    expect(shouldApplyHotFilePressure(0)).toBe(true);
+    expect(shouldApplyHotFilePressure(0.84)).toBe(true);
+    expect(shouldApplyHotFilePressure(0.85)).toBe(false);
+    expect(shouldApplyHotFilePressure(0.99)).toBe(false);
+  });
+
+  test("summarizes repeated recent files from git history", () => {
+    const history = [
+      "JOURNAL.md",
+      "src/core/fs-guard.ts",
+      "test/fs-guard.test.ts",
+      "",
+      "JOURNAL.md",
+      "src/core/fs-guard.ts",
+      "",
+      "src/core/fs-guard.ts",
+      "src/evolve/cycle.ts"
+    ].join("\n");
+
+    expect(summarizeRecentHotFilesFromHistory(history)).toEqual(["src/core/fs-guard.ts"]);
   });
 });

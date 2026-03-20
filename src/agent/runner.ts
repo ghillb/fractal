@@ -67,6 +67,7 @@ function buildSystemPrompt(
     base.push(
       "You are running inside autonomous evolution cycle.",
       "Select exactly one bounded high-impact change and implement only that.",
+      "Bounded exploratory changes are good when they open a new capability surface or improve understanding of a less recently edited subsystem.",
       "Keep changes minimal and reversible.",
       `You have at most ${maxSteps ?? config.maxSteps} model turns for this cycle.`,
       "Treat extra turns as contingency budget, not permission to wander.",
