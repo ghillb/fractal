@@ -1,5 +1,6 @@
 import { appendFile, access } from "node:fs/promises";
 import { constants } from "node:fs";
+import { validateJournalMachineReadablePayload } from "./journal-validator.ts";
 
 export type JournalOutcome = "committed" | "planned" | "reverted";
 
@@ -82,6 +83,28 @@ function parseJournalMarker(line: string): JournalPlanHandoff | undefined {
   }
 }
 
+function buildMachineReadablePayload(entry: JournalEntry) {
+  return {
+    timestampUtc: entry.timestampUtc,
+    chosenChange: entry.chosenChange,
+    rationale: entry.rationale,
+    outcome: entry.outcome,
+    targetFiles: entry.targetFiles,
+    blockingReason: entry.blockingReason,
+    nextCyclePlan: entry.nextCyclePlan
+  };
+}
+
+function serializeValidatedMachineReadablePayload(entry: JournalEntry): string {
+  const payload = buildMachineReadablePayload(entry);
+  const validationError = validateJournalMachineReadablePayload(payload);
+  if (validationError) {
+    throw new Error(`Invalid evolve journal payload: ${validationError}`);
+  }
+
+  return JSON.stringify(payload);
+}
+
 export function extractLatestPlanFromJournal(text: string): JournalPlanHandoff | undefined {
   const lines = text.split("\n");
   for (let index = lines.length - 1; index >= 0; index -= 1) {
@@ -140,15 +163,7 @@ export async function ensureJournal(): Promise<void> {
 
 export async function appendJournal(entry: JournalEntry): Promise<void> {
   await ensureJournal();
-  const markerPayload = JSON.stringify({
-    timestampUtc: entry.timestampUtc,
-    chosenChange: entry.chosenChange,
-    rationale: entry.rationale,
-    outcome: entry.outcome,
-    targetFiles: entry.targetFiles,
-    blockingReason: entry.blockingReason,
-    nextCyclePlan: entry.nextCyclePlan
-  });
+  const markerPayload = serializeValidatedMachineReadablePayload(entry);
   const block = [
     `${ENTRY_MARKER_PREFIX}${markerPayload}${ENTRY_MARKER_SUFFIX}`,
     `## Entry ${entry.timestampUtc}`,

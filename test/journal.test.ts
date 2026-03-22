@@ -56,6 +56,34 @@ describe("journal", () => {
     }
   });
 
+  test("rejects invalid machine-readable payloads before writing JOURNAL.md", async () => {
+    const cwd = process.cwd();
+    const temp = mkdtempSync(join(tmpdir(), "fractal-journal-"));
+    process.chdir(temp);
+
+    try {
+      await expect(
+        appendJournal({
+          timestampUtc: "2026-03-07T00:00:00.000Z",
+          mode: "real",
+          goal: "goal",
+          chosenChange: "change",
+          rationale: "why",
+          outcome: "planned",
+          targetFiles: ["src/example.ts"],
+          filesTouched: [],
+          lintOutcome: "skipped",
+          testOutcome: "skipped",
+          followUps: [],
+          nextCyclePlan: [123 as never],
+          blockingReason: "waiting on narrower implementation path"
+        })
+      ).rejects.toThrow("Invalid evolve journal payload: nextCyclePlan must be an array of strings");
+    } finally {
+      process.chdir(cwd);
+    }
+  });
+
   test("counts trailing planned entries only once a non-plan breaks the streak", () => {
     const journal = [
       "<!-- FRACTAL_ENTRY {\"timestampUtc\":\"2026-03-10T00:00:00.000Z\",\"chosenChange\":\"a\",\"rationale\":\"r\",\"outcome\":\"planned\",\"targetFiles\":[],\"nextCyclePlan\":[\"x\"]} -->",
