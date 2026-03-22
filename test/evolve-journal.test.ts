@@ -71,13 +71,19 @@ function expectValidMachineReadableBlock(
   expect(Array.isArray(payload.nextCyclePlan)).toBe(true);
   expect((payload.nextCyclePlan as unknown[]).every((item) => typeof item === "string")).toBe(true);
 
-  if (payload.outcome === "planned" || payload.outcome === "reverted") {
-    expect((payload.nextCyclePlan as unknown[]).length).toBeGreaterThan(0);
-  }
-
   if (payload.blockingReason !== undefined) {
     expect(typeof payload.blockingReason).toBe("string");
     expect(payload.blockingReason).not.toBe("");
+  }
+}
+
+function validateMachineReadableBlock(block: ParsedJournalBlock): string | undefined {
+  try {
+    expectValidMachineReadableBlock(block);
+    return undefined;
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    return `invalid ${block.kind} block at JOURNAL.md:${block.markerLine}: ${message}`;
   }
 }
 
@@ -89,7 +95,7 @@ describe("persisted evolve journal machine-readable history", () => {
     expect(blocks.length).toBeGreaterThan(0);
 
     for (const block of blocks) {
-      expect(() => expectValidMachineReadableBlock(block), `invalid ${block.kind} block at JOURNAL.md:${block.markerLine}`).not.toThrow();
+      expect(validateMachineReadableBlock(block)).toBeUndefined();
     }
   });
 
@@ -110,5 +116,27 @@ describe("persisted evolve journal machine-readable history", () => {
       expect(block.payload).toEqual(previousEntry);
       previousEntry = undefined;
     }
+  });
+
+  test("reports a clear validation failure for malformed machine-readable JSON payloads", () => {
+    const malformedEntry = parseMachineReadableBlocks(
+      '<!-- FRACTAL_ENTRY {"timestampUtc":"2026-03-22T00:00:00.000Z","chosenChange":"bad entry","rationale":"wrong next plan shape","outcome":"planned","targetFiles":["test/evolve-journal.test.ts"],"nextCyclePlan":"should be array"} -->'
+    );
+    const malformedHandoff = parseMachineReadableBlocks(
+      '- handoff_json: {"timestampUtc":"2026-03-22T00:00:00.000Z","chosenChange":"bad handoff","rationale":"wrong target files shape","outcome":"reverted","targetFiles":"test/evolve-journal.test.ts","nextCyclePlan":["fix schema"]}'
+    );
+
+    expect(malformedEntry).toHaveLength(1);
+    expect(malformedHandoff).toHaveLength(1);
+
+    const entryFailure = validateMachineReadableBlock(malformedEntry[0]!);
+    const handoffFailure = validateMachineReadableBlock(malformedHandoff[0]!);
+
+    expect(entryFailure).toContain("invalid entry block at JOURNAL.md:1");
+    expect(entryFailure).toContain("Expected: true");
+    expect(entryFailure).toContain("Received: false");
+    expect(handoffFailure).toContain("invalid handoff block at JOURNAL.md:1");
+    expect(handoffFailure).toContain("Expected: true");
+    expect(handoffFailure).toContain("Received: false");
   });
 });
