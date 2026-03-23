@@ -2,6 +2,7 @@ import { readFile } from "node:fs/promises";
 import { exec } from "../core/shell.ts";
 import { hackernewsTrendingTool } from "../tools/hackernews.ts";
 import { countTrailingPlannedEntries, extractLatestPlanFromJournal } from "./journal.ts";
+import { readRecentEvolveJournalSummary } from "./read-evolve-journal-summary.ts";
 import type { ObserveData } from "./types.ts";
 
 function parseJson<T>(text: string, fallback: T): T {
@@ -75,6 +76,13 @@ export async function gatherObservations(): Promise<ObserveData> {
     latestPlan = undefined;
   }
 
+  let recentCycleSummary: ObserveData["recentCycleSummary"] = [];
+  try {
+    recentCycleSummary = await readRecentEvolveJournalSummary();
+  } catch {
+    recentCycleSummary = [];
+  }
+
   let hnSignal: Array<Record<string, unknown>> = [];
   try {
     const response = await hackernewsTrendingTool({ hours: 24, minPoints: 120, n: 5 });
@@ -92,6 +100,7 @@ export async function gatherObservations(): Promise<ObserveData> {
     journalTail,
     consecutivePlanCount,
     latestPlan,
+    recentCycleSummary,
     recentHotFiles,
     hnSignal
   };

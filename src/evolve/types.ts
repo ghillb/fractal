@@ -1,3 +1,5 @@
+import type { RecentEvolveCycleSummary } from "./read-evolve-journal-summary.ts";
+
 export type ObserveData = {
   issues: Array<{ number: number; title: string; updatedAt: string }>;
   commits: Array<{ hash: string; subject: string; date: string }>;
@@ -12,6 +14,7 @@ export type ObserveData = {
     blockingReason?: string;
     nextCyclePlan: string[];
   };
+  recentCycleSummary: RecentEvolveCycleSummary[];
   recentHotFiles: string[];
   hnSignal: Array<Record<string, unknown>>;
 };

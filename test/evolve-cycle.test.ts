@@ -38,6 +38,7 @@ describe("evolve cycle change detection", () => {
         journalTail: "",
         consecutivePlanCount: 0,
         latestPlan: undefined,
+        recentCycleSummary: [],
         recentHotFiles: [],
         hnSignal: []
       })
@@ -58,6 +59,7 @@ describe("evolve cycle change detection", () => {
           blockingReason: "need one cycle of planning",
           nextCyclePlan: ["find schema module"]
         },
+        recentCycleSummary: [],
         recentHotFiles: [],
         hnSignal: []
       })
