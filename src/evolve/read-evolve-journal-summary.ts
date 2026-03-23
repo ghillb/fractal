@@ -28,7 +28,12 @@ export async function readRecentEvolveJournalSummary(
   }
 
   const summaries: RecentEvolveCycleSummary[] = [];
-  const blocks = parseMachineReadableBlocks(journal);
+  let blocks;
+  try {
+    blocks = parseMachineReadableBlocks(journal);
+  } catch {
+    return summaries;
+  }
 
   for (let index = blocks.length - 1; index >= 0 && summaries.length < limit; index -= 1) {
     const block = blocks[index];
@@ -38,9 +43,7 @@ export async function readRecentEvolveJournalSummary(
 
     const validationError = validateJournalMachineReadablePayload(block.payload);
     if (validationError) {
-      throw new Error(
-        `Invalid evolve journal payload at ${path}:${block.markerLine}: ${validationError}`
-      );
+      continue;
     }
 
     summaries.push(block.payload as RecentEvolveCycleSummary);

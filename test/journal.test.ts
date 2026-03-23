@@ -167,17 +167,37 @@ describe("journal", () => {
     ]);
   });
 
-  test("fails loudly when a recent FRACTAL_ENTRY payload is invalid", async () => {
+  test("skips malformed historical FRACTAL_ENTRY payloads and keeps newer planning context", async () => {
     const temp = mkdtempSync(join(tmpdir(), "fractal-journal-"));
     const journalPath = join(temp, "JOURNAL.md");
     writeFileSync(
       journalPath,
-      '<!-- FRACTAL_ENTRY {"timestampUtc":"2026-03-12T00:00:00.000Z","chosenChange":"bad","rationale":"oops","outcome":"planned","targetFiles":[],"nextCyclePlan":"not-an-array"} -->',
+      [
+        "<!-- FRACTAL_ENTRY {\"timestampUtc\":\"2026-03-10T00:00:00.000Z\",\"chosenChange\":\"older\",\"rationale\":\"older rationale\",\"outcome\":\"planned\",\"targetFiles\":[\"older.ts\"],\"nextCyclePlan\":[\"older step\"]} -->",
+        "<!-- FRACTAL_ENTRY {\"timestampUtc\":\"2026-03-11T00:00:00.000Z\",\"chosenChange\":\"broken\",\"rationale\":\"oops\",\"outcome\":\"planned\",\"targetFiles\":[],\"nextCyclePlan\":\"not-an-array\"} -->",
+        "<!-- FRACTAL_ENTRY {\"timestampUtc\":\"2026-03-12T00:00:00.000Z\",\"chosenChange\":\"newer\",\"rationale\":\"newer rationale\",\"outcome\":\"reverted\",\"targetFiles\":[\"newer.ts\"],\"blockingReason\":\"needs narrowing\",\"nextCyclePlan\":[\"newer step\"]} -->"
+      ].join("\n"),
       "utf8"
     );
 
-    await expect(readRecentEvolveJournalSummary(1, journalPath)).rejects.toThrow(
-      `Invalid evolve journal payload at ${journalPath}:1: nextCyclePlan must be an array of strings`
-    );
+    await expect(readRecentEvolveJournalSummary(3, journalPath)).resolves.toEqual([
+      {
+        timestampUtc: "2026-03-12T00:00:00.000Z",
+        chosenChange: "newer",
+        rationale: "newer rationale",
+        outcome: "reverted",
+        targetFiles: ["newer.ts"],
+        blockingReason: "needs narrowing",
+        nextCyclePlan: ["newer step"]
+      },
+      {
+        timestampUtc: "2026-03-10T00:00:00.000Z",
+        chosenChange: "older",
+        rationale: "older rationale",
+        outcome: "planned",
+        targetFiles: ["older.ts"],
+        nextCyclePlan: ["older step"]
+      }
+    ]);
   });
 });
