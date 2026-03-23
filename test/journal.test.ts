@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { mkdtempSync } from "node:fs";
+import { mkdtempSync, writeFileSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -8,6 +8,7 @@ import {
   countTrailingPlannedEntries,
   extractLatestPlanFromJournal
 } from "../src/evolve/journal.ts";
+import { readRecentEvolveJournalSummary } from "../src/evolve/read-evolve-journal-summary.ts";
 
 describe("journal", () => {
   test("appends structured entries", async () => {
@@ -125,5 +126,58 @@ describe("journal", () => {
       blockingReason: "need one cycle",
       nextCyclePlan: ["inspect src/example.ts"]
     });
+  });
+
+  test("reads recent validated FRACTAL_ENTRY summaries in reverse chronological order", async () => {
+    const temp = mkdtempSync(join(tmpdir(), "fractal-journal-"));
+    const journalPath = join(temp, "JOURNAL.md");
+    writeFileSync(
+      journalPath,
+      [
+        "# JOURNAL",
+        "",
+        "<!-- FRACTAL_ENTRY {\"timestampUtc\":\"2026-03-10T00:00:00.000Z\",\"chosenChange\":\"a\",\"rationale\":\"why a\",\"outcome\":\"planned\",\"targetFiles\":[\"a.ts\"],\"nextCyclePlan\":[\"step a\"]} -->",
+        "- handoff_json: {\"timestampUtc\":\"2026-03-10T00:00:00.000Z\",\"chosenChange\":\"a\",\"rationale\":\"why a\",\"outcome\":\"planned\",\"targetFiles\":[\"a.ts\"],\"nextCyclePlan\":[\"step a\"]}",
+        "<!-- FRACTAL_ENTRY {\"timestampUtc\":\"2026-03-11T00:00:00.000Z\",\"chosenChange\":\"b\",\"rationale\":\"why b\",\"outcome\":\"committed\",\"targetFiles\":[\"b.ts\"],\"nextCyclePlan\":[\"step b\"]} -->",
+        "- handoff_json: {\"timestampUtc\":\"2026-03-11T00:00:00.000Z\",\"chosenChange\":\"b\",\"rationale\":\"why b\",\"outcome\":\"committed\",\"targetFiles\":[\"b.ts\"],\"nextCyclePlan\":[\"step b\"]}",
+        "<!-- FRACTAL_ENTRY {\"timestampUtc\":\"2026-03-12T00:00:00.000Z\",\"chosenChange\":\"c\",\"rationale\":\"why c\",\"outcome\":\"reverted\",\"targetFiles\":[\"c.ts\"],\"blockingReason\":\"need narrower scope\",\"nextCyclePlan\":[\"step c\"]} -->",
+        "- handoff_json: {\"timestampUtc\":\"2026-03-12T00:00:00.000Z\",\"chosenChange\":\"c\",\"rationale\":\"why c\",\"outcome\":\"reverted\",\"targetFiles\":[\"c.ts\"],\"blockingReason\":\"need narrower scope\",\"nextCyclePlan\":[\"step c\"]}"
+      ].join("\n"),
+      "utf8"
+    );
+
+    await expect(readRecentEvolveJournalSummary(2, journalPath)).resolves.toEqual([
+      {
+        timestampUtc: "2026-03-12T00:00:00.000Z",
+        chosenChange: "c",
+        rationale: "why c",
+        outcome: "reverted",
+        targetFiles: ["c.ts"],
+        blockingReason: "need narrower scope",
+        nextCyclePlan: ["step c"]
+      },
+      {
+        timestampUtc: "2026-03-11T00:00:00.000Z",
+        chosenChange: "b",
+        rationale: "why b",
+        outcome: "committed",
+        targetFiles: ["b.ts"],
+        nextCyclePlan: ["step b"]
+      }
+    ]);
+  });
+
+  test("fails loudly when a recent FRACTAL_ENTRY payload is invalid", async () => {
+    const temp = mkdtempSync(join(tmpdir(), "fractal-journal-"));
+    const journalPath = join(temp, "JOURNAL.md");
+    writeFileSync(
+      journalPath,
+      '<!-- FRACTAL_ENTRY {"timestampUtc":"2026-03-12T00:00:00.000Z","chosenChange":"bad","rationale":"oops","outcome":"planned","targetFiles":[],"nextCyclePlan":"not-an-array"} -->',
+      "utf8"
+    );
+
+    await expect(readRecentEvolveJournalSummary(1, journalPath)).rejects.toThrow(
+      `Invalid evolve journal payload at ${journalPath}:1: nextCyclePlan must be an array of strings`
+    );
   });
 });
