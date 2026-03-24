@@ -1,10 +1,13 @@
 import { describe, expect, test } from "bun:test";
 import {
+  buildPlannerRecentCycleSummary,
+  summarizeRecentHotFilesFromHistory
+} from "../src/evolve/observe.ts";
+import {
   canUsePlanMode,
   listChangedFilesFromStatus,
   shouldApplyHotFilePressure
 } from "../src/evolve/cycle.ts";
-import { summarizeRecentHotFilesFromHistory } from "../src/evolve/observe.ts";
 
 describe("evolve cycle change detection", () => {
   test("treats untracked files as pending changes", () => {
@@ -87,5 +90,79 @@ describe("evolve cycle change detection", () => {
     ].join("\n");
 
     expect(summarizeRecentHotFilesFromHistory(history)).toEqual(["src/core/fs-guard.ts"]);
+  });
+
+  test("caps planner recent cycle summary and keeps a stable field shape", () => {
+    const summary = buildPlannerRecentCycleSummary([
+      {
+        timestampUtc: "2026-03-24T03:00:00.000Z",
+        chosenChange: "third",
+        rationale: "latest",
+        outcome: "committed",
+        targetFiles: ["src/c.ts"],
+        nextCyclePlan: [],
+        blockingReason: ""
+      },
+      {
+        timestampUtc: "2026-03-24T02:00:00.000Z",
+        chosenChange: "second",
+        rationale: "middle",
+        outcome: "planned",
+        targetFiles: ["src/b.ts"],
+        nextCyclePlan: ["follow up"],
+        blockingReason: "waiting"
+      },
+      {
+        timestampUtc: "2026-03-24T01:00:00.000Z",
+        chosenChange: "first",
+        rationale: "older",
+        outcome: "reverted",
+        targetFiles: ["src/a.ts"],
+        nextCyclePlan: [],
+        blockingReason: undefined
+      },
+      {
+        timestampUtc: "2026-03-24T00:00:00.000Z",
+        chosenChange: "discarded",
+        rationale: "too old",
+        outcome: "committed",
+        targetFiles: ["src/old.ts"],
+        nextCyclePlan: ["should not appear"],
+        blockingReason: "old"
+      }
+    ]);
+
+    expect(summary).toEqual([
+      {
+        timestampUtc: "2026-03-24T03:00:00.000Z",
+        chosenChange: "third",
+        rationale: "latest",
+        outcome: "committed",
+        targetFiles: ["src/c.ts"],
+        nextCyclePlan: []
+      },
+      {
+        timestampUtc: "2026-03-24T02:00:00.000Z",
+        chosenChange: "second",
+        rationale: "middle",
+        outcome: "planned",
+        targetFiles: ["src/b.ts"],
+        nextCyclePlan: ["follow up"],
+        blockingReason: "waiting"
+      },
+      {
+        timestampUtc: "2026-03-24T01:00:00.000Z",
+        chosenChange: "first",
+        rationale: "older",
+        outcome: "reverted",
+        targetFiles: ["src/a.ts"],
+        nextCyclePlan: []
+      }
+    ]);
+    expect(summary[0]).not.toHaveProperty("failureNote");
+    expect(summary[0]).not.toHaveProperty("filesTouched");
+    expect(summary[0]).not.toHaveProperty("lintOutcome");
+    expect(summary[0]).not.toHaveProperty("testOutcome");
+    expect(summary).toHaveLength(3);
   });
 });

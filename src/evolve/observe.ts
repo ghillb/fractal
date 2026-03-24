@@ -3,7 +3,9 @@ import { exec } from "../core/shell.ts";
 import { hackernewsTrendingTool } from "../tools/hackernews.ts";
 import { countTrailingPlannedEntries, extractLatestPlanFromJournal } from "./journal.ts";
 import { readRecentEvolveJournalSummary } from "./read-evolve-journal-summary.ts";
-import type { ObserveData } from "./types.ts";
+import type { ObserveData, ObserveRecentCycleSummaryEntry } from "./types.ts";
+
+const PLANNER_RECENT_CYCLE_SUMMARY_LIMIT = 3;
 
 function parseJson<T>(text: string, fallback: T): T {
   try {
@@ -18,6 +20,28 @@ function tail(text: string, maxChars: number): string {
     return text;
   }
   return text.slice(text.length - maxChars);
+}
+
+function normalizeRecentCycleSummaryEntry(
+  entry: Awaited<ReturnType<typeof readRecentEvolveJournalSummary>>[number]
+): ObserveRecentCycleSummaryEntry {
+  return {
+    timestampUtc: entry.timestampUtc,
+    chosenChange: entry.chosenChange,
+    rationale: entry.rationale,
+    outcome: entry.outcome,
+    targetFiles: [...entry.targetFiles],
+    nextCyclePlan: [...entry.nextCyclePlan],
+    ...(entry.blockingReason ? { blockingReason: entry.blockingReason } : {})
+  };
+}
+
+export function buildPlannerRecentCycleSummary(
+  entries: Awaited<ReturnType<typeof readRecentEvolveJournalSummary>>
+): ObserveRecentCycleSummaryEntry[] {
+  return entries
+    .slice(0, PLANNER_RECENT_CYCLE_SUMMARY_LIMIT)
+    .map((entry) => normalizeRecentCycleSummaryEntry(entry));
 }
 
 export function summarizeRecentHotFilesFromHistory(historyOutput: string): string[] {
@@ -78,7 +102,7 @@ export async function gatherObservations(): Promise<ObserveData> {
 
   let recentCycleSummary: ObserveData["recentCycleSummary"] = [];
   try {
-    recentCycleSummary = await readRecentEvolveJournalSummary();
+    recentCycleSummary = buildPlannerRecentCycleSummary(await readRecentEvolveJournalSummary());
   } catch {
     recentCycleSummary = [];
   }

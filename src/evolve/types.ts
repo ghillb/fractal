@@ -1,4 +1,12 @@
-import type { RecentEvolveCycleSummary } from "./read-evolve-journal-summary.ts";
+export type ObserveRecentCycleSummaryEntry = {
+  timestampUtc: string;
+  chosenChange: string;
+  rationale: string;
+  outcome: "committed" | "planned" | "reverted";
+  targetFiles: string[];
+  nextCyclePlan: string[];
+  blockingReason?: string;
+};
 
 export type ObserveData = {
   issues: Array<{ number: number; title: string; updatedAt: string }>;
@@ -14,7 +22,7 @@ export type ObserveData = {
     blockingReason?: string;
     nextCyclePlan: string[];
   };
-  recentCycleSummary: RecentEvolveCycleSummary[];
+  recentCycleSummary: ObserveRecentCycleSummaryEntry[];
   recentHotFiles: string[];
   hnSignal: Array<Record<string, unknown>>;
 };
