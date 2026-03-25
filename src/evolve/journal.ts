@@ -1,6 +1,9 @@
 import { appendFile, access } from "node:fs/promises";
 import { constants } from "node:fs";
-import { validateJournalMachineReadablePayload } from "./journal-validator.ts";
+import {
+  parseJournalPlanHandoff,
+  serializeJournalMachineReadablePayload
+} from "./journal-schema.ts";
 
 export type JournalOutcome = "committed" | "planned" | "reverted";
 
@@ -36,38 +39,6 @@ const ENTRY_MARKER_PREFIX = "<!-- FRACTAL_ENTRY ";
 const ENTRY_MARKER_SUFFIX = " -->";
 const HANDOFF_PREFIX = "- handoff_json: ";
 
-function toJournalPlanHandoff(value: unknown): JournalPlanHandoff | undefined {
-  if (!value || typeof value !== "object") {
-    return undefined;
-  }
-
-  const parsed = value as Partial<JournalPlanHandoff>;
-  if (parsed.outcome !== "planned" && parsed.outcome !== "reverted") {
-    return undefined;
-  }
-
-  if (
-    !Array.isArray(parsed.targetFiles) ||
-    !Array.isArray(parsed.nextCyclePlan) ||
-    parsed.nextCyclePlan.length === 0
-  ) {
-    return undefined;
-  }
-
-  return {
-    timestampUtc: typeof parsed.timestampUtc === "string" ? parsed.timestampUtc : "",
-    chosenChange: typeof parsed.chosenChange === "string" ? parsed.chosenChange : "",
-    rationale: typeof parsed.rationale === "string" ? parsed.rationale : "",
-    outcome: parsed.outcome,
-    targetFiles: parsed.targetFiles.map((item) => String(item)).filter(Boolean),
-    blockingReason:
-      typeof parsed.blockingReason === "string" && parsed.blockingReason.trim()
-        ? parsed.blockingReason.trim()
-        : undefined,
-    nextCyclePlan: parsed.nextCyclePlan.map((item) => String(item)).filter(Boolean)
-  };
-}
-
 function parseJournalMarker(line: string): JournalPlanHandoff | undefined {
   const trimmed = line.trim();
   if (!trimmed.startsWith(ENTRY_MARKER_PREFIX) || !trimmed.endsWith(ENTRY_MARKER_SUFFIX)) {
@@ -75,34 +46,12 @@ function parseJournalMarker(line: string): JournalPlanHandoff | undefined {
   }
 
   try {
-    return toJournalPlanHandoff(
+    return parseJournalPlanHandoff(
       JSON.parse(trimmed.slice(ENTRY_MARKER_PREFIX.length, -ENTRY_MARKER_SUFFIX.length))
     );
   } catch {
     return undefined;
   }
-}
-
-function buildMachineReadablePayload(entry: JournalEntry) {
-  return {
-    timestampUtc: entry.timestampUtc,
-    chosenChange: entry.chosenChange,
-    rationale: entry.rationale,
-    outcome: entry.outcome,
-    targetFiles: entry.targetFiles,
-    blockingReason: entry.blockingReason,
-    nextCyclePlan: entry.nextCyclePlan
-  };
-}
-
-function serializeValidatedMachineReadablePayload(entry: JournalEntry): string {
-  const payload = buildMachineReadablePayload(entry);
-  const validationError = validateJournalMachineReadablePayload(payload);
-  if (validationError) {
-    throw new Error(`Invalid evolve journal payload: ${validationError}`);
-  }
-
-  return JSON.stringify(payload);
 }
 
 export function extractLatestPlanFromJournal(text: string): JournalPlanHandoff | undefined {
@@ -123,7 +72,7 @@ export function extractLatestPlanFromJournal(text: string): JournalPlanHandoff |
     }
 
     try {
-      const handoff = toJournalPlanHandoff(JSON.parse(line.slice(HANDOFF_PREFIX.length)));
+      const handoff = parseJournalPlanHandoff(JSON.parse(line.slice(HANDOFF_PREFIX.length)));
       if (handoff) {
         return handoff;
       }
@@ -163,7 +112,7 @@ export async function ensureJournal(): Promise<void> {
 
 export async function appendJournal(entry: JournalEntry): Promise<void> {
   await ensureJournal();
-  const markerPayload = serializeValidatedMachineReadablePayload(entry);
+  const markerPayload = serializeJournalMachineReadablePayload(entry);
   const block = [
     `${ENTRY_MARKER_PREFIX}${markerPayload}${ENTRY_MARKER_SUFFIX}`,
     `## Entry ${entry.timestampUtc}`,
