@@ -3,9 +3,14 @@ import { exec } from "../core/shell.ts";
 import { hackernewsTrendingTool } from "../tools/hackernews.ts";
 import { countTrailingPlannedEntries, extractLatestPlanFromJournal } from "./journal.ts";
 import { readRecentEvolveJournalSummary } from "./read-evolve-journal-summary.ts";
-import type { ObserveData, ObserveRecentCycleSummaryEntry } from "./types.ts";
+import type {
+  ObserveData,
+  ObserveHnSignalEntry,
+  ObserveRecentCycleSummaryEntry
+} from "./types.ts";
 
 const PLANNER_RECENT_CYCLE_SUMMARY_LIMIT = 3;
+const PLANNER_HN_SIGNAL_LIMIT = 3;
 
 function parseJson<T>(text: string, fallback: T): T {
   try {
@@ -36,12 +41,28 @@ function normalizeRecentCycleSummaryEntry(
   };
 }
 
+function normalizeHnSignalEntry(entry: Record<string, unknown>): ObserveHnSignalEntry {
+  return {
+    title: typeof entry.title === "string" ? entry.title : "",
+    url: typeof entry.url === "string" ? entry.url : "",
+    hnUrl: typeof entry.hn_url === "string" ? entry.hn_url : "",
+    points: typeof entry.points === "number" ? entry.points : 0,
+    comments: typeof entry.comments === "number" ? entry.comments : 0,
+    author: typeof entry.author === "string" ? entry.author : "",
+    createdAt: typeof entry.created_at === "string" ? entry.created_at : ""
+  };
+}
+
 export function buildPlannerRecentCycleSummary(
   entries: Awaited<ReturnType<typeof readRecentEvolveJournalSummary>>
 ): ObserveRecentCycleSummaryEntry[] {
   return entries
     .slice(0, PLANNER_RECENT_CYCLE_SUMMARY_LIMIT)
     .map((entry) => normalizeRecentCycleSummaryEntry(entry));
+}
+
+export function buildPlannerHnSignal(entries: Array<Record<string, unknown>>): ObserveHnSignalEntry[] {
+  return entries.slice(0, PLANNER_HN_SIGNAL_LIMIT).map((entry) => normalizeHnSignalEntry(entry));
 }
 
 export function summarizeRecentHotFilesFromHistory(historyOutput: string): string[] {
@@ -107,12 +128,12 @@ export async function gatherObservations(): Promise<ObserveData> {
     recentCycleSummary = [];
   }
 
-  let hnSignal: Array<Record<string, unknown>> = [];
+  let hnSignal: ObserveData["hnSignal"] = [];
   try {
     const response = await hackernewsTrendingTool({ hours: 24, minPoints: 120, n: 5 });
     const results = response.results;
     if (Array.isArray(results)) {
-      hnSignal = results as Array<Record<string, unknown>>;
+      hnSignal = buildPlannerHnSignal(results as Array<Record<string, unknown>>);
     }
   } catch {
     hnSignal = [];

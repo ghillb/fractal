@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { buildPlannerRecentCycleSummary } from "../src/evolve/observe.ts";
+import { buildPlannerHnSignal, buildPlannerRecentCycleSummary } from "../src/evolve/observe.ts";
 
 describe("plan next cycle context assembly", () => {
   test("returns normalized recent cycle entries with only planner-safe fields", () => {
@@ -37,6 +37,41 @@ describe("plan next cycle context assembly", () => {
       "rationale",
       "targetFiles",
       "timestampUtc"
+    ]);
+  });
+
+  test("returns normalized hn signal entries with only stable planner-safe fields", () => {
+    const [entry] = buildPlannerHnSignal([
+      {
+        title: "Useful post",
+        url: "https://example.com/post",
+        hn_url: "https://news.ycombinator.com/item?id=1",
+        points: 321,
+        comments: 45,
+        author: "pg",
+        created_at: "2026-03-24T05:00:00.000Z",
+        objectID: "1",
+        unexpected: ["leak"]
+      }
+    ]);
+
+    expect(entry).toEqual({
+      title: "Useful post",
+      url: "https://example.com/post",
+      hnUrl: "https://news.ycombinator.com/item?id=1",
+      points: 321,
+      comments: 45,
+      author: "pg",
+      createdAt: "2026-03-24T05:00:00.000Z"
+    });
+    expect(Object.keys(entry).sort()).toEqual([
+      "author",
+      "comments",
+      "createdAt",
+      "hnUrl",
+      "points",
+      "title",
+      "url"
     ]);
   });
 });

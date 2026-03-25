@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import {
+  buildPlannerHnSignal,
   buildPlannerRecentCycleSummary,
   summarizeRecentHotFilesFromHistory
 } from "../src/evolve/observe.ts";
@@ -164,5 +165,81 @@ describe("evolve cycle change detection", () => {
     expect(summary[0]).not.toHaveProperty("lintOutcome");
     expect(summary[0]).not.toHaveProperty("testOutcome");
     expect(summary).toHaveLength(3);
+  });
+
+  test("caps planner hn signal and keeps a stable field shape", () => {
+    const hnSignal = buildPlannerHnSignal([
+      {
+        title: "latest",
+        url: "https://example.com/latest",
+        hn_url: "https://news.ycombinator.com/item?id=3",
+        points: 300,
+        comments: 30,
+        author: "carol",
+        created_at: "2026-03-24T03:00:00.000Z",
+        text: "should not appear"
+      },
+      {
+        title: "middle",
+        url: "https://example.com/middle",
+        hn_url: "https://news.ycombinator.com/item?id=2",
+        points: 200,
+        comments: 20,
+        author: "bob",
+        created_at: "2026-03-24T02:00:00.000Z"
+      },
+      {
+        title: "older",
+        url: "https://example.com/older",
+        hn_url: "https://news.ycombinator.com/item?id=1",
+        points: 100,
+        comments: 10,
+        author: "alice",
+        created_at: "2026-03-24T01:00:00.000Z"
+      },
+      {
+        title: "discarded",
+        url: "https://example.com/discarded",
+        hn_url: "https://news.ycombinator.com/item?id=0",
+        points: 1,
+        comments: 0,
+        author: "nobody",
+        created_at: "2026-03-24T00:00:00.000Z",
+        extra: true
+      }
+    ]);
+
+    expect(hnSignal).toEqual([
+      {
+        title: "latest",
+        url: "https://example.com/latest",
+        hnUrl: "https://news.ycombinator.com/item?id=3",
+        points: 300,
+        comments: 30,
+        author: "carol",
+        createdAt: "2026-03-24T03:00:00.000Z"
+      },
+      {
+        title: "middle",
+        url: "https://example.com/middle",
+        hnUrl: "https://news.ycombinator.com/item?id=2",
+        points: 200,
+        comments: 20,
+        author: "bob",
+        createdAt: "2026-03-24T02:00:00.000Z"
+      },
+      {
+        title: "older",
+        url: "https://example.com/older",
+        hnUrl: "https://news.ycombinator.com/item?id=1",
+        points: 100,
+        comments: 10,
+        author: "alice",
+        createdAt: "2026-03-24T01:00:00.000Z"
+      }
+    ]);
+    expect(hnSignal).toHaveLength(3);
+    expect(hnSignal[0]).not.toHaveProperty("text");
+    expect(hnSignal[0]).not.toHaveProperty("extra");
   });
 });

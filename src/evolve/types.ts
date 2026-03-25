@@ -8,6 +8,16 @@ export type ObserveRecentCycleSummaryEntry = {
   blockingReason?: string;
 };
 
+export type ObserveHnSignalEntry = {
+  title: string;
+  url: string;
+  hnUrl: string;
+  points: number;
+  comments: number;
+  author: string;
+  createdAt: string;
+};
+
 export type ObserveData = {
   issues: Array<{ number: number; title: string; updatedAt: string }>;
   commits: Array<{ hash: string; subject: string; date: string }>;
@@ -24,7 +34,7 @@ export type ObserveData = {
   };
   recentCycleSummary: ObserveRecentCycleSummaryEntry[];
   recentHotFiles: string[];
-  hnSignal: Array<Record<string, unknown>>;
+  hnSignal: ObserveHnSignalEntry[];
 };
 
 export type EvolutionDecision = {
