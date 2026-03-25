@@ -1,8 +1,9 @@
 import { appendFile, access } from "node:fs/promises";
 import { constants } from "node:fs";
 import {
-  parseJournalPlanHandoff,
-  serializeJournalMachineReadablePayload
+  serializeJournalMachineReadablePayload,
+  validateJournalPlanHandoff,
+  type JournalPayloadValidationResult
 } from "./journal-schema.ts";
 
 export type JournalOutcome = "committed" | "planned" | "reverted";
@@ -34,28 +35,59 @@ export type JournalPlanHandoff = {
   nextCyclePlan: string[];
 };
 
+export type JournalReadDiagnostics = {
+  rejectedCount: number;
+  rejectionSummary: string[];
+};
+
 const HEADER = `# JOURNAL\n\nAutonomous evolve cycle log.\n\n`;
 const ENTRY_MARKER_PREFIX = "<!-- FRACTAL_ENTRY ";
 const ENTRY_MARKER_SUFFIX = " -->";
 const HANDOFF_PREFIX = "- handoff_json: ";
+const MAX_REJECTION_SUMMARY = 3;
 
-function parseJournalMarker(line: string): JournalPlanHandoff | undefined {
+function summarizeRejections(results: JournalPayloadValidationResult<JournalPlanHandoff>[]): string[] {
+  const counts = new Map<string, number>();
+
+  for (const result of results) {
+    if (result.ok) {
+      continue;
+    }
+
+    counts.set(result.reason, (counts.get(result.reason) ?? 0) + 1);
+  }
+
+  return [...counts.entries()]
+    .sort((left, right) => right[1] - left[1] || left[0].localeCompare(right[0]))
+    .slice(0, MAX_REJECTION_SUMMARY)
+    .map(([reason, count]) => `${reason} (${count})`);
+}
+
+function parseJournalMarker(line: string): JournalPayloadValidationResult<JournalPlanHandoff> | undefined {
   const trimmed = line.trim();
   if (!trimmed.startsWith(ENTRY_MARKER_PREFIX) || !trimmed.endsWith(ENTRY_MARKER_SUFFIX)) {
     return undefined;
   }
 
   try {
-    return parseJournalPlanHandoff(
+    return validateJournalPlanHandoff(
       JSON.parse(trimmed.slice(ENTRY_MARKER_PREFIX.length, -ENTRY_MARKER_SUFFIX.length))
     );
   } catch {
-    return undefined;
+    return { ok: false, reason: "marker payload must be valid JSON" };
   }
 }
 
 export function extractLatestPlanFromJournal(text: string): JournalPlanHandoff | undefined {
+  return extractLatestPlanFromJournalWithDiagnostics(text).handoff;
+}
+
+export function extractLatestPlanFromJournalWithDiagnostics(
+  text: string
+): { handoff?: JournalPlanHandoff; diagnostics: JournalReadDiagnostics } {
   const lines = text.split("\n");
+  const rejections: JournalPayloadValidationResult<JournalPlanHandoff>[] = [];
+
   for (let index = lines.length - 1; index >= 0; index -= 1) {
     const line = lines[index]?.trim();
     if (!line) {
@@ -64,7 +96,18 @@ export function extractLatestPlanFromJournal(text: string): JournalPlanHandoff |
 
     const marker = parseJournalMarker(line);
     if (marker) {
-      return marker;
+      if (marker.ok) {
+        return {
+          handoff: marker.value,
+          diagnostics: {
+            rejectedCount: rejections.length,
+            rejectionSummary: summarizeRejections(rejections)
+          }
+        };
+      }
+
+      rejections.push(marker);
+      continue;
     }
 
     if (!line.startsWith(HANDOFF_PREFIX)) {
@@ -72,23 +115,39 @@ export function extractLatestPlanFromJournal(text: string): JournalPlanHandoff |
     }
 
     try {
-      const handoff = parseJournalPlanHandoff(JSON.parse(line.slice(HANDOFF_PREFIX.length)));
-      if (handoff) {
-        return handoff;
+      const handoff = validateJournalPlanHandoff(JSON.parse(line.slice(HANDOFF_PREFIX.length)));
+      if (handoff.ok) {
+        return {
+          handoff: handoff.value,
+          diagnostics: {
+            rejectedCount: rejections.length,
+            rejectionSummary: summarizeRejections(rejections)
+          }
+        };
       }
+
+      rejections.push(handoff);
     } catch {
-      continue;
+      rejections.push({ ok: false, reason: "handoff payload must be valid JSON" });
     }
   }
 
-  return undefined;
+  return {
+    diagnostics: {
+      rejectedCount: rejections.length,
+      rejectionSummary: summarizeRejections(rejections)
+    }
+  };
 }
 
 export function countTrailingPlannedEntries(text: string): number {
   const entries = text
     .split("\n")
     .map((line) => parseJournalMarker(line))
-    .filter((entry): entry is JournalPlanHandoff => Boolean(entry));
+    .filter((entry): entry is Extract<JournalPayloadValidationResult<JournalPlanHandoff>, { ok: true }> =>
+      Boolean(entry?.ok)
+    )
+    .map((entry) => entry.value);
   let count = 0;
 
   for (let index = entries.length - 1; index >= 0; index -= 1) {

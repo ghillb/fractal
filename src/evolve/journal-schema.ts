@@ -7,6 +7,10 @@ export type JournalMachineReadablePayload = Pick<
   blockingReason?: string;
 };
 
+export type JournalPayloadValidationResult<T> =
+  | { ok: true; value: T }
+  | { ok: false; reason: string };
+
 function isNonEmptyString(value: unknown): value is string {
   return typeof value === "string" && value.trim().length > 0;
 }
@@ -65,30 +69,38 @@ export function validateJournalMachineReadablePayload(payload: unknown): string 
   return undefined;
 }
 
-export function parseJournalPlanHandoff(value: unknown): JournalPlanHandoff | undefined {
+export function validateJournalPlanHandoff(value: unknown): JournalPayloadValidationResult<JournalPlanHandoff> {
   const validationError = validateJournalMachineReadablePayload(value);
   if (validationError) {
-    return undefined;
+    return { ok: false, reason: validationError };
   }
 
   const parsed = value as JournalMachineReadablePayload;
   if (parsed.outcome !== "planned" && parsed.outcome !== "reverted") {
-    return undefined;
+    return { ok: false, reason: 'outcome must be "planned" or "reverted" for handoff consumption' };
   }
 
   if (parsed.nextCyclePlan.length === 0) {
-    return undefined;
+    return { ok: false, reason: "nextCyclePlan must contain at least one step for handoff consumption" };
   }
 
   return {
-    timestampUtc: parsed.timestampUtc,
-    chosenChange: parsed.chosenChange,
-    rationale: parsed.rationale,
-    outcome: parsed.outcome,
-    targetFiles: parsed.targetFiles,
-    blockingReason: parsed.blockingReason,
-    nextCyclePlan: parsed.nextCyclePlan
+    ok: true,
+    value: {
+      timestampUtc: parsed.timestampUtc,
+      chosenChange: parsed.chosenChange,
+      rationale: parsed.rationale,
+      outcome: parsed.outcome,
+      targetFiles: parsed.targetFiles,
+      blockingReason: parsed.blockingReason,
+      nextCyclePlan: parsed.nextCyclePlan
+    }
   };
+}
+
+export function parseJournalPlanHandoff(value: unknown): JournalPlanHandoff | undefined {
+  const result = validateJournalPlanHandoff(value);
+  return result.ok ? result.value : undefined;
 }
 
 export function serializeJournalMachineReadablePayload(entry: JournalEntry): string {
