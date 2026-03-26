@@ -77,10 +77,6 @@ export function validateJournalPlanHandoff(value: unknown): JournalPayloadValida
 
   const parsed = value as JournalMachineReadablePayload;
   if (parsed.outcome === "committed") {
-    if (parsed.nextCyclePlan.length === 0) {
-      return { ok: false, reason: "nextCyclePlan must contain at least one step for handoff consumption" };
-    }
-
     return {
       ok: true,
       value: {

@@ -130,14 +130,19 @@ describe("persisted evolve journal machine-readable history", () => {
     ).toThrow("Invalid evolve journal payload: nextCyclePlan must be an array of strings");
   });
 
-  test("read-side validation accepts historical committed entries by normalizing them into planned handoffs", () => {
-    const journal = [
+  test("read-side validation accepts historical committed entries with or without nextCyclePlan by normalizing them into planned handoffs", () => {
+    const journalWithNextSteps = [
       '<!-- FRACTAL_ENTRY {"timestampUtc":"2026-03-22T00:00:00.000Z","chosenChange":"broken json" -->',
       '- handoff_json: {"timestampUtc":"2026-03-22T00:00:00.000Z","chosenChange":"bad shape","rationale":"missing plan","outcome":"planned","targetFiles":["src/evolve/journal.ts"],"nextCyclePlan":[]}',
       '<!-- FRACTAL_ENTRY {"timestampUtc":"2026-03-23T00:00:00.000Z","chosenChange":"recover historical entry","rationale":"legacy committed entries still carry useful next steps","outcome":"committed","targetFiles":["src/evolve/journal.ts"],"nextCyclePlan":["continue safely"]} -->'
     ].join("\n");
+    const journalWithoutNextSteps = [
+      '- handoff_json: {"timestampUtc":"2026-03-22T00:00:00.000Z","chosenChange":"bad shape","rationale":"missing plan","outcome":"planned","targetFiles":["src/evolve/journal.ts"],"nextCyclePlan":[]}',
+      '<!-- FRACTAL_ENTRY {"timestampUtc":"2026-03-24T00:00:00.000Z","chosenChange":"recover legacy committed entry","rationale":"historical committed records should still be consumable","outcome":"committed","targetFiles":["src/evolve/journal.ts"],"nextCyclePlan":[]} -->'
+    ].join("\n");
 
-    const result = extractLatestPlanFromJournalWithDiagnostics(journal);
+    const result = extractLatestPlanFromJournalWithDiagnostics(journalWithNextSteps);
+    const legacyResult = extractLatestPlanFromJournalWithDiagnostics(journalWithoutNextSteps);
 
     expect(result.handoff).toEqual({
       timestampUtc: "2026-03-23T00:00:00.000Z",
@@ -146,6 +151,14 @@ describe("persisted evolve journal machine-readable history", () => {
       outcome: "planned",
       targetFiles: ["src/evolve/journal.ts"],
       nextCyclePlan: ["continue safely"]
+    });
+    expect(legacyResult.handoff).toEqual({
+      timestampUtc: "2026-03-24T00:00:00.000Z",
+      chosenChange: "recover legacy committed entry",
+      rationale: "historical committed records should still be consumable",
+      outcome: "planned",
+      targetFiles: ["src/evolve/journal.ts"],
+      nextCyclePlan: []
     });
     expect(result.diagnostics).toEqual({
       rejectedCount: 0,
@@ -180,7 +193,7 @@ describe("persisted evolve journal machine-readable history", () => {
     expect(countTrailingPlannedEntries(journal)).toBe(1);
   });
 
-  test("handoff validator normalizes committed outcomes into planned read models", () => {
+  test("handoff validator accepts committed outcomes with empty nextCyclePlan but still rejects empty planned handoffs", () => {
     expect(
       validateJournalPlanHandoff({
         timestampUtc: "2026-03-22T00:00:00.000Z",
@@ -188,7 +201,7 @@ describe("persisted evolve journal machine-readable history", () => {
         rationale: "committed should still be consumable",
         outcome: "committed",
         targetFiles: ["src/evolve/journal.ts"],
-        nextCyclePlan: ["reuse next step"]
+        nextCyclePlan: []
       })
     ).toEqual({
       ok: true,
@@ -198,8 +211,22 @@ describe("persisted evolve journal machine-readable history", () => {
         rationale: "committed should still be consumable",
         outcome: "planned",
         targetFiles: ["src/evolve/journal.ts"],
-        nextCyclePlan: ["reuse next step"]
+        nextCyclePlan: []
       }
+    });
+
+    expect(
+      validateJournalPlanHandoff({
+        timestampUtc: "2026-03-22T00:00:00.000Z",
+        chosenChange: "reject empty planned handoff",
+        rationale: "planned entries must keep actionable next steps",
+        outcome: "planned",
+        targetFiles: ["src/evolve/journal.ts"],
+        nextCyclePlan: []
+      })
+    ).toEqual({
+      ok: false,
+      reason: "nextCyclePlan must contain at least one step for handoff consumption"
     });
   });
 });
