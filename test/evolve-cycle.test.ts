@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import {
   buildPlannerHnSignal,
+  buildPlannerJournalIntegrity,
   buildPlannerRecentCycleSummary,
   summarizeRecentHotFilesFromHistory
 } from "../src/evolve/observe.ts";
@@ -42,6 +43,7 @@ describe("evolve cycle change detection", () => {
         journalTail: "",
         consecutivePlanCount: 0,
         latestPlan: undefined,
+        journalIntegrity: { rejectedHistoricalEntryCount: 0 },
         recentCycleSummary: [],
         recentHotFiles: [],
         hnSignal: []
@@ -63,6 +65,7 @@ describe("evolve cycle change detection", () => {
           blockingReason: "need one cycle of planning",
           nextCyclePlan: ["find schema module"]
         },
+        journalIntegrity: { rejectedHistoricalEntryCount: 0 },
         recentCycleSummary: [],
         recentHotFiles: [],
         hnSignal: []
@@ -241,5 +244,23 @@ describe("evolve cycle change detection", () => {
     expect(hnSignal).toHaveLength(3);
     expect(hnSignal[0]).not.toHaveProperty("text");
     expect(hnSignal[0]).not.toHaveProperty("extra");
+  });
+
+  test("keeps journal integrity shape bounded and planner-safe", () => {
+    const integrity = buildPlannerJournalIntegrity({
+      rejectedCount: 3,
+      rejectionSummary: [
+        "marker payload must be valid JSON (1)",
+        "handoff payload must be valid JSON (2)"
+      ]
+    });
+
+    expect(integrity).toEqual({
+      rejectedHistoricalEntryCount: 3,
+      rejectionSummary: [
+        "marker payload must be valid JSON (1)",
+        "handoff payload must be valid JSON (2)"
+      ]
+    });
   });
 });

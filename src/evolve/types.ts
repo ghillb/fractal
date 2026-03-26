@@ -18,6 +18,11 @@ export type ObserveHnSignalEntry = {
   createdAt: string;
 };
 
+export type ObserveJournalIntegrity = {
+  rejectedHistoricalEntryCount: number;
+  rejectionSummary?: string[];
+};
+
 export type ObserveData = {
   issues: Array<{ number: number; title: string; updatedAt: string }>;
   commits: Array<{ hash: string; subject: string; date: string }>;
@@ -32,6 +37,7 @@ export type ObserveData = {
     blockingReason?: string;
     nextCyclePlan: string[];
   };
+  journalIntegrity: ObserveJournalIntegrity;
   recentCycleSummary: ObserveRecentCycleSummaryEntry[];
   recentHotFiles: string[];
   hnSignal: ObserveHnSignalEntry[];

@@ -1,5 +1,9 @@
 import { describe, expect, test } from "bun:test";
-import { buildPlannerHnSignal, buildPlannerRecentCycleSummary } from "../src/evolve/observe.ts";
+import {
+  buildPlannerHnSignal,
+  buildPlannerJournalIntegrity,
+  buildPlannerRecentCycleSummary
+} from "../src/evolve/observe.ts";
 
 describe("plan next cycle context assembly", () => {
   test("returns normalized recent cycle entries with only planner-safe fields", () => {
@@ -38,6 +42,39 @@ describe("plan next cycle context assembly", () => {
       "targetFiles",
       "timestampUtc"
     ]);
+  });
+
+  test("returns normalized bounded journal integrity metadata only", () => {
+    const integrity = buildPlannerJournalIntegrity({
+      rejectedCount: 2,
+      rejectionSummary: [
+        "marker payload must be valid JSON (1)",
+        'outcome must be "planned" or "reverted" for handoff consumption (1)'
+      ]
+    });
+
+    expect(integrity).toEqual({
+      rejectedHistoricalEntryCount: 2,
+      rejectionSummary: [
+        "marker payload must be valid JSON (1)",
+        'outcome must be "planned" or "reverted" for handoff consumption (1)'
+      ]
+    });
+    expect(Object.keys(integrity).sort()).toEqual([
+      "rejectedHistoricalEntryCount",
+      "rejectionSummary"
+    ]);
+  });
+
+  test("omits empty journal integrity summary field", () => {
+    expect(
+      buildPlannerJournalIntegrity({
+        rejectedCount: 0,
+        rejectionSummary: []
+      })
+    ).toEqual({
+      rejectedHistoricalEntryCount: 0
+    });
   });
 
   test("returns normalized hn signal entries with only stable planner-safe fields", () => {

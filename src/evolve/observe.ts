@@ -1,11 +1,16 @@
 import { readFile } from "node:fs/promises";
 import { exec } from "../core/shell.ts";
 import { hackernewsTrendingTool } from "../tools/hackernews.ts";
-import { countTrailingPlannedEntries, extractLatestPlanFromJournal } from "./journal.ts";
+import {
+  countTrailingPlannedEntries,
+  extractLatestPlanFromJournalWithDiagnostics,
+  type JournalReadDiagnostics
+} from "./journal.ts";
 import { readRecentEvolveJournalSummary } from "./read-evolve-journal-summary.ts";
 import type {
   ObserveData,
   ObserveHnSignalEntry,
+  ObserveJournalIntegrity,
   ObserveRecentCycleSummaryEntry
 } from "./types.ts";
 
@@ -38,6 +43,17 @@ function normalizeRecentCycleSummaryEntry(
     targetFiles: [...entry.targetFiles],
     nextCyclePlan: [...entry.nextCyclePlan],
     ...(entry.blockingReason ? { blockingReason: entry.blockingReason } : {})
+  };
+}
+
+export function buildPlannerJournalIntegrity(
+  diagnostics: JournalReadDiagnostics
+): ObserveJournalIntegrity {
+  return {
+    rejectedHistoricalEntryCount: diagnostics.rejectedCount,
+    ...(diagnostics.rejectionSummary.length > 0
+      ? { rejectionSummary: [...diagnostics.rejectionSummary] }
+      : {})
   };
 }
 
@@ -110,15 +126,19 @@ export async function gatherObservations(): Promise<ObserveData> {
   let journalTail = "";
   let consecutivePlanCount = 0;
   let latestPlan: ObserveData["latestPlan"];
+  let journalIntegrity = buildPlannerJournalIntegrity({ rejectedCount: 0, rejectionSummary: [] });
   try {
     const journal = await readFile("JOURNAL.md", "utf8");
     journalTail = tail(journal, 12000);
     consecutivePlanCount = countTrailingPlannedEntries(journal);
-    latestPlan = extractLatestPlanFromJournal(journal);
+    const latestPlanWithDiagnostics = extractLatestPlanFromJournalWithDiagnostics(journal);
+    latestPlan = latestPlanWithDiagnostics.handoff;
+    journalIntegrity = buildPlannerJournalIntegrity(latestPlanWithDiagnostics.diagnostics);
   } catch {
     journalTail = "";
     consecutivePlanCount = 0;
     latestPlan = undefined;
+    journalIntegrity = buildPlannerJournalIntegrity({ rejectedCount: 0, rejectionSummary: [] });
   }
 
   let recentCycleSummary: ObserveData["recentCycleSummary"] = [];
@@ -145,6 +165,7 @@ export async function gatherObservations(): Promise<ObserveData> {
     journalTail,
     consecutivePlanCount,
     latestPlan,
+    journalIntegrity,
     recentCycleSummary,
     recentHotFiles,
     hnSignal
