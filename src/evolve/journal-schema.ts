@@ -76,6 +76,25 @@ export function validateJournalPlanHandoff(value: unknown): JournalPayloadValida
   }
 
   const parsed = value as JournalMachineReadablePayload;
+  if (parsed.outcome === "committed") {
+    if (parsed.nextCyclePlan.length === 0) {
+      return { ok: false, reason: "nextCyclePlan must contain at least one step for handoff consumption" };
+    }
+
+    return {
+      ok: true,
+      value: {
+        timestampUtc: parsed.timestampUtc,
+        chosenChange: parsed.chosenChange,
+        rationale: parsed.rationale,
+        outcome: "planned",
+        targetFiles: parsed.targetFiles,
+        blockingReason: parsed.blockingReason,
+        nextCyclePlan: parsed.nextCyclePlan
+      }
+    };
+  }
+
   if (parsed.outcome !== "planned" && parsed.outcome !== "reverted") {
     return { ok: false, reason: 'outcome must be "planned" or "reverted" for handoff consumption' };
   }

@@ -130,19 +130,19 @@ describe("persisted evolve journal machine-readable history", () => {
     ).toThrow("Invalid evolve journal payload: nextCyclePlan must be an array of strings");
   });
 
-  test("read-side validation rejects malformed historical entries and reports diagnostics", () => {
+  test("read-side validation accepts historical committed entries by normalizing them into planned handoffs", () => {
     const journal = [
       '<!-- FRACTAL_ENTRY {"timestampUtc":"2026-03-22T00:00:00.000Z","chosenChange":"broken json" -->',
       '- handoff_json: {"timestampUtc":"2026-03-22T00:00:00.000Z","chosenChange":"bad shape","rationale":"missing plan","outcome":"planned","targetFiles":["src/evolve/journal.ts"],"nextCyclePlan":[]}',
-      '<!-- FRACTAL_ENTRY {"timestampUtc":"2026-03-23T00:00:00.000Z","chosenChange":"valid latest","rationale":"usable handoff","outcome":"planned","targetFiles":["src/evolve/journal.ts"],"nextCyclePlan":["continue safely"]} -->'
+      '<!-- FRACTAL_ENTRY {"timestampUtc":"2026-03-23T00:00:00.000Z","chosenChange":"recover historical entry","rationale":"legacy committed entries still carry useful next steps","outcome":"committed","targetFiles":["src/evolve/journal.ts"],"nextCyclePlan":["continue safely"]} -->'
     ].join("\n");
 
     const result = extractLatestPlanFromJournalWithDiagnostics(journal);
 
     expect(result.handoff).toEqual({
       timestampUtc: "2026-03-23T00:00:00.000Z",
-      chosenChange: "valid latest",
-      rationale: "usable handoff",
+      chosenChange: "recover historical entry",
+      rationale: "legacy committed entries still carry useful next steps",
       outcome: "planned",
       targetFiles: ["src/evolve/journal.ts"],
       nextCyclePlan: ["continue safely"]
@@ -153,11 +153,11 @@ describe("persisted evolve journal machine-readable history", () => {
     });
   });
 
-  test("read-side diagnostics summarize rejected malformed entries when no valid handoff is found", () => {
+  test("read-side diagnostics summarize only truly malformed entries when no valid handoff is found", () => {
     const journal = [
       '<!-- FRACTAL_ENTRY {"timestampUtc":"2026-03-22T00:00:00.000Z","chosenChange":"broken json" -->',
       '- handoff_json: {"timestampUtc":"2026-03-22T00:00:00.000Z","chosenChange":"bad shape","rationale":"missing plan","outcome":"planned","targetFiles":["src/evolve/journal.ts"],"nextCyclePlan":[]}',
-      '- handoff_json: {"timestampUtc":"2026-03-22T01:00:00.000Z","chosenChange":"wrong outcome","rationale":"committed is not a handoff","outcome":"committed","targetFiles":["src/evolve/journal.ts"],"nextCyclePlan":["ignored"]}'
+      '- handoff_json: {"timestampUtc":"2026-03-22T01:00:00.000Z","chosenChange":"still malformed","rationale":"wrong next plan type","outcome":"committed","targetFiles":["src/evolve/journal.ts"],"nextCyclePlan":"ignored"}'
     ].join("\n");
 
     const result = extractLatestPlanFromJournalWithDiagnostics(journal);
@@ -166,8 +166,8 @@ describe("persisted evolve journal machine-readable history", () => {
     expect(result.diagnostics.rejectedCount).toBe(3);
     expect(result.diagnostics.rejectionSummary).toEqual([
       'marker payload must be valid JSON (1)',
-      'nextCyclePlan must contain at least one step for handoff consumption (1)',
-      'outcome must be "planned" or "reverted" for handoff consumption (1)'
+      'nextCyclePlan must be an array of strings (1)',
+      'nextCyclePlan must contain at least one step for handoff consumption (1)'
     ]);
   });
 
@@ -180,19 +180,26 @@ describe("persisted evolve journal machine-readable history", () => {
     expect(countTrailingPlannedEntries(journal)).toBe(1);
   });
 
-  test("handoff validator exposes rejection reasons for read-side consumers", () => {
+  test("handoff validator normalizes committed outcomes into planned read models", () => {
     expect(
       validateJournalPlanHandoff({
         timestampUtc: "2026-03-22T00:00:00.000Z",
-        chosenChange: "wrong outcome",
-        rationale: "committed should not hand off",
+        chosenChange: "recover historical handoff",
+        rationale: "committed should still be consumable",
         outcome: "committed",
         targetFiles: ["src/evolve/journal.ts"],
-        nextCyclePlan: ["ignored"]
+        nextCyclePlan: ["reuse next step"]
       })
     ).toEqual({
-      ok: false,
-      reason: 'outcome must be "planned" or "reverted" for handoff consumption'
+      ok: true,
+      value: {
+        timestampUtc: "2026-03-22T00:00:00.000Z",
+        chosenChange: "recover historical handoff",
+        rationale: "committed should still be consumable",
+        outcome: "planned",
+        targetFiles: ["src/evolve/journal.ts"],
+        nextCyclePlan: ["reuse next step"]
+      }
     });
   });
 });
