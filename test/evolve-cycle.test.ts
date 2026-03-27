@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 import {
   buildPlannerHnSignal,
   buildPlannerJournalIntegrity,
+  buildPlannerLatestCycleHandoff,
   buildPlannerRecentCycleSummary,
   summarizeRecentHotFilesFromHistory
 } from "../src/evolve/observe.ts";
@@ -43,6 +44,8 @@ describe("evolve cycle change detection", () => {
         journalTail: "",
         consecutivePlanCount: 0,
         latestPlan: undefined,
+        latestCycleOutcome: undefined,
+        latestCycleTargetFiles: [],
         journalIntegrity: { rejectedHistoricalEntryCount: 0 },
         recentCycleSummary: [],
         recentHotFiles: [],
@@ -65,6 +68,8 @@ describe("evolve cycle change detection", () => {
           blockingReason: "need one cycle of planning",
           nextCyclePlan: ["find schema module"]
         },
+        latestCycleOutcome: "planned",
+        latestCycleTargetFiles: ["test/journal-schema.test.ts"],
         journalIntegrity: { rejectedHistoricalEntryCount: 0 },
         recentCycleSummary: [],
         recentHotFiles: [],
@@ -168,6 +173,50 @@ describe("evolve cycle change detection", () => {
     expect(summary[0]).not.toHaveProperty("lintOutcome");
     expect(summary[0]).not.toHaveProperty("testOutcome");
     expect(summary).toHaveLength(3);
+  });
+
+  test("returns bounded latest cycle handoff for planner mismatch detection", () => {
+    const handoff = buildPlannerLatestCycleHandoff([
+      {
+        timestampUtc: "2026-03-24T03:00:00.000Z",
+        chosenChange: "implemented latest work",
+        rationale: "latest",
+        outcome: "committed",
+        targetFiles: [
+          "src/evolve/observe.ts",
+          "src/evolve/types.ts",
+          "test/plan-next-cycle.test.ts",
+          "test/evolve-cycle.test.ts",
+          "src/extra-a.ts",
+          "src/extra-b.ts"
+        ],
+        nextCyclePlan: ["hidden"],
+        blockingReason: "hidden",
+        failureNote: "hidden"
+      } as never,
+      {
+        timestampUtc: "2026-03-24T02:00:00.000Z",
+        chosenChange: "older",
+        rationale: "older",
+        outcome: "planned",
+        targetFiles: ["src/older.ts"],
+        nextCyclePlan: [],
+        blockingReason: "older"
+      }
+    ]);
+
+    expect(handoff).toEqual({
+      outcome: "committed",
+      targetFiles: [
+        "src/evolve/observe.ts",
+        "src/evolve/types.ts",
+        "test/plan-next-cycle.test.ts",
+        "test/evolve-cycle.test.ts",
+        "src/extra-a.ts"
+      ]
+    });
+    expect(handoff).not.toHaveProperty("chosenChange");
+    expect(handoff).not.toHaveProperty("nextCyclePlan");
   });
 
   test("caps planner hn signal and keeps a stable field shape", () => {

@@ -11,11 +11,13 @@ import type {
   ObserveData,
   ObserveHnSignalEntry,
   ObserveJournalIntegrity,
+  ObserveLatestCycleHandoff,
   ObserveRecentCycleSummaryEntry
 } from "./types.ts";
 
 const PLANNER_RECENT_CYCLE_SUMMARY_LIMIT = 3;
 const PLANNER_HN_SIGNAL_LIMIT = 3;
+const PLANNER_LATEST_CYCLE_TARGET_FILES_LIMIT = 5;
 
 function parseJson<T>(text: string, fallback: T): T {
   try {
@@ -43,6 +45,19 @@ function normalizeRecentCycleSummaryEntry(
     targetFiles: [...entry.targetFiles],
     nextCyclePlan: [...entry.nextCyclePlan],
     ...(entry.blockingReason ? { blockingReason: entry.blockingReason } : {})
+  };
+}
+
+function normalizeLatestCycleHandoff(
+  entry: Awaited<ReturnType<typeof readRecentEvolveJournalSummary>>[number] | undefined
+): ObserveLatestCycleHandoff | undefined {
+  if (!entry) {
+    return undefined;
+  }
+
+  return {
+    outcome: entry.outcome,
+    targetFiles: entry.targetFiles.slice(0, PLANNER_LATEST_CYCLE_TARGET_FILES_LIMIT)
   };
 }
 
@@ -75,6 +90,12 @@ export function buildPlannerRecentCycleSummary(
   return entries
     .slice(0, PLANNER_RECENT_CYCLE_SUMMARY_LIMIT)
     .map((entry) => normalizeRecentCycleSummaryEntry(entry));
+}
+
+export function buildPlannerLatestCycleHandoff(
+  entries: Awaited<ReturnType<typeof readRecentEvolveJournalSummary>>
+): ObserveLatestCycleHandoff | undefined {
+  return normalizeLatestCycleHandoff(entries[0]);
 }
 
 export function buildPlannerHnSignal(entries: Array<Record<string, unknown>>): ObserveHnSignalEntry[] {
@@ -142,10 +163,18 @@ export async function gatherObservations(): Promise<ObserveData> {
   }
 
   let recentCycleSummary: ObserveData["recentCycleSummary"] = [];
+  let latestCycleOutcome: ObserveData["latestCycleOutcome"];
+  let latestCycleTargetFiles: ObserveData["latestCycleTargetFiles"] = [];
   try {
-    recentCycleSummary = buildPlannerRecentCycleSummary(await readRecentEvolveJournalSummary());
+    const recentEntries = await readRecentEvolveJournalSummary();
+    recentCycleSummary = buildPlannerRecentCycleSummary(recentEntries);
+    const latestCycle = buildPlannerLatestCycleHandoff(recentEntries);
+    latestCycleOutcome = latestCycle?.outcome;
+    latestCycleTargetFiles = latestCycle?.targetFiles ?? [];
   } catch {
     recentCycleSummary = [];
+    latestCycleOutcome = undefined;
+    latestCycleTargetFiles = [];
   }
 
   let hnSignal: ObserveData["hnSignal"] = [];
@@ -165,6 +194,8 @@ export async function gatherObservations(): Promise<ObserveData> {
     journalTail,
     consecutivePlanCount,
     latestPlan,
+    latestCycleOutcome,
+    latestCycleTargetFiles,
     journalIntegrity,
     recentCycleSummary,
     recentHotFiles,

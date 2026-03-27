@@ -8,6 +8,11 @@ export type ObserveRecentCycleSummaryEntry = {
   blockingReason?: string;
 };
 
+export type ObserveLatestCycleHandoff = {
+  outcome: "committed" | "planned" | "reverted";
+  targetFiles: string[];
+};
+
 export type ObserveHnSignalEntry = {
   title: string;
   url: string;
@@ -37,6 +42,8 @@ export type ObserveData = {
     blockingReason?: string;
     nextCyclePlan: string[];
   };
+  latestCycleOutcome?: ObserveLatestCycleHandoff["outcome"];
+  latestCycleTargetFiles: string[];
   journalIntegrity: ObserveJournalIntegrity;
   recentCycleSummary: ObserveRecentCycleSummaryEntry[];
   recentHotFiles: string[];

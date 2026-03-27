@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 import {
   buildPlannerHnSignal,
   buildPlannerJournalIntegrity,
+  buildPlannerLatestCycleHandoff,
   buildPlannerRecentCycleSummary
 } from "../src/evolve/observe.ts";
 
@@ -42,6 +43,45 @@ describe("plan next cycle context assembly", () => {
       "targetFiles",
       "timestampUtc"
     ]);
+  });
+
+  test("returns bounded latest cycle handoff fields only", () => {
+    const handoff = buildPlannerLatestCycleHandoff([
+      {
+        timestampUtc: "2026-03-24T05:00:00.000Z",
+        chosenChange: "Recently finished work",
+        rationale: "improve planner awareness",
+        outcome: "committed",
+        targetFiles: [
+          "src/evolve/observe.ts",
+          "src/evolve/types.ts",
+          "test/plan-next-cycle.test.ts",
+          "test/evolve-cycle.test.ts",
+          "src/extra-a.ts",
+          "src/extra-b.ts"
+        ],
+        nextCyclePlan: ["should not leak"],
+        blockingReason: "should not leak",
+        failureNote: "hidden",
+        filesTouched: ["hidden.ts"]
+      } as never
+    ]);
+
+    expect(handoff).toEqual({
+      outcome: "committed",
+      targetFiles: [
+        "src/evolve/observe.ts",
+        "src/evolve/types.ts",
+        "test/plan-next-cycle.test.ts",
+        "test/evolve-cycle.test.ts",
+        "src/extra-a.ts"
+      ]
+    });
+    expect(Object.keys(handoff ?? {}).sort()).toEqual(["outcome", "targetFiles"]);
+  });
+
+  test("returns undefined latest cycle handoff when no recent entry exists", () => {
+    expect(buildPlannerLatestCycleHandoff([])).toBeUndefined();
   });
 
   test("returns normalized bounded journal integrity metadata only", () => {
