@@ -16,7 +16,7 @@ jobs:
     timeout-minutes: 30
     env:
       OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-      OPENAI_MODEL: gpt-5.4
+      OPENAI_MODEL: gpt-5.4-mini
       PERPLEXITY_API_KEY: ${{ secrets.PERPLEXITY_API_KEY }}
       SPRITE_TOKEN: ${{ secrets.SPRITE_TOKEN }}
       SPRITES_ENABLED: ${{ vars.SPRITES_ENABLED || 'false' }}
