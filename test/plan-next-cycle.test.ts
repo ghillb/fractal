@@ -82,6 +82,46 @@ describe("plan next cycle context assembly", () => {
     expect(Object.keys(handoff ?? {}).sort()).toEqual(["finished", "outcome", "targetFiles", "unfinished"]);
   });
 
+  test("derives latest cycle completion summary from handoff state", () => {
+    const handoff = buildPlannerLatestCycleHandoff([
+      {
+        timestampUtc: "2026-03-24T05:00:00.000Z",
+        chosenChange: "Recently finished work",
+        rationale: "improve planner awareness",
+        outcome: "reverted",
+        targetFiles: [
+          "src/evolve/observe.ts",
+          "src/evolve/types.ts",
+          "test/plan-next-cycle.test.ts",
+          "src/extra-a.ts",
+          "src/extra-b.ts"
+        ],
+        nextCyclePlan: [],
+        blockingReason: "should not leak"
+      } as never
+    ]);
+
+    expect({
+      outcome: handoff?.outcome,
+      targetFiles: handoff?.targetFiles,
+      finished: handoff?.finished,
+      unfinished: handoff?.unfinished,
+      summary: `${handoff?.finished ? "finished" : "unfinished"}; outcome=${handoff?.outcome}; targetFiles=${handoff?.targetFiles.join(", ") || "none"}`
+    }).toEqual({
+      outcome: "reverted",
+      targetFiles: [
+        "src/evolve/observe.ts",
+        "src/evolve/types.ts",
+        "test/plan-next-cycle.test.ts",
+        "src/extra-a.ts",
+        "src/extra-b.ts"
+      ],
+      finished: true,
+      unfinished: false,
+      summary: "finished; outcome=reverted; targetFiles=src/evolve/observe.ts, src/evolve/types.ts, test/plan-next-cycle.test.ts, src/extra-a.ts, src/extra-b.ts"
+    });
+  });
+
   test("returns undefined latest cycle handoff when no recent entry exists", () => {
     expect(buildPlannerLatestCycleHandoff([])).toBeUndefined();
   });

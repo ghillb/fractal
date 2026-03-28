@@ -15,6 +15,14 @@ export type ObserveLatestCycleHandoff = {
   unfinished: boolean;
 };
 
+export type ObserveLatestCycleCompletionSummary = {
+  outcome: "committed" | "planned" | "reverted";
+  targetFiles: string[];
+  finished: boolean;
+  unfinished: boolean;
+  summary: string;
+};
+
 export type ObserveHnSignalEntry = {
   title: string;
   url: string;
@@ -48,6 +56,7 @@ export type ObserveData = {
   latestCycleTargetFiles: string[];
   latestCycleFinished?: boolean;
   latestCycleUnfinished?: boolean;
+  latestCycleCompletionSummary?: string;
   journalIntegrity: ObserveJournalIntegrity;
   recentCycleSummary: ObserveRecentCycleSummaryEntry[];
   recentHotFiles: string[];

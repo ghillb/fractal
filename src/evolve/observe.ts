@@ -11,6 +11,7 @@ import type {
   ObserveData,
   ObserveHnSignalEntry,
   ObserveJournalIntegrity,
+  ObserveLatestCycleCompletionSummary,
   ObserveLatestCycleHandoff,
   ObserveRecentCycleSummaryEntry
 } from "./types.ts";
@@ -49,6 +50,24 @@ function normalizeRecentCycleSummaryEntry(
     targetFiles: [...entry.targetFiles],
     nextCyclePlan: [...entry.nextCyclePlan],
     ...(entry.blockingReason ? { blockingReason: entry.blockingReason } : {})
+  };
+}
+
+function buildLatestCycleCompletionSummary(
+  entry: Awaited<ReturnType<typeof readRecentEvolveJournalSummary>>[number] | undefined
+): ObserveLatestCycleCompletionSummary | undefined {
+  if (!entry) {
+    return undefined;
+  }
+
+  const handoff = normalizeLatestCycleHandoff(entry);
+  if (!handoff) {
+    return undefined;
+  }
+
+  return {
+    ...handoff,
+    summary: `${handoff.finished ? "finished" : "unfinished"}; outcome=${handoff.outcome}; targetFiles=${handoff.targetFiles.join(", ") || "none"}`
   };
 }
 
@@ -174,6 +193,7 @@ export async function gatherObservations(): Promise<ObserveData> {
   let latestCycleTargetFiles: ObserveData["latestCycleTargetFiles"] = [];
   let latestCycleFinished: ObserveData["latestCycleFinished"];
   let latestCycleUnfinished: ObserveData["latestCycleUnfinished"];
+  let latestCycleCompletionSummary: ObserveData["latestCycleCompletionSummary"];
   try {
     const recentEntries = await readRecentEvolveJournalSummary();
     recentCycleSummary = buildPlannerRecentCycleSummary(recentEntries);
@@ -182,12 +202,14 @@ export async function gatherObservations(): Promise<ObserveData> {
     latestCycleTargetFiles = latestCycle?.targetFiles ?? [];
     latestCycleFinished = latestCycle?.finished;
     latestCycleUnfinished = latestCycle?.unfinished;
+    latestCycleCompletionSummary = buildLatestCycleCompletionSummary(recentEntries)?.summary;
   } catch {
     recentCycleSummary = [];
     latestCycleOutcome = undefined;
     latestCycleTargetFiles = [];
     latestCycleFinished = undefined;
     latestCycleUnfinished = undefined;
+    latestCycleCompletionSummary = undefined;
   }
 
   let hnSignal: ObserveData["hnSignal"] = [];
@@ -211,6 +233,7 @@ export async function gatherObservations(): Promise<ObserveData> {
     latestCycleTargetFiles,
     latestCycleFinished,
     latestCycleUnfinished,
+    latestCycleCompletionSummary,
     journalIntegrity,
     recentCycleSummary,
     recentHotFiles,
