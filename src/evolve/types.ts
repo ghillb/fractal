@@ -11,6 +11,8 @@ export type ObserveRecentCycleSummaryEntry = {
 export type ObserveLatestCycleHandoff = {
   outcome: "committed" | "planned" | "reverted";
   targetFiles: string[];
+  finished: boolean;
+  unfinished: boolean;
 };
 
 export type ObserveHnSignalEntry = {
@@ -44,6 +46,8 @@ export type ObserveData = {
   };
   latestCycleOutcome?: ObserveLatestCycleHandoff["outcome"];
   latestCycleTargetFiles: string[];
+  latestCycleFinished?: boolean;
+  latestCycleUnfinished?: boolean;
   journalIntegrity: ObserveJournalIntegrity;
   recentCycleSummary: ObserveRecentCycleSummaryEntry[];
   recentHotFiles: string[];

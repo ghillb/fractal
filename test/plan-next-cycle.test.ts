@@ -75,9 +75,11 @@ describe("plan next cycle context assembly", () => {
         "test/plan-next-cycle.test.ts",
         "test/evolve-cycle.test.ts",
         "src/extra-a.ts"
-      ]
+      ],
+      finished: true,
+      unfinished: false
     });
-    expect(Object.keys(handoff ?? {}).sort()).toEqual(["outcome", "targetFiles"]);
+    expect(Object.keys(handoff ?? {}).sort()).toEqual(["finished", "outcome", "targetFiles", "unfinished"]);
   });
 
   test("returns undefined latest cycle handoff when no recent entry exists", () => {

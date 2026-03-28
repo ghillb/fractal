@@ -46,6 +46,8 @@ describe("evolve cycle change detection", () => {
         latestPlan: undefined,
         latestCycleOutcome: undefined,
         latestCycleTargetFiles: [],
+        latestCycleFinished: undefined,
+        latestCycleUnfinished: undefined,
         journalIntegrity: { rejectedHistoricalEntryCount: 0 },
         recentCycleSummary: [],
         recentHotFiles: [],
@@ -70,6 +72,8 @@ describe("evolve cycle change detection", () => {
         },
         latestCycleOutcome: "planned",
         latestCycleTargetFiles: ["test/journal-schema.test.ts"],
+        latestCycleFinished: false,
+        latestCycleUnfinished: true,
         journalIntegrity: { rejectedHistoricalEntryCount: 0 },
         recentCycleSummary: [],
         recentHotFiles: [],
@@ -213,7 +217,9 @@ describe("evolve cycle change detection", () => {
         "test/plan-next-cycle.test.ts",
         "test/evolve-cycle.test.ts",
         "src/extra-a.ts"
-      ]
+      ],
+      finished: true,
+      unfinished: false
     });
     expect(handoff).not.toHaveProperty("chosenChange");
     expect(handoff).not.toHaveProperty("nextCyclePlan");

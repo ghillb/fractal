@@ -19,6 +19,10 @@ const PLANNER_RECENT_CYCLE_SUMMARY_LIMIT = 3;
 const PLANNER_HN_SIGNAL_LIMIT = 3;
 const PLANNER_LATEST_CYCLE_TARGET_FILES_LIMIT = 5;
 
+function isFinishedOutcome(outcome: "committed" | "planned" | "reverted"): boolean {
+  return outcome === "committed" || outcome === "reverted";
+}
+
 function parseJson<T>(text: string, fallback: T): T {
   try {
     return JSON.parse(text) as T;
@@ -55,9 +59,12 @@ function normalizeLatestCycleHandoff(
     return undefined;
   }
 
+  const finished = isFinishedOutcome(entry.outcome);
   return {
     outcome: entry.outcome,
-    targetFiles: entry.targetFiles.slice(0, PLANNER_LATEST_CYCLE_TARGET_FILES_LIMIT)
+    targetFiles: entry.targetFiles.slice(0, PLANNER_LATEST_CYCLE_TARGET_FILES_LIMIT),
+    finished,
+    unfinished: !finished
   };
 }
 
@@ -165,16 +172,22 @@ export async function gatherObservations(): Promise<ObserveData> {
   let recentCycleSummary: ObserveData["recentCycleSummary"] = [];
   let latestCycleOutcome: ObserveData["latestCycleOutcome"];
   let latestCycleTargetFiles: ObserveData["latestCycleTargetFiles"] = [];
+  let latestCycleFinished: ObserveData["latestCycleFinished"];
+  let latestCycleUnfinished: ObserveData["latestCycleUnfinished"];
   try {
     const recentEntries = await readRecentEvolveJournalSummary();
     recentCycleSummary = buildPlannerRecentCycleSummary(recentEntries);
     const latestCycle = buildPlannerLatestCycleHandoff(recentEntries);
     latestCycleOutcome = latestCycle?.outcome;
     latestCycleTargetFiles = latestCycle?.targetFiles ?? [];
+    latestCycleFinished = latestCycle?.finished;
+    latestCycleUnfinished = latestCycle?.unfinished;
   } catch {
     recentCycleSummary = [];
     latestCycleOutcome = undefined;
     latestCycleTargetFiles = [];
+    latestCycleFinished = undefined;
+    latestCycleUnfinished = undefined;
   }
 
   let hnSignal: ObserveData["hnSignal"] = [];
@@ -196,6 +209,8 @@ export async function gatherObservations(): Promise<ObserveData> {
     latestPlan,
     latestCycleOutcome,
     latestCycleTargetFiles,
+    latestCycleFinished,
+    latestCycleUnfinished,
     journalIntegrity,
     recentCycleSummary,
     recentHotFiles,
