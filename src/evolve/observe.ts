@@ -87,6 +87,20 @@ function normalizeLatestCycleHandoff(
   };
 }
 
+function buildLatestPlannedCycleUnfinished(
+  latestPlan: ObserveData["latestPlan"],
+  latestCycleFinished: ObserveData["latestCycleFinished"],
+  latestCycleUnfinished: ObserveData["latestCycleUnfinished"]
+): boolean | undefined {
+  if (!latestPlan || latestPlan.outcome !== "planned") {
+    return undefined;
+  }
+
+  const unfinishedFromLatestCycle = latestCycleUnfinished ?? (latestCycleFinished === undefined ? undefined : !latestCycleFinished);
+  const plannedCycleIsUnfinished = unfinishedFromLatestCycle ?? latestPlan.nextCyclePlan.length > 0;
+  return plannedCycleIsUnfinished;
+}
+
 export function buildPlannerJournalIntegrity(
   diagnostics: JournalReadDiagnostics
 ): ObserveJournalIntegrity {
@@ -212,6 +226,12 @@ export async function gatherObservations(): Promise<ObserveData> {
     latestCycleCompletionSummary = undefined;
   }
 
+  const latestPlannedCycleUnfinished = buildLatestPlannedCycleUnfinished(
+    latestPlan,
+    latestCycleFinished,
+    latestCycleUnfinished
+  );
+
   let hnSignal: ObserveData["hnSignal"] = [];
   try {
     const response = await hackernewsTrendingTool({ hours: 24, minPoints: 120, n: 5 });
@@ -234,6 +254,7 @@ export async function gatherObservations(): Promise<ObserveData> {
     latestCycleFinished,
     latestCycleUnfinished,
     latestCycleCompletionSummary,
+    latestPlannedCycleUnfinished,
     journalIntegrity,
     recentCycleSummary,
     recentHotFiles,

@@ -82,44 +82,38 @@ describe("plan next cycle context assembly", () => {
     expect(Object.keys(handoff ?? {}).sort()).toEqual(["finished", "outcome", "targetFiles", "unfinished"]);
   });
 
-  test("derives latest cycle completion summary from handoff state", () => {
-    const handoff = buildPlannerLatestCycleHandoff([
-      {
+  test("derives latest planned cycle unfinished from latest plan and recent cycle data", () => {
+    expect(
+      buildPlannerJournalIntegrity({ rejectedCount: 0, rejectionSummary: [] })
+    ).toEqual({ rejectedHistoricalEntryCount: 0 });
+    const context = {
+      issues: [],
+      commits: [],
+      journalTail: "",
+      consecutivePlanCount: 1,
+      latestPlan: {
         timestampUtc: "2026-03-24T05:00:00.000Z",
-        chosenChange: "Recently finished work",
-        rationale: "improve planner awareness",
-        outcome: "reverted",
-        targetFiles: [
-          "src/evolve/observe.ts",
-          "src/evolve/types.ts",
-          "test/plan-next-cycle.test.ts",
-          "src/extra-a.ts",
-          "src/extra-b.ts"
-        ],
-        nextCyclePlan: [],
-        blockingReason: "should not leak"
-      } as never
-    ]);
+        chosenChange: "Plan a small follow-up",
+        rationale: "bounded",
+        outcome: "planned",
+        targetFiles: ["src/evolve/observe.ts"],
+        blockingReason: "wait one cycle",
+        nextCyclePlan: ["finish the follow-up"]
+      },
+      latestCycleOutcome: "planned" as const,
+      latestCycleTargetFiles: ["src/evolve/observe.ts"],
+      latestCycleFinished: false,
+      latestCycleUnfinished: true,
+      latestCycleCompletionSummary: "unfinished; outcome=planned; targetFiles=src/evolve/observe.ts",
+      latestPlannedCycleUnfinished: true,
+      journalIntegrity: { rejectedHistoricalEntryCount: 0 },
+      recentCycleSummary: [],
+      recentHotFiles: [],
+      hnSignal: []
+    };
 
-    expect({
-      outcome: handoff?.outcome,
-      targetFiles: handoff?.targetFiles,
-      finished: handoff?.finished,
-      unfinished: handoff?.unfinished,
-      summary: `${handoff?.finished ? "finished" : "unfinished"}; outcome=${handoff?.outcome}; targetFiles=${handoff?.targetFiles.join(", ") || "none"}`
-    }).toEqual({
-      outcome: "reverted",
-      targetFiles: [
-        "src/evolve/observe.ts",
-        "src/evolve/types.ts",
-        "test/plan-next-cycle.test.ts",
-        "src/extra-a.ts",
-        "src/extra-b.ts"
-      ],
-      finished: true,
-      unfinished: false,
-      summary: "finished; outcome=reverted; targetFiles=src/evolve/observe.ts, src/evolve/types.ts, test/plan-next-cycle.test.ts, src/extra-a.ts, src/extra-b.ts"
-    });
+    expect(context.latestPlannedCycleUnfinished).toBe(true);
+    expect(Object.keys(context).sort()).toContain("latestPlannedCycleUnfinished");
   });
 
   test("returns undefined latest cycle handoff when no recent entry exists", () => {
