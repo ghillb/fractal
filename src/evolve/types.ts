@@ -42,6 +42,12 @@ export type ObserveJournalIntegrity = {
   rejectionSummary?: string[];
 };
 
+export type ObserveRepositoryActivitySignal = {
+  active: boolean;
+  distinctFilesTouched: number;
+  recentChangeStreak: number;
+};
+
 export type ObserveData = {
   issues: Array<{ number: number; title: string; updatedAt: string }>;
   commits: Array<{ hash: string; subject: string; date: string }>;
@@ -63,6 +69,7 @@ export type ObserveData = {
   latestCycleCompletionSummary?: string;
   latestPlannedCycleUnfinished?: boolean;
   journalIntegrity: ObserveJournalIntegrity;
+  repositoryActivity: ObserveRepositoryActivitySignal;
   recentCycleSummary: ObserveRecentCycleSummaryEntry[];
   recentHotFiles: string[];
   hnSignal: ObserveHnSignalEntry[];

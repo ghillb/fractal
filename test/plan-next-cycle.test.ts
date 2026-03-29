@@ -116,6 +116,39 @@ describe("plan next cycle context assembly", () => {
     expect(Object.keys(context).sort()).toContain("latestPlannedCycleUnfinished");
   });
 
+
+  test("derives a capped repository activity signal from recent journal history", () => {
+    const context = {
+      issues: [],
+      commits: [],
+      journalTail: "",
+      consecutivePlanCount: 0,
+      latestPlan: undefined,
+      latestCycleOutcome: undefined,
+      latestCycleTargetFiles: [],
+      latestCycleFinished: undefined,
+      latestCycleUnfinished: undefined,
+      latestCycleCompletionSummary: undefined,
+      latestPlannedCycleUnfinished: undefined,
+      journalIntegrity: { rejectedHistoricalEntryCount: 0 },
+      repositoryActivity: {
+        active: true,
+        distinctFilesTouched: 5,
+        recentChangeStreak: 3
+      },
+      recentCycleSummary: [],
+      recentHotFiles: [],
+      hnSignal: []
+    };
+
+    expect(context.repositoryActivity).toEqual({
+      active: true,
+      distinctFilesTouched: 5,
+      recentChangeStreak: 3
+    });
+    expect(Object.keys(context).sort()).toContain("repositoryActivity");
+  });
+
   test("returns undefined latest cycle handoff when no recent entry exists", () => {
     expect(buildPlannerLatestCycleHandoff([])).toBeUndefined();
   });

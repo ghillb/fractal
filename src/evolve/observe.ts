@@ -13,12 +13,38 @@ import type {
   ObserveJournalIntegrity,
   ObserveLatestCycleCompletionSummary,
   ObserveLatestCycleHandoff,
-  ObserveRecentCycleSummaryEntry
+  ObserveRecentCycleSummaryEntry,
+  ObserveRepositoryActivitySignal
 } from "./types.ts";
 
 const PLANNER_RECENT_CYCLE_SUMMARY_LIMIT = 3;
 const PLANNER_HN_SIGNAL_LIMIT = 3;
 const PLANNER_LATEST_CYCLE_TARGET_FILES_LIMIT = 5;
+const PLANNER_ACTIVITY_LOOKBACK_LIMIT = 8;
+const PLANNER_ACTIVITY_ACTIVE_THRESHOLD = 2;
+const PLANNER_ACTIVITY_FILES_CAP = 5;
+
+function buildRepositoryActivitySignal(entries: Awaited<ReturnType<typeof readRecentEvolveJournalSummary>>): ObserveRepositoryActivitySignal {
+  const uniqueFiles = new Set<string>();
+  let recentChangeStreak = 0;
+
+  for (const entry of entries.slice(0, PLANNER_ACTIVITY_LOOKBACK_LIMIT)) {
+    for (const file of entry.targetFiles.slice(0, PLANNER_ACTIVITY_FILES_CAP)) {
+      uniqueFiles.add(file);
+    }
+    if (entry.outcome === "planned" || entry.outcome === "committed") {
+      recentChangeStreak += 1;
+    } else {
+      break;
+    }
+  }
+
+  return {
+    active: recentChangeStreak >= PLANNER_ACTIVITY_ACTIVE_THRESHOLD,
+    distinctFilesTouched: Math.min(uniqueFiles.size, PLANNER_ACTIVITY_FILES_CAP),
+    recentChangeStreak: Math.min(recentChangeStreak, PLANNER_ACTIVITY_LOOKBACK_LIMIT)
+  };
+}
 
 function isFinishedOutcome(outcome: "committed" | "planned" | "reverted"): boolean {
   return outcome === "committed" || outcome === "reverted";
@@ -202,6 +228,7 @@ export async function gatherObservations(): Promise<ObserveData> {
     journalIntegrity = buildPlannerJournalIntegrity({ rejectedCount: 0, rejectionSummary: [] });
   }
 
+  let repositoryActivity: ObserveRepositoryActivitySignal = { active: false, distinctFilesTouched: 0, recentChangeStreak: 0 };
   let recentCycleSummary: ObserveData["recentCycleSummary"] = [];
   let latestCycleOutcome: ObserveData["latestCycleOutcome"];
   let latestCycleTargetFiles: ObserveData["latestCycleTargetFiles"] = [];
@@ -210,6 +237,7 @@ export async function gatherObservations(): Promise<ObserveData> {
   let latestCycleCompletionSummary: ObserveData["latestCycleCompletionSummary"];
   try {
     const recentEntries = await readRecentEvolveJournalSummary();
+    repositoryActivity = buildRepositoryActivitySignal(recentEntries);
     recentCycleSummary = buildPlannerRecentCycleSummary(recentEntries);
     const latestCycle = buildPlannerLatestCycleHandoff(recentEntries);
     latestCycleOutcome = latestCycle?.outcome;
@@ -218,6 +246,7 @@ export async function gatherObservations(): Promise<ObserveData> {
     latestCycleUnfinished = latestCycle?.unfinished;
     latestCycleCompletionSummary = buildLatestCycleCompletionSummary(recentEntries)?.summary;
   } catch {
+    repositoryActivity = { active: false, distinctFilesTouched: 0, recentChangeStreak: 0 };
     recentCycleSummary = [];
     latestCycleOutcome = undefined;
     latestCycleTargetFiles = [];
@@ -256,6 +285,7 @@ export async function gatherObservations(): Promise<ObserveData> {
     latestCycleCompletionSummary,
     latestPlannedCycleUnfinished,
     journalIntegrity,
+    repositoryActivity,
     recentCycleSummary,
     recentHotFiles,
     hnSignal
