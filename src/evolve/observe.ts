@@ -23,6 +23,7 @@ const PLANNER_LATEST_CYCLE_TARGET_FILES_LIMIT = 5;
 const PLANNER_ACTIVITY_LOOKBACK_LIMIT = 8;
 const PLANNER_ACTIVITY_ACTIVE_THRESHOLD = 2;
 const PLANNER_ACTIVITY_FILES_CAP = 5;
+const PLANNER_ACTIVITY_FRESHNESS_MAX = 100;
 
 function buildRepositoryActivitySignal(entries: Awaited<ReturnType<typeof readRecentEvolveJournalSummary>>): ObserveRepositoryActivitySignal {
   const uniqueFiles = new Set<string>();
@@ -39,10 +40,15 @@ function buildRepositoryActivitySignal(entries: Awaited<ReturnType<typeof readRe
     }
   }
 
+  const distinctFilesTouched = Math.min(uniqueFiles.size, PLANNER_ACTIVITY_FILES_CAP);
+  const freshnessScore = Math.min(PLANNER_ACTIVITY_FRESHNESS_MAX, recentChangeStreak * 20 + distinctFilesTouched * 12);
+
   return {
     active: recentChangeStreak >= PLANNER_ACTIVITY_ACTIVE_THRESHOLD,
-    distinctFilesTouched: Math.min(uniqueFiles.size, PLANNER_ACTIVITY_FILES_CAP),
-    recentChangeStreak: Math.min(recentChangeStreak, PLANNER_ACTIVITY_LOOKBACK_LIMIT)
+    distinctFilesTouched,
+    recentChangeStreak: Math.min(recentChangeStreak, PLANNER_ACTIVITY_LOOKBACK_LIMIT),
+    freshnessScore,
+    freshnessLabel: freshnessScore >= 60 ? "active" : freshnessScore >= 20 ? "warming" : "idle"
   };
 }
 
@@ -228,7 +234,7 @@ export async function gatherObservations(): Promise<ObserveData> {
     journalIntegrity = buildPlannerJournalIntegrity({ rejectedCount: 0, rejectionSummary: [] });
   }
 
-  let repositoryActivity: ObserveRepositoryActivitySignal = { active: false, distinctFilesTouched: 0, recentChangeStreak: 0 };
+  let repositoryActivity: ObserveRepositoryActivitySignal = { active: false, distinctFilesTouched: 0, recentChangeStreak: 0, freshnessScore: 0, freshnessLabel: "idle" };
   let recentCycleSummary: ObserveData["recentCycleSummary"] = [];
   let latestCycleOutcome: ObserveData["latestCycleOutcome"];
   let latestCycleTargetFiles: ObserveData["latestCycleTargetFiles"] = [];
@@ -244,9 +250,9 @@ export async function gatherObservations(): Promise<ObserveData> {
     latestCycleTargetFiles = latestCycle?.targetFiles ?? [];
     latestCycleFinished = latestCycle?.finished;
     latestCycleUnfinished = latestCycle?.unfinished;
-    latestCycleCompletionSummary = buildLatestCycleCompletionSummary(recentEntries)?.summary;
+    latestCycleCompletionSummary = buildLatestCycleCompletionSummary(recentEntries[0])?.summary;
   } catch {
-    repositoryActivity = { active: false, distinctFilesTouched: 0, recentChangeStreak: 0 };
+    repositoryActivity = { active: false, distinctFilesTouched: 0, recentChangeStreak: 0, freshnessScore: 0, freshnessLabel: "idle" };
     recentCycleSummary = [];
     latestCycleOutcome = undefined;
     latestCycleTargetFiles = [];

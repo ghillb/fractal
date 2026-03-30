@@ -46,6 +46,8 @@ export type ObserveRepositoryActivitySignal = {
   active: boolean;
   distinctFilesTouched: number;
   recentChangeStreak: number;
+  freshnessScore: number;
+  freshnessLabel: "idle" | "warming" | "active";
 };
 
 export type ObserveData = {
