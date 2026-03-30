@@ -44,6 +44,7 @@ function buildRepositoryActivitySignal(entries: Awaited<ReturnType<typeof readRe
   const freshnessScore = Math.min(PLANNER_ACTIVITY_FRESHNESS_MAX, recentChangeStreak * 20 + distinctFilesTouched * 12);
 
   const freshnessLabel = freshnessScore >= 60 ? "active" : freshnessScore >= 20 ? "warming" : "idle";
+  const freshnessActionHint = recentChangeStreak >= PLANNER_ACTIVITY_ACTIVE_THRESHOLD ? "changing" : "fresh";
 
   return {
     active: recentChangeStreak >= PLANNER_ACTIVITY_ACTIVE_THRESHOLD,
@@ -51,6 +52,7 @@ function buildRepositoryActivitySignal(entries: Awaited<ReturnType<typeof readRe
     recentChangeStreak: Math.min(recentChangeStreak, PLANNER_ACTIVITY_LOOKBACK_LIMIT),
     freshnessScore,
     freshnessLabel,
+    freshnessActionHint,
     freshEnoughForPlanning: freshnessLabel !== "idle"
   };
 }
@@ -237,7 +239,7 @@ export async function gatherObservations(): Promise<ObserveData> {
     journalIntegrity = buildPlannerJournalIntegrity({ rejectedCount: 0, rejectionSummary: [] });
   }
 
-  let repositoryActivity: ObserveRepositoryActivitySignal = { active: false, distinctFilesTouched: 0, recentChangeStreak: 0, freshnessScore: 0, freshnessLabel: "idle", freshEnoughForPlanning: false };
+  let repositoryActivity: ObserveRepositoryActivitySignal = { active: false, distinctFilesTouched: 0, recentChangeStreak: 0, freshnessScore: 0, freshnessLabel: "idle", freshnessActionHint: "fresh", freshEnoughForPlanning: false };
   let recentCycleSummary: ObserveData["recentCycleSummary"] = [];
   let latestCycleOutcome: ObserveData["latestCycleOutcome"];
   let latestCycleTargetFiles: ObserveData["latestCycleTargetFiles"] = [];
@@ -255,7 +257,7 @@ export async function gatherObservations(): Promise<ObserveData> {
     latestCycleUnfinished = latestCycle?.unfinished;
     latestCycleCompletionSummary = buildLatestCycleCompletionSummary(recentEntries[0])?.summary;
   } catch {
-    repositoryActivity = { active: false, distinctFilesTouched: 0, recentChangeStreak: 0, freshnessScore: 0, freshnessLabel: "idle", freshEnoughForPlanning: false };
+    repositoryActivity = { active: false, distinctFilesTouched: 0, recentChangeStreak: 0, freshnessScore: 0, freshnessLabel: "idle", freshnessActionHint: "fresh", freshEnoughForPlanning: false };
     recentCycleSummary = [];
     latestCycleOutcome = undefined;
     latestCycleTargetFiles = [];
