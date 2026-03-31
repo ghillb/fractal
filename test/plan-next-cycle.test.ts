@@ -134,7 +134,11 @@ describe("plan next cycle context assembly", () => {
       repositoryActivity: {
         active: true,
         distinctFilesTouched: 5,
-        recentChangeStreak: 3
+        recentChangeStreak: 3,
+        freshnessScore: 84,
+        freshnessLabel: "active",
+        activityHint: "active",
+        freshEnoughForPlanning: true
       },
       recentCycleSummary: [],
       recentHotFiles: [],
@@ -144,7 +148,11 @@ describe("plan next cycle context assembly", () => {
     expect(context.repositoryActivity).toEqual({
       active: true,
       distinctFilesTouched: 5,
-      recentChangeStreak: 3
+      recentChangeStreak: 3,
+      freshnessScore: 84,
+      freshnessLabel: "active",
+      activityHint: "active",
+      freshEnoughForPlanning: true
     });
     expect(Object.keys(context).sort()).toContain("repositoryActivity");
   });

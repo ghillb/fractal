@@ -48,7 +48,7 @@ export type ObserveRepositoryActivitySignal = {
   recentChangeStreak: number;
   freshnessScore: number;
   freshnessLabel: "idle" | "warming" | "active";
-  freshnessActionHint: "fresh" | "changing";
+  activityHint: "idle" | "warming" | "active";
   freshEnoughForPlanning: boolean;
 };
 

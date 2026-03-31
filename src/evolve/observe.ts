@@ -42,9 +42,9 @@ function buildRepositoryActivitySignal(entries: Awaited<ReturnType<typeof readRe
 
   const distinctFilesTouched = Math.min(uniqueFiles.size, PLANNER_ACTIVITY_FILES_CAP);
   const freshnessScore = Math.min(PLANNER_ACTIVITY_FRESHNESS_MAX, recentChangeStreak * 20 + distinctFilesTouched * 12);
-
   const freshnessLabel = freshnessScore >= 60 ? "active" : freshnessScore >= 20 ? "warming" : "idle";
-  const freshnessActionHint = recentChangeStreak >= PLANNER_ACTIVITY_ACTIVE_THRESHOLD ? "changing" : "fresh";
+  const activityHint: ObserveRepositoryActivitySignal["activityHint"] =
+    freshnessLabel === "active" ? "active" : freshnessLabel === "warming" ? "warming" : "idle";
 
   return {
     active: recentChangeStreak >= PLANNER_ACTIVITY_ACTIVE_THRESHOLD,
@@ -52,7 +52,7 @@ function buildRepositoryActivitySignal(entries: Awaited<ReturnType<typeof readRe
     recentChangeStreak: Math.min(recentChangeStreak, PLANNER_ACTIVITY_LOOKBACK_LIMIT),
     freshnessScore,
     freshnessLabel,
-    freshnessActionHint,
+    activityHint,
     freshEnoughForPlanning: freshnessLabel !== "idle"
   };
 }
@@ -239,7 +239,7 @@ export async function gatherObservations(): Promise<ObserveData> {
     journalIntegrity = buildPlannerJournalIntegrity({ rejectedCount: 0, rejectionSummary: [] });
   }
 
-  let repositoryActivity: ObserveRepositoryActivitySignal = { active: false, distinctFilesTouched: 0, recentChangeStreak: 0, freshnessScore: 0, freshnessLabel: "idle", freshnessActionHint: "fresh", freshEnoughForPlanning: false };
+  let repositoryActivity: ObserveRepositoryActivitySignal = { active: false, distinctFilesTouched: 0, recentChangeStreak: 0, freshnessScore: 0, freshnessLabel: "idle", activityHint: "idle", freshEnoughForPlanning: false };
   let recentCycleSummary: ObserveData["recentCycleSummary"] = [];
   let latestCycleOutcome: ObserveData["latestCycleOutcome"];
   let latestCycleTargetFiles: ObserveData["latestCycleTargetFiles"] = [];
@@ -257,7 +257,7 @@ export async function gatherObservations(): Promise<ObserveData> {
     latestCycleUnfinished = latestCycle?.unfinished;
     latestCycleCompletionSummary = buildLatestCycleCompletionSummary(recentEntries[0])?.summary;
   } catch {
-    repositoryActivity = { active: false, distinctFilesTouched: 0, recentChangeStreak: 0, freshnessScore: 0, freshnessLabel: "idle", freshnessActionHint: "fresh", freshEnoughForPlanning: false };
+    repositoryActivity = { active: false, distinctFilesTouched: 0, recentChangeStreak: 0, freshnessScore: 0, freshnessLabel: "idle", activityHint: "idle", freshEnoughForPlanning: false };
     recentCycleSummary = [];
     latestCycleOutcome = undefined;
     latestCycleTargetFiles = [];
@@ -266,22 +266,9 @@ export async function gatherObservations(): Promise<ObserveData> {
     latestCycleCompletionSummary = undefined;
   }
 
-  const latestPlannedCycleUnfinished = buildLatestPlannedCycleUnfinished(
-    latestPlan,
-    latestCycleFinished,
-    latestCycleUnfinished
-  );
+  const latestPlannedCycleUnfinished = buildLatestPlannedCycleUnfinished(latestPlan, latestCycleFinished, latestCycleUnfinished);
 
-  let hnSignal: ObserveData["hnSignal"] = [];
-  try {
-    const response = await hackernewsTrendingTool({ hours: 24, minPoints: 120, n: 5 });
-    const results = response.results;
-    if (Array.isArray(results)) {
-      hnSignal = buildPlannerHnSignal(results as Array<Record<string, unknown>>);
-    }
-  } catch {
-    hnSignal = [];
-  }
+  const hnSignal = buildPlannerHnSignal(await hackernewsTrendingTool(24, 50, 10));
 
   return {
     issues,
