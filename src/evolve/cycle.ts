@@ -7,6 +7,7 @@ import { extractOutputText, openAiResponses } from "../agent/openai.ts";
 import { spriteEphemeralWorkflow } from "../tools/sprites.ts";
 import { gatherObservations } from "./observe.ts";
 import { appendJournal } from "./journal.ts";
+import { canRunWorkflowKind, selectEvolveWorkflow } from "./workflows.ts";
 import type { EvolutionDecision, ObserveData } from "./types.ts";
 
 const DEFAULT_MISSION =
@@ -101,13 +102,11 @@ export function shouldApplyHotFilePressure(randomValue: number): boolean {
   return randomValue < HOT_FILE_AVOIDANCE_PROBABILITY;
 }
 
-async function generateDecision(
-  goal: string,
-  observations: ObserveData
-): Promise<EvolutionDecision> {
+async function generateDecision(goal: string, observations: ObserveData): Promise<EvolutionDecision> {
   const config = readConfig();
   const applyHotFilePressure =
     observations.recentHotFiles.length > 0 && shouldApplyHotFilePressure(Math.random());
+  const workflowSelection = selectEvolveWorkflow(observations);
 
   const prompt = [
     "You are selecting exactly one high-impact and bounded codebase improvement.",
@@ -121,6 +120,7 @@ async function generateDecision(
     "A planned cycle may only happen once consecutively. If consecutivePlanCount is 1 or more, you must return executionMode='implement'.",
     "If executionMode='implement', name the likely targetFiles and leave nextCyclePlan empty unless a small follow-up is still useful.",
     "If executionMode='plan', blockingReason must be non-empty and nextCyclePlan must contain 1-3 actionable steps grounded in files or modules that exist in the repository.",
+    `Workflow routing hint: ${workflowSelection.kind}. ${workflowSelection.reason}.`,
     applyHotFilePressure
       ? `Recent cycles repeatedly targeted these files: ${observations.recentHotFiles.join(", ")}. Unless there is an unresolved validation failure or production bug in that area, prefer a different subsystem this cycle.`
       : "",
@@ -229,6 +229,15 @@ export async function runEvolveCycle(options: { dryRun?: boolean; goal?: string 
   ensureCleanStart();
 
   const observations = await gatherObservations();
+  const workflowSelection = selectEvolveWorkflow(observations);
+  logger.info("workflow_selection", workflowSelection as unknown as Record<string, unknown>);
+  if (options.dryRun) {
+    console.log(JSON.stringify({ mode, goal, workflowSelection }, null, 2));
+    return;
+  }
+  if (workflowSelection.kind === "meta" && !canRunWorkflowKind("meta", observations)) {
+    throw new Error(`workflow routing validation failed: ${workflowSelection.reason}`);
+  }
   const decision = await generateDecision(goal, observations);
   logger.info("decision", decision as unknown as Record<string, unknown>);
 
