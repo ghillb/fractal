@@ -89,7 +89,10 @@ Loaded from `.agents/skills/**/SKILL.md`:
 
 ## Evolve workflow (GitHub Actions)
 
-- File: `.github/workflows/evolve.yml`
+- Files:
+  - `.github/workflows/evolve.yml` direct task-runner entrypoint
+  - `.github/workflows/evolve-task.yml` reusable task workflow
+  - `.github/workflows/evolve-meta.yml` outer orchestrator that fans out candidate goals and promotes the best bundle
 - Triggers:
   - `schedule`: every 8 hours (`0 */8 * * *`)
   - `workflow_dispatch`: manual run
@@ -103,12 +106,13 @@ Loaded from `.agents/skills/**/SKILL.md`:
   - `SPRITE_TOKEN` (required only when `SPRITES_ENABLED=true`)
 
 Workflow behavior:
-- Runs `bun run evolve:cycle`.
-- Persists `JOURNAL.md` even when evolve fails/reverts, then pushes if ahead.
-- Fails workflow when evolve run reverts due to implementation error.
+- `evolve.yml` delegates to the reusable task workflow with a single canonical goal.
+- `evolve-task.yml` runs `bun run evolve:cycle`, persists `JOURNAL.md`, packages a candidate bundle, and optionally pushes.
+- `evolve-meta.yml` is the split-loop orchestrator: dispatch it manually to fan out a few goal variants, download candidate bundles, score them from traces, reapplies the best patch on a fresh checkout, validates, and opens a PR.
 - Explicit `plan` outcomes remain non-error even when they produce no diff.
 - High-uncertainty cases are recorded as planned handoffs, not a separate outcome.
 - Implement runs that produce no diff still fail; only explicit planned handoffs are green.
+- Candidate bundles include a patch, summary JSON, and logs under the candidate artifact name.
 
 ## Enable Sprites in GitHub Actions
 

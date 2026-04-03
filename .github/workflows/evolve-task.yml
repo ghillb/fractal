@@ -1,0 +1,246 @@
+name: Evolve Task Runner
+
+on:
+  workflow_call:
+    inputs:
+      baseline_ref:
+        description: Baseline ref to check out and diff against.
+        required: false
+        type: string
+        default: main
+      goal:
+        description: Mission passed to the evolve loop.
+        required: false
+        type: string
+        default: Become an entity that is ever more capable while improving safely.
+      candidate_name:
+        description: Stable label for candidate artifacts.
+        required: false
+        type: string
+        default: task
+      push_commits:
+        description: Push commits after a green run.
+        required: false
+        type: boolean
+        default: false
+  workflow_dispatch:
+    inputs:
+      baseline_ref:
+        description: Baseline ref to check out and diff against.
+        required: false
+        default: main
+      goal:
+        description: Mission passed to the evolve loop.
+        required: false
+        default: Become an entity that is ever more capable while improving safely.
+      candidate_name:
+        description: Stable label for candidate artifacts.
+        required: false
+        default: task
+      push_commits:
+        description: Push commits after a green run.
+        type: boolean
+        required: false
+        default: true
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  evolve:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      OPENAI_MODEL: gpt-5.4-mini
+      PERPLEXITY_API_KEY: ${{ secrets.PERPLEXITY_API_KEY }}
+      SPRITE_TOKEN: ${{ secrets.SPRITE_TOKEN }}
+      SPRITES_ENABLED: ${{ vars.SPRITES_ENABLED || 'false' }}
+      SPRITES_DEFAULT_NAME: ${{ vars.SPRITES_DEFAULT_NAME || 'qbuild' }}
+      FRACTAL_EVOLVE_GOAL: ${{ inputs.goal }}
+      FRACTAL_MAX_STEPS: "50"
+      FRACTAL_MAX_CYCLE_SECONDS: "900"
+      FRACTAL_GIT_AUTHOR_NAME: fractal[bot]
+      FRACTAL_GIT_AUTHOR_EMAIL: fractal-bot@users.noreply.github.com
+      FRACTAL_BASELINE_REF: ${{ inputs.baseline_ref }}
+      FRACTAL_CANDIDATE_NAME: ${{ inputs.candidate_name }}
+      FRACTAL_PUSH_COMMITS: ${{ inputs.push_commits }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.baseline_ref }}
+          fetch-depth: 0
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Install
+        run: bun install --frozen-lockfile
+
+      - name: Typecheck
+        id: typecheck
+        continue-on-error: true
+        run: bun run typecheck
+
+      - name: Configure git identity
+        if: steps.typecheck.outcome == 'success'
+        run: |
+          git config user.name "$FRACTAL_GIT_AUTHOR_NAME"
+          git config user.email "$FRACTAL_GIT_AUTHOR_EMAIL"
+
+      - name: Setup Sprites CLI
+        if: steps.typecheck.outcome == 'success' && env.SPRITES_ENABLED == 'true'
+        run: |
+          curl -fsSL https://sprites.dev/install.sh | sh
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      - name: Authenticate Sprites
+        if: steps.typecheck.outcome == 'success' && env.SPRITES_ENABLED == 'true'
+        run: |
+          if [ -z "${SPRITE_TOKEN:-}" ]; then
+            echo "SPRITE_TOKEN secret is required when SPRITES_ENABLED=true" >&2
+            exit 1
+          fi
+          sprite auth setup --token "$SPRITE_TOKEN"
+          sprite org list
+
+      - name: Run evolve cycle
+        id: evolve_cycle
+        if: steps.typecheck.outcome == 'success'
+        continue-on-error: true
+        run: bun run evolve:cycle
+
+      - name: Persist journal (always)
+        if: always() && steps.typecheck.outcome == 'success'
+        run: |
+          if [ -n "$(git status --porcelain -- JOURNAL.md)" ]; then
+            git add JOURNAL.md
+            git commit -m "chore: persist evolve cycle journal" || true
+          else
+            echo "No journal changes"
+          fi
+
+      - name: Prepare candidate bundle
+        if: always()
+        env:
+          TYPECHECK_OUTCOME: ${{ steps.typecheck.outcome }}
+          EVOLVE_OUTCOME: ${{ steps.evolve_cycle.outcome }}
+        run: |
+          set -euo pipefail
+          ARTIFACT_ROOT=".fractal/artifacts/${FRACTAL_CANDIDATE_NAME}"
+          LOG_DIR="$ARTIFACT_ROOT/logs"
+          PATCH_PATH="$ARTIFACT_ROOT/candidate.patch"
+          SUMMARY_PATH="$ARTIFACT_ROOT/summary.json"
+          mkdir -p "$LOG_DIR"
+
+          LATEST_EVOLVE_LOG="$(ls -1t .fractal/logs/evolve-*.jsonl 2>/dev/null | head -n1 || true)"
+          LATEST_AGENT_LOG="$(ls -1t .fractal/logs/agent-*.jsonl 2>/dev/null | head -n1 || true)"
+          export PATCH_COMMIT_COUNT="$(git rev-list --count "${FRACTAL_BASELINE_REF}..HEAD" 2>/dev/null || echo 0)"
+          export CHANGED_FILE_COUNT="$(git diff --name-only "${FRACTAL_BASELINE_REF}..HEAD" 2>/dev/null | sed '/^$/d' | wc -l | tr -d ' ')"
+
+          git format-patch --stdout "${FRACTAL_BASELINE_REF}..HEAD" > "$PATCH_PATH" || : > "$PATCH_PATH"
+
+          if [ -d .fractal/logs ]; then
+            cp -R .fractal/logs/. "$LOG_DIR"/
+          fi
+
+          node --input-type=module - "$LATEST_EVOLVE_LOG" "$LATEST_AGENT_LOG" "$SUMMARY_PATH" <<'EOF'
+          import fs from "node:fs";
+          import path from "node:path";
+
+          const [evolveLogPath, agentLogPath, summaryPath] = process.argv.slice(2);
+
+          const readJsonLines = (filePath) => {
+            if (!filePath || !fs.existsSync(filePath)) {
+              return [];
+            }
+
+            return fs
+              .readFileSync(filePath, "utf8")
+              .split("\n")
+              .filter(Boolean)
+              .map((line) => JSON.parse(line));
+          };
+
+          const records = readJsonLines(evolveLogPath);
+          const decision = records.find((record) => record.event === "decision")?.data ?? {};
+          const agent = records.find((record) => record.event === "agent_output")?.data ?? {};
+          const complete = records.find((record) => record.event === "cycle_complete")?.data ?? null;
+          const reverted = records.find((record) => record.event === "cycle_reverted")?.data ?? null;
+          const workflowResult = `${process.env.EVOLVE_OUTCOME ?? "unknown"}`;
+          const typecheckOutcome = `${process.env.TYPECHECK_OUTCOME ?? "unknown"}`;
+          const patchCommitCount = Number(process.env.PATCH_COMMIT_COUNT ?? "0");
+          const changedFileCount = Number(process.env.CHANGED_FILE_COUNT ?? "0");
+          const hasPatch = patchCommitCount > 0;
+          const outcome = workflowResult === "success"
+            ? (complete ? "committed" : "planned")
+            : reverted
+              ? "reverted"
+              : typecheckOutcome === "success"
+                ? "failed"
+                : "failed";
+          const uncertainty = Number(decision.uncertainty ?? 1);
+          const steps = Number(agent.steps ?? 0);
+          const toolCalls = Number(agent.toolCalls ?? 0);
+          const score =
+            (workflowResult === "success" ? 1000 : -1000) +
+            (decision.executionMode === "implement" ? 100 : 0) +
+            (hasPatch ? 50 : 0) +
+            Math.max(0, 80 - Math.round(uncertainty * 100) - steps - toolCalls - changedFileCount);
+
+          const summary = {
+            candidateName: process.env.FRACTAL_CANDIDATE_NAME,
+            baselineRef: process.env.FRACTAL_BASELINE_REF,
+            workflowResult,
+            typecheckOutcome,
+            outcome,
+            hasPatch,
+            patchCommitCount,
+            changedFileCount,
+            score,
+            decision: {
+              chosenChange: `${decision.chosenChange ?? ""}`,
+              executionMode: `${decision.executionMode ?? ""}`,
+              uncertainty,
+              compileHeavy: Boolean(decision.compileHeavy),
+              targetFiles: Array.isArray(decision.targetFiles) ? decision.targetFiles.map(String) : []
+            },
+            agent: { steps, toolCalls },
+            logs: {
+              evolveLog: evolveLogPath ? path.basename(evolveLogPath) : "",
+              agentLog: agentLogPath ? path.basename(agentLogPath) : ""
+            }
+          };
+
+          fs.writeFileSync(summaryPath, JSON.stringify(summary, null, 2));
+          EOF
+
+      - name: Upload candidate bundle
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: candidate-${{ inputs.candidate_name }}
+          path: .fractal/artifacts/${{ inputs.candidate_name }}
+          if-no-files-found: ignore
+          retention-days: 7
+
+      - name: Push commits if ahead
+        if: steps.typecheck.outcome == 'success' && steps.evolve_cycle.outcome == 'success' && inputs.push_commits
+        run: |
+          AHEAD_COUNT="$(git rev-list --count "origin/${FRACTAL_BASELINE_REF}..HEAD")"
+          if [ "${AHEAD_COUNT}" -gt 0 ]; then
+            git push origin HEAD:"${FRACTAL_BASELINE_REF}"
+          else
+            echo "No commits to push"
+          fi
+
+      - name: Fail if validation failed
+        if: always() && (steps.typecheck.outcome != 'success' || steps.evolve_cycle.outcome != 'success')
+        run: |
+          echo "Evolve candidate failed or reverted."
+          exit 1

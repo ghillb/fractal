@@ -12,94 +12,10 @@ permissions:
 
 jobs:
   evolve:
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    env:
-      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-      OPENAI_MODEL: gpt-5.4-mini
-      PERPLEXITY_API_KEY: ${{ secrets.PERPLEXITY_API_KEY }}
-      SPRITE_TOKEN: ${{ secrets.SPRITE_TOKEN }}
-      SPRITES_ENABLED: ${{ vars.SPRITES_ENABLED || 'false' }}
-      SPRITES_DEFAULT_NAME: ${{ vars.SPRITES_DEFAULT_NAME || 'qbuild' }}
-      FRACTAL_EVOLVE_GOAL: Become an entity that is ever more capable while improving safely.
-      FRACTAL_MAX_STEPS: "50"
-      FRACTAL_MAX_CYCLE_SECONDS: "900"
-      FRACTAL_GIT_AUTHOR_NAME: fractal[bot]
-      FRACTAL_GIT_AUTHOR_EMAIL: fractal-bot@users.noreply.github.com
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
-
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: latest
-
-      - name: Install
-        run: bun install --frozen-lockfile
-
-      - name: Typecheck
-        run: bun run typecheck
-
-      - name: Configure git identity
-        run: |
-          git config user.name "$FRACTAL_GIT_AUTHOR_NAME"
-          git config user.email "$FRACTAL_GIT_AUTHOR_EMAIL"
-
-      - name: Setup Sprites CLI
-        if: env.SPRITES_ENABLED == 'true'
-        run: |
-          curl -fsSL https://sprites.dev/install.sh | sh
-          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
-
-      - name: Authenticate Sprites
-        if: env.SPRITES_ENABLED == 'true'
-        run: |
-          if [ -z "${SPRITE_TOKEN:-}" ]; then
-            echo "SPRITE_TOKEN secret is required when SPRITES_ENABLED=true" >&2
-            exit 1
-          fi
-          sprite auth setup --token "$SPRITE_TOKEN"
-          sprite org list
-
-      - name: Run evolve cycle
-        id: evolve_cycle
-        continue-on-error: true
-        run: bun run evolve:cycle
-
-      - name: Persist journal (always)
-        if: always()
-        run: |
-          if [ -n "$(git status --porcelain -- JOURNAL.md)" ]; then
-            git add JOURNAL.md
-            git commit -m "chore: persist evolve cycle journal" || true
-          else
-            echo "No journal changes"
-          fi
-
-      - name: Push commits if ahead
-        if: always()
-        run: |
-          AHEAD_COUNT="$(git rev-list --count origin/${GITHUB_REF_NAME}..HEAD)"
-          if [ "${AHEAD_COUNT}" -gt 0 ]; then
-            git push origin HEAD:${GITHUB_REF_NAME}
-          else
-            echo "No commits to push"
-          fi
-
-      - name: Upload evolve logs
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: evolve-logs-${{ github.run_id }}-${{ github.run_attempt }}
-          path: .fractal/logs
-          if-no-files-found: ignore
-          retention-days: 7
-
-      - name: Fail if evolve reverted
-        if: steps.evolve_cycle.outcome != 'success'
-        run: |
-          echo "Evolve cycle failed or reverted."
-          exit 1
+    uses: ./.github/workflows/evolve-task.yml
+    secrets: inherit
+    with:
+      baseline_ref: ${{ github.ref_name }}
+      goal: Become an entity that is ever more capable while improving safely.
+      candidate_name: primary-${{ github.run_id }}-${{ github.run_attempt }}
+      push_commits: true

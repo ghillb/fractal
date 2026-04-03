@@ -1,0 +1,168 @@
+name: Evolve Meta Orchestrator
+
+on:
+  workflow_dispatch:
+    inputs:
+      baseline_ref:
+        description: Baseline ref to optimize from.
+        required: false
+        default: main
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  candidate:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - candidate_name: reliability
+            goal: Become an entity that is ever more capable while improving safely. Optimize for validation robustness, clear failure traces, and conservative harness edits.
+          - candidate_name: precision
+            goal: Become an entity that is ever more capable while improving safely. Optimize for small, targeted harness changes and tighter prompt shape.
+          - candidate_name: throughput
+            goal: Become an entity that is ever more capable while improving safely. Optimize for fewer tool calls and faster convergence without losing safety.
+    uses: ./.github/workflows/evolve-task.yml
+    secrets: inherit
+    with:
+      baseline_ref: ${{ inputs.baseline_ref }}
+      goal: ${{ matrix.goal }}
+      candidate_name: ${{ matrix.candidate_name }}
+      push_commits: false
+
+  promote:
+    needs: candidate
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Download candidate bundles
+        uses: actions/download-artifact@v7
+        with:
+          pattern: candidate-*
+          path: .fractal/candidates
+          merge-multiple: false
+
+      - name: Select winner
+        id: winner
+        run: |
+          set -euo pipefail
+          node --input-type=module <<'EOF'
+          import fs from "node:fs";
+          import path from "node:path";
+
+          const root = ".fractal/candidates";
+          const summaries = [];
+          const emit = (key, value) => {
+            fs.appendFileSync(process.env.GITHUB_OUTPUT, `${key}=${String(value).replaceAll("\n", "%0A")}\n`);
+          };
+
+          const walk = (dir) => {
+            if (!fs.existsSync(dir)) {
+              return;
+            }
+
+            for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+              const full = path.join(dir, entry.name);
+              if (entry.isDirectory()) {
+                walk(full);
+                continue;
+              }
+
+              if (!entry.name.endsWith("summary.json")) {
+                continue;
+              }
+
+              const summary = JSON.parse(fs.readFileSync(full, "utf8"));
+              summaries.push({ summary, full });
+            }
+          };
+
+          walk(root);
+
+          const promotable = summaries
+            .map(({ summary, full }) => ({ summary, full }))
+            .filter(({ summary }) => summary.workflowResult === "success" && summary.hasPatch);
+
+          if (promotable.length === 0) {
+            const successful = summaries.filter(({ summary }) => summary.workflowResult === "success");
+            if (successful.length === 0) {
+              throw new Error("No candidate run succeeded.");
+            }
+
+            const report = successful
+              .sort((a, b) => b.summary.score - a.summary.score)
+              .map(({ summary }) => `${summary.candidateName}:${summary.outcome}:${summary.score}`)
+              .join("\n");
+            fs.writeFileSync(".fractal/winner.json", JSON.stringify({ promote: false, report }, null, 2));
+            emit("promote", "false");
+            console.log(report);
+            process.exit(0);
+          }
+
+          promotable.sort((a, b) => b.summary.score - a.summary.score || a.summary.candidateName.localeCompare(b.summary.candidateName));
+          const winner = promotable[0];
+          fs.writeFileSync(".fractal/winner.json", JSON.stringify({
+            promote: true,
+            candidateName: winner.summary.candidateName,
+            score: winner.summary.score,
+            summaryPath: winner.full
+          }, null, 2));
+          emit("promote", "true");
+          emit("candidate_name", winner.summary.candidateName);
+          emit("summary_path", winner.full);
+          console.log(winner.summary.candidateName);
+          EOF
+          cat .fractal/winner.json
+
+      - name: Checkout baseline
+        if: steps.winner.outputs.promote == 'true'
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.baseline_ref }}
+          fetch-depth: 0
+
+      - name: Promote winner patch
+        if: steps.winner.outputs.promote == 'true'
+        run: |
+          set -euo pipefail
+          export WINNER="${{ steps.winner.outputs.candidate_name }}"
+          export SUMMARY_PATH="${{ steps.winner.outputs.summary_path }}"
+          export CANDIDATE_DIR="$(dirname "$SUMMARY_PATH")"
+          export PATCH_PATH="$CANDIDATE_DIR/candidate.patch"
+          export SUMMARY_JSON="$CANDIDATE_DIR/summary.json"
+          git config user.name "fractal[bot]"
+          git config user.email "fractal-bot@users.noreply.github.com"
+          git am --3way "$PATCH_PATH"
+          bun install --frozen-lockfile
+          bun run typecheck
+          bun run lint
+          bun test
+          BRANCH="evolve/meta-${{ github.run_id }}-${WINNER}"
+          git checkout -b "$BRANCH"
+          git push origin "HEAD:$BRANCH"
+          node --input-type=module - <<'EOF'
+          import fs from "node:fs";
+
+          const winner = process.env.WINNER ?? "";
+          const summary = fs.readFileSync(process.env.SUMMARY_JSON ?? "", "utf8");
+          fs.writeFileSync(
+            ".fractal/pr-body.md",
+            `Promoted candidate: ${winner}\n\nCandidate summary:\n${summary}\n`
+          );
+          EOF
+          gh pr create \
+            --base "${{ inputs.baseline_ref }}" \
+            --head "$BRANCH" \
+            --title "evolve(meta): promote ${WINNER}" \
+            --body-file .fractal/pr-body.md
+
+      - name: Report no-op
+        if: steps.winner.outputs.promote != 'true'
+        run: |
+          echo "No promotable candidate produced a patch."
