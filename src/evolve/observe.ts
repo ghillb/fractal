@@ -1,6 +1,6 @@
 import { readFile } from "node:fs/promises";
 import { exec } from "../core/shell.ts";
-import { hackernewsTrendingTool } from "../tools/hackernews.ts";
+import { hackernewsTrendingTool, type HackernewsTrendingResult } from "../tools/hackernews.ts";
 import {
   countTrailingPlannedEntries,
   extractLatestPlanFromJournalWithDiagnostics,
@@ -175,8 +175,8 @@ export function buildPlannerLatestCycleHandoff(
   return normalizeLatestCycleHandoff(entries[0]);
 }
 
-export function buildPlannerHnSignal(entries: Array<Record<string, unknown>>): ObserveHnSignalEntry[] {
-  return entries.slice(0, PLANNER_HN_SIGNAL_LIMIT).map((entry) => normalizeHnSignalEntry(entry));
+export function buildPlannerHnSignal(entries: Pick<HackernewsTrendingResult, "results">): ObserveHnSignalEntry[] {
+  return entries.results.slice(0, PLANNER_HN_SIGNAL_LIMIT).map((entry) => normalizeHnSignalEntry(entry));
 }
 
 export function summarizeRecentHotFilesFromHistory(historyOutput: string): string[] {
@@ -268,7 +268,8 @@ export async function gatherObservations(): Promise<ObserveData> {
 
   const latestPlannedCycleUnfinished = buildLatestPlannedCycleUnfinished(latestPlan, latestCycleFinished, latestCycleUnfinished);
 
-  const hnSignal = buildPlannerHnSignal(await hackernewsTrendingTool(24, 50, 10));
+  const hnTrending = await hackernewsTrendingTool({ hours: 24, minPoints: 50, n: 10 });
+  const hnSignal = buildPlannerHnSignal(hnTrending);
 
   return {
     issues,

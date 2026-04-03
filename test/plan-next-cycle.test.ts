@@ -8,7 +8,7 @@ import {
 
 describe("plan next cycle context assembly", () => {
   test("returns normalized recent cycle entries with only planner-safe fields", () => {
-    const [entry] = buildPlannerRecentCycleSummary([
+    const entry = buildPlannerRecentCycleSummary([
       {
         timestampUtc: "2026-03-24T05:00:00.000Z",
         chosenChange: "Normalize planner context",
@@ -23,7 +23,7 @@ describe("plan next cycle context assembly", () => {
         testOutcome: "fail",
         followUps: ["hidden"]
       } as never
-    ]);
+    ])[0]!;
 
     expect(entry).toEqual({
       timestampUtc: "2026-03-24T05:00:00.000Z",
@@ -107,6 +107,15 @@ describe("plan next cycle context assembly", () => {
       latestCycleCompletionSummary: "unfinished; outcome=planned; targetFiles=src/evolve/observe.ts",
       latestPlannedCycleUnfinished: true,
       journalIntegrity: { rejectedHistoricalEntryCount: 0 },
+      repositoryActivity: {
+        active: false,
+        distinctFilesTouched: 0,
+        recentChangeStreak: 0,
+        freshnessScore: 0,
+        freshnessLabel: "idle",
+        activityHint: "idle",
+        freshEnoughForPlanning: false
+      },
       recentCycleSummary: [],
       recentHotFiles: [],
       hnSignal: []
@@ -194,20 +203,22 @@ describe("plan next cycle context assembly", () => {
     });
   });
 
-  test("returns normalized hn signal entries with only stable planner-safe fields", () => {
-    const [entry] = buildPlannerHnSignal([
-      {
-        title: "Useful post",
-        url: "https://example.com/post",
-        hn_url: "https://news.ycombinator.com/item?id=1",
-        points: 321,
-        comments: 45,
-        author: "pg",
-        created_at: "2026-03-24T05:00:00.000Z",
-        objectID: "1",
-        unexpected: ["leak"]
-      }
-    ]);
+  test("returns normalized hn signal entries from trending response results", () => {
+    const entry = buildPlannerHnSignal({
+      results: [
+        {
+          title: "Useful post",
+          url: "https://example.com/post",
+          hn_url: "https://news.ycombinator.com/item?id=1",
+          points: 321,
+          comments: 45,
+          author: "pg",
+          created_at: "2026-03-24T05:00:00.000Z",
+          objectID: "1",
+          unexpected: ["leak"]
+        }
+      ]
+    })[0]!;
 
     expect(entry).toEqual({
       title: "Useful post",

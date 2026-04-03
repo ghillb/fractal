@@ -50,6 +50,15 @@ describe("evolve cycle change detection", () => {
         latestCycleUnfinished: undefined,
         latestCycleCompletionSummary: undefined,
         journalIntegrity: { rejectedHistoricalEntryCount: 0 },
+        repositoryActivity: {
+          active: false,
+          distinctFilesTouched: 0,
+          recentChangeStreak: 0,
+          freshnessScore: 0,
+          freshnessLabel: "idle",
+          activityHint: "idle",
+          freshEnoughForPlanning: false
+        },
         recentCycleSummary: [],
         recentHotFiles: [],
         hnSignal: []
@@ -77,6 +86,15 @@ describe("evolve cycle change detection", () => {
         latestCycleUnfinished: true,
         latestCycleCompletionSummary: "unfinished; outcome=planned; targetFiles=test/journal-schema.test.ts",
         journalIntegrity: { rejectedHistoricalEntryCount: 0 },
+        repositoryActivity: {
+          active: false,
+          distinctFilesTouched: 0,
+          recentChangeStreak: 0,
+          freshnessScore: 0,
+          freshnessLabel: "idle",
+          activityHint: "idle",
+          freshEnoughForPlanning: false
+        },
         recentCycleSummary: [],
         recentHotFiles: [],
         hnSignal: []
@@ -228,46 +246,48 @@ describe("evolve cycle change detection", () => {
   });
 
   test("caps planner hn signal and keeps a stable field shape", () => {
-    const hnSignal = buildPlannerHnSignal([
-      {
-        title: "latest",
-        url: "https://example.com/latest",
-        hn_url: "https://news.ycombinator.com/item?id=3",
-        points: 300,
-        comments: 30,
-        author: "carol",
-        created_at: "2026-03-24T03:00:00.000Z",
-        text: "should not appear"
-      },
-      {
-        title: "middle",
-        url: "https://example.com/middle",
-        hn_url: "https://news.ycombinator.com/item?id=2",
-        points: 200,
-        comments: 20,
-        author: "bob",
-        created_at: "2026-03-24T02:00:00.000Z"
-      },
-      {
-        title: "older",
-        url: "https://example.com/older",
-        hn_url: "https://news.ycombinator.com/item?id=1",
-        points: 100,
-        comments: 10,
-        author: "alice",
-        created_at: "2026-03-24T01:00:00.000Z"
-      },
-      {
-        title: "discarded",
-        url: "https://example.com/discarded",
-        hn_url: "https://news.ycombinator.com/item?id=0",
-        points: 1,
-        comments: 0,
-        author: "nobody",
-        created_at: "2026-03-24T00:00:00.000Z",
-        extra: true
-      }
-    ]);
+    const hnSignal = buildPlannerHnSignal({
+      results: [
+        {
+          title: "latest",
+          url: "https://example.com/latest",
+          hn_url: "https://news.ycombinator.com/item?id=3",
+          points: 300,
+          comments: 30,
+          author: "carol",
+          created_at: "2026-03-24T03:00:00.000Z",
+          text: "should not appear"
+        },
+        {
+          title: "middle",
+          url: "https://example.com/middle",
+          hn_url: "https://news.ycombinator.com/item?id=2",
+          points: 200,
+          comments: 20,
+          author: "bob",
+          created_at: "2026-03-24T02:00:00.000Z"
+        },
+        {
+          title: "older",
+          url: "https://example.com/older",
+          hn_url: "https://news.ycombinator.com/item?id=1",
+          points: 100,
+          comments: 10,
+          author: "alice",
+          created_at: "2026-03-24T01:00:00.000Z"
+        },
+        {
+          title: "discarded",
+          url: "https://example.com/discarded",
+          hn_url: "https://news.ycombinator.com/item?id=0",
+          points: 1,
+          comments: 0,
+          author: "nobody",
+          created_at: "2026-03-24T00:00:00.000Z",
+          extra: true
+        }
+      ]
+    });
 
     expect(hnSignal).toEqual([
       {

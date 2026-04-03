@@ -16,7 +16,29 @@ type HNHit = {
   comment_text?: string;
 };
 
-function normalizeStory(hit: HNHit): Record<string, unknown> {
+type HNStory = {
+  title: string;
+  url: string;
+  hn_url: string;
+  points: number;
+  comments: number;
+  author: string;
+  created_at: string;
+};
+
+export type HackernewsTrendingResult = {
+  hours: number;
+  minPoints: number;
+  results: Array<Record<string, unknown>>;
+};
+
+export type HackernewsSearchResult = {
+  query: string;
+  minPoints: number;
+  results: Array<Record<string, unknown>>;
+};
+
+function normalizeStory(hit: HNHit): HNStory {
   const id = hit.objectID ?? "";
   return {
     title: hit.title ?? hit.story_title ?? "Untitled",
@@ -38,7 +60,7 @@ async function query(endpoint: string): Promise<HNHit[]> {
   return data.hits ?? [];
 }
 
-export async function hackernewsTrendingTool(input: ToolCallInput): Promise<Record<string, unknown>> {
+export async function hackernewsTrendingTool(input: ToolCallInput): Promise<HackernewsTrendingResult> {
   const hours = Number(input.hours ?? 24);
   const minPoints = Number(input.minPoints ?? 100);
   const n = Number(input.n ?? 15);
@@ -56,7 +78,7 @@ export async function hackernewsTrendingTool(input: ToolCallInput): Promise<Reco
   return { hours, minPoints, results: rows };
 }
 
-export async function hackernewsSearchTool(input: ToolCallInput): Promise<Record<string, unknown>> {
+export async function hackernewsSearchTool(input: ToolCallInput): Promise<HackernewsSearchResult> {
   const q = encodeURIComponent(String(input.query ?? "").trim());
   const minPoints = Number(input.minPoints ?? 0);
   const n = Number(input.n ?? 10);

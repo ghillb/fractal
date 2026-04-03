@@ -159,6 +159,11 @@ function openIssueForUncertainty(change: string, rationale: string): void {
   );
 }
 
+function runTypecheck(): boolean {
+  const typecheck = exec("bun run typecheck");
+  return typecheck.code === 0;
+}
+
 function runLocalChecks(): { lint: boolean; test: boolean } {
   const lint = exec("bun run lint");
   const test = exec("bun test");
@@ -290,6 +295,7 @@ export async function runEvolveCycle(options: { dryRun?: boolean; goal?: string 
 
   let lintPass = false;
   let testPass = false;
+  let typecheckPass = false;
 
   try {
     const prompt = [
@@ -323,6 +329,11 @@ export async function runEvolveCycle(options: { dryRun?: boolean; goal?: string 
       agentLogPath
     });
 
+    typecheckPass = runTypecheck();
+    if (!typecheckPass) {
+      throw new Error("Validation failed (typecheck). Reverting cycle changes.");
+    }
+
     const compileHeavy = decision.compileHeavy || isCompileHeavyTask(decision.chosenChange);
     if (compileHeavy) {
       const checks = await runSpriteChecks();
@@ -345,6 +356,7 @@ export async function runEvolveCycle(options: { dryRun?: boolean; goal?: string 
     logger.info("cycle_complete", {
       chosenChange: decision.chosenChange,
       filesTouched: changedFiles,
+      typecheckPass,
       lintPass,
       testPass,
       cycleLogPath,
@@ -374,6 +386,7 @@ export async function runEvolveCycle(options: { dryRun?: boolean; goal?: string 
     const message = error instanceof Error ? error.message : String(error);
     logger.error("cycle_reverted", {
       error: message,
+      typecheckPass,
       lintPass,
       testPass,
       cycleLogPath,
