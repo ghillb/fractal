@@ -43,3 +43,18 @@ export function canRunWorkflowKind(
 ): boolean {
   return selectEvolveWorkflow(observations).kind === requestedKind;
 }
+
+export function assertWorkflowSelectionPrecedence(
+  observations: ObserveData,
+  requestedKind: EvolveWorkflowKind
+): EvolveWorkflowSelection {
+  const selection = selectEvolveWorkflow(observations);
+
+  if (selection.kind !== requestedKind) {
+    throw new Error(
+      `Workflow selection mismatch: requested ${requestedKind}, selected ${selection.kind} (${selection.reason})`
+    );
+  }
+
+  return selection;
+}
