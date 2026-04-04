@@ -7,7 +7,7 @@ import { extractOutputText, openAiResponses } from "../agent/openai.ts";
 import { spriteEphemeralWorkflow } from "../tools/sprites.ts";
 import { gatherObservations } from "./observe.ts";
 import { appendJournal } from "./journal.ts";
-import { canRunWorkflowKind, selectEvolveWorkflow } from "./workflows.ts";
+import { selectEvolveWorkflow } from "./workflows.ts";
 import type { EvolutionDecision, ObserveData } from "./types.ts";
 
 const DEFAULT_MISSION =
@@ -235,7 +235,7 @@ export async function runEvolveCycle(options: { dryRun?: boolean; goal?: string 
     console.log(JSON.stringify({ mode, goal, workflowSelection }, null, 2));
     return;
   }
-  if (workflowSelection.kind === "meta" && !canRunWorkflowKind("meta", observations)) {
+  if (workflowSelection.kind === "meta" && !workflowSelection.validated) {
     throw new Error(`workflow routing validation failed: ${workflowSelection.reason}`);
   }
   const decision = await generateDecision(goal, observations);

@@ -8,11 +8,15 @@ export type EvolveWorkflowSelection = {
   validated: boolean;
 };
 
-export function selectEvolveWorkflow(observations: ObserveData): EvolveWorkflowSelection {
-  const hasMetaSignals = observations.issues.length > 0 || observations.journalIntegrity.rejectedHistoricalEntryCount > 0;
-  const shouldUseMeta = hasMetaSignals && observations.repositoryActivity.freshEnoughForPlanning;
+function hasMetaSignals(observations: ObserveData): boolean {
+  return observations.issues.length > 0 || observations.journalIntegrity.rejectedHistoricalEntryCount > 0;
+}
 
-  if (shouldUseMeta) {
+export function selectEvolveWorkflow(observations: ObserveData): EvolveWorkflowSelection {
+  const metaEligible = hasMetaSignals(observations) && observations.repositoryActivity.freshEnoughForPlanning;
+  const consecutivePlanCount = observations.consecutivePlanCount;
+
+  if (metaEligible && consecutivePlanCount === 0) {
     return {
       kind: "meta",
       reason: observations.issues.length > 0
@@ -24,10 +28,12 @@ export function selectEvolveWorkflow(observations: ObserveData): EvolveWorkflowS
 
   return {
     kind: "task",
-    reason: observations.consecutivePlanCount > 0
+    reason: consecutivePlanCount > 0
       ? "recent planning already consumed the meta slot; task workflow should implement"
-      : "defaulting to task workflow for bounded implementation",
-    validated: observations.consecutivePlanCount === 0
+      : metaEligible
+        ? "meta workflow is selected but blocked by consecutive planning guard"
+        : "defaulting to task workflow for bounded implementation",
+    validated: consecutivePlanCount === 0 && !metaEligible
   };
 }
 

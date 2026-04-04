@@ -11,6 +11,7 @@ import {
   listChangedFilesFromStatus,
   shouldApplyHotFilePressure
 } from "../src/evolve/cycle.ts";
+import { selectEvolveWorkflow } from "../src/evolve/workflows.ts";
 
 describe("evolve cycle change detection", () => {
   test("treats untracked files as pending changes", () => {
@@ -100,6 +101,37 @@ describe("evolve cycle change detection", () => {
         hnSignal: []
       })
     ).toBe(false);
+  });
+
+
+  test("prefers task workflow when planning is already consecutive even with meta signals", () => {
+    expect(
+      selectEvolveWorkflow({
+        issues: [{ title: "triage" } as never],
+        commits: [],
+        journalTail: "",
+        consecutivePlanCount: 1,
+        latestPlan: undefined,
+        latestCycleOutcome: undefined,
+        latestCycleTargetFiles: [],
+        latestCycleFinished: undefined,
+        latestCycleUnfinished: undefined,
+        latestCycleCompletionSummary: undefined,
+        journalIntegrity: { rejectedHistoricalEntryCount: 1 },
+        repositoryActivity: {
+          active: true,
+          distinctFilesTouched: 2,
+          recentChangeStreak: 1,
+          freshnessScore: 1,
+          freshnessLabel: "active",
+          activityHint: "active",
+          freshEnoughForPlanning: true
+        },
+        recentCycleSummary: [],
+        recentHotFiles: [],
+        hnSignal: []
+      }).kind
+    ).toBe("task");
   });
 
   test("applies hot-file pressure most of the time", () => {
