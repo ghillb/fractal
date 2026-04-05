@@ -141,7 +141,8 @@ describe("evolve cycle change detection", () => {
       selectedKind: "meta",
       reason: "journal integrity noise indicates meta workflow is safer",
       validated: true,
-      matched: false
+      matched: false,
+      decisionReason: "journal integrity noise indicates meta workflow is safer"
     });
   });
 
@@ -149,7 +150,7 @@ describe("evolve cycle change detection", () => {
     expect(() =>
       assertWorkflowSelectionPrecedence(
         {
-          issues: [{ title: "triage" } as never],
+          issues: [],
           commits: [],
           journalTail: "",
           consecutivePlanCount: 0,
@@ -175,7 +176,7 @@ describe("evolve cycle change detection", () => {
         },
         "task"
       )
-    ).toThrow("Workflow selection mismatch: requested task, selected meta");
+    ).toThrow("Workflow selection mismatch: requested task, selected meta (journal integrity noise indicates meta workflow is safer)");
   });
 
   test("prefers task workflow when planning is already consecutive even with meta signals", () => {

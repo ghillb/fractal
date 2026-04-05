@@ -14,6 +14,7 @@ export type EvolveWorkflowRoutingAudit = {
   reason: string;
   validated: boolean;
   matched: boolean;
+  decisionReason: string;
 };
 
 function hasMetaSignals(observations: ObserveData): boolean {
@@ -63,7 +64,8 @@ export function buildWorkflowRoutingAudit(
     selectedKind: selection.kind,
     reason: selection.reason,
     validated: selection.validated,
-    matched: selection.kind === requestedKind
+    matched: selection.kind === requestedKind,
+    decisionReason: selection.reason
   };
 }
 
@@ -75,9 +77,9 @@ export function assertWorkflowSelectionPrecedence(
 
   if (!audit.matched) {
     throw new Error(
-      `Workflow selection mismatch: requested ${requestedKind}, selected ${audit.selectedKind} (${audit.reason})`
+      `Workflow selection mismatch: requested ${requestedKind}, selected ${audit.selectedKind} (${audit.decisionReason})`
     );
   }
 
-  return { kind: audit.selectedKind, reason: audit.reason, validated: audit.validated };
+  return { kind: audit.selectedKind, reason: audit.decisionReason, validated: audit.validated };
 }
