@@ -8,6 +8,14 @@ export type EvolveWorkflowSelection = {
   validated: boolean;
 };
 
+export type EvolveWorkflowRoutingAudit = {
+  requestedKind: EvolveWorkflowKind;
+  selectedKind: EvolveWorkflowKind;
+  reason: string;
+  validated: boolean;
+  matched: boolean;
+};
+
 function hasMetaSignals(observations: ObserveData): boolean {
   return observations.issues.length > 0 || observations.journalIntegrity.rejectedHistoricalEntryCount > 0;
 }
@@ -44,17 +52,32 @@ export function canRunWorkflowKind(
   return selectEvolveWorkflow(observations).kind === requestedKind;
 }
 
+export function buildWorkflowRoutingAudit(
+  observations: ObserveData,
+  requestedKind: EvolveWorkflowKind
+): EvolveWorkflowRoutingAudit {
+  const selection = selectEvolveWorkflow(observations);
+
+  return {
+    requestedKind,
+    selectedKind: selection.kind,
+    reason: selection.reason,
+    validated: selection.validated,
+    matched: selection.kind === requestedKind
+  };
+}
+
 export function assertWorkflowSelectionPrecedence(
   observations: ObserveData,
   requestedKind: EvolveWorkflowKind
 ): EvolveWorkflowSelection {
-  const selection = selectEvolveWorkflow(observations);
+  const audit = buildWorkflowRoutingAudit(observations, requestedKind);
 
-  if (selection.kind !== requestedKind) {
+  if (!audit.matched) {
     throw new Error(
-      `Workflow selection mismatch: requested ${requestedKind}, selected ${selection.kind} (${selection.reason})`
+      `Workflow selection mismatch: requested ${requestedKind}, selected ${audit.selectedKind} (${audit.reason})`
     );
   }
 
-  return selection;
+  return { kind: audit.selectedKind, reason: audit.reason, validated: audit.validated };
 }

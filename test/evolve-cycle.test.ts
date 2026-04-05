@@ -11,7 +11,7 @@ import {
   listChangedFilesFromStatus,
   shouldApplyHotFilePressure
 } from "../src/evolve/cycle.ts";
-import { assertWorkflowSelectionPrecedence, selectEvolveWorkflow } from "../src/evolve/workflows.ts";
+import { assertWorkflowSelectionPrecedence, buildWorkflowRoutingAudit, selectEvolveWorkflow } from "../src/evolve/workflows.ts";
 
 describe("evolve cycle change detection", () => {
   test("treats untracked files as pending changes", () => {
@@ -104,6 +104,46 @@ describe("evolve cycle change detection", () => {
   });
 
 
+
+
+  test("exposes workflow routing audit with reason and match state", () => {
+    expect(
+      buildWorkflowRoutingAudit(
+        {
+          issues: [],
+          commits: [],
+          journalTail: "",
+          consecutivePlanCount: 0,
+          latestPlan: undefined,
+          latestCycleOutcome: undefined,
+          latestCycleTargetFiles: [],
+          latestCycleFinished: undefined,
+          latestCycleUnfinished: undefined,
+          latestCycleCompletionSummary: undefined,
+          journalIntegrity: { rejectedHistoricalEntryCount: 1 },
+          repositoryActivity: {
+            active: true,
+            distinctFilesTouched: 2,
+            recentChangeStreak: 1,
+            freshnessScore: 1,
+            freshnessLabel: "active",
+            activityHint: "active",
+            freshEnoughForPlanning: true
+          },
+          recentCycleSummary: [],
+          recentHotFiles: [],
+          hnSignal: []
+        },
+        "task"
+      )
+    ).toEqual({
+      requestedKind: "task",
+      selectedKind: "meta",
+      reason: "journal integrity noise indicates meta workflow is safer",
+      validated: true,
+      matched: false
+    });
+  });
 
   test("rejects task requests when meta selection takes precedence from evolve state", () => {
     expect(() =>
