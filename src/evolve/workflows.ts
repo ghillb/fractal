@@ -14,8 +14,10 @@ export type EvolveWorkflowRoutingAudit = {
   reason: string;
   validated: boolean;
   matched: boolean;
-  decisionReason: string;
+  decisionReason: EvolveWorkflowDecisionReason;
 };
+
+export type EvolveWorkflowDecisionReason = "meta-signals" | "consecutive-plan-guard" | "default-task";
 
 function hasMetaSignals(observations: ObserveData): boolean {
   return observations.issues.length > 0 || observations.journalIntegrity.rejectedHistoricalEntryCount > 0;
@@ -46,6 +48,18 @@ export function selectEvolveWorkflow(observations: ObserveData): EvolveWorkflowS
   };
 }
 
+export function getWorkflowDecisionReason(observations: ObserveData): EvolveWorkflowDecisionReason {
+  if (hasMetaSignals(observations) && observations.repositoryActivity.freshEnoughForPlanning && observations.consecutivePlanCount === 0) {
+    return "meta-signals";
+  }
+
+  if (observations.consecutivePlanCount > 0) {
+    return "consecutive-plan-guard";
+  }
+
+  return "default-task";
+}
+
 export function canRunWorkflowKind(
   requestedKind: EvolveWorkflowKind,
   observations: ObserveData
@@ -65,7 +79,7 @@ export function buildWorkflowRoutingAudit(
     reason: selection.reason,
     validated: selection.validated,
     matched: selection.kind === requestedKind,
-    decisionReason: selection.reason
+    decisionReason: getWorkflowDecisionReason(observations)
   };
 }
 

@@ -1,2 +1,2 @@
 export { runEvolveCycle } from "./cycle.ts";
-export { assertWorkflowSelectionPrecedence, buildWorkflowRoutingAudit, selectEvolveWorkflow, type EvolveWorkflowKind, type EvolveWorkflowRoutingAudit, type EvolveWorkflowSelection } from "./workflows.ts";
+export { assertWorkflowSelectionPrecedence, buildWorkflowRoutingAudit, getWorkflowDecisionReason, selectEvolveWorkflow, type EvolveWorkflowDecisionReason, type EvolveWorkflowKind, type EvolveWorkflowRoutingAudit, type EvolveWorkflowSelection } from "./workflows.ts";

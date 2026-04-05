@@ -11,7 +11,7 @@ import {
   listChangedFilesFromStatus,
   shouldApplyHotFilePressure
 } from "../src/evolve/cycle.ts";
-import { assertWorkflowSelectionPrecedence, buildWorkflowRoutingAudit, selectEvolveWorkflow } from "../src/evolve/workflows.ts";
+import { assertWorkflowSelectionPrecedence, buildWorkflowRoutingAudit, getWorkflowDecisionReason, selectEvolveWorkflow } from "../src/evolve/workflows.ts";
 
 describe("evolve cycle change detection", () => {
   test("treats untracked files as pending changes", () => {
@@ -35,6 +35,37 @@ describe("evolve cycle change detection", () => {
       "src/new-name.ts",
       "test/journal-schema.test.ts"
     ]);
+  });
+
+
+  test("emits a minimal decision reason code for task routing", () => {
+    expect(
+      getWorkflowDecisionReason({
+        issues: [],
+        commits: [],
+        journalTail: "",
+        consecutivePlanCount: 1,
+        latestPlan: undefined,
+        latestCycleOutcome: undefined,
+        latestCycleTargetFiles: [],
+        latestCycleFinished: undefined,
+        latestCycleUnfinished: undefined,
+        latestCycleCompletionSummary: undefined,
+        journalIntegrity: { rejectedHistoricalEntryCount: 0 },
+        repositoryActivity: {
+          active: false,
+          distinctFilesTouched: 0,
+          recentChangeStreak: 0,
+          freshnessScore: 0,
+          freshnessLabel: "idle",
+          activityHint: "idle",
+          freshEnoughForPlanning: false
+        },
+        recentCycleSummary: [],
+        recentHotFiles: [],
+        hnSignal: []
+      })
+    ).toBe("consecutive-plan-guard");
   });
 
   test("allows only one consecutive planning cycle", () => {
@@ -142,7 +173,7 @@ describe("evolve cycle change detection", () => {
       reason: "journal integrity noise indicates meta workflow is safer",
       validated: true,
       matched: false,
-      decisionReason: "journal integrity noise indicates meta workflow is safer"
+      decisionReason: "meta-signals"
     });
   });
 
@@ -176,7 +207,7 @@ describe("evolve cycle change detection", () => {
         },
         "task"
       )
-    ).toThrow("Workflow selection mismatch: requested task, selected meta (journal integrity noise indicates meta workflow is safer)");
+    ).toThrow("Workflow selection mismatch: requested task, selected meta (meta-signals)");
   });
 
   test("prefers task workflow when planning is already consecutive even with meta signals", () => {
