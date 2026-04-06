@@ -11,6 +11,7 @@ import {
   listChangedFilesFromStatus,
   shouldApplyHotFilePressure
 } from "../src/evolve/cycle.ts";
+import { deriveCycleStatus } from "../src/evolve/journal-validator.ts";
 import { assertWorkflowSelectionPrecedence, buildWorkflowRoutingAudit, getWorkflowDecisionReason, selectEvolveWorkflow } from "../src/evolve/workflows.ts";
 
 describe("evolve cycle change detection", () => {
@@ -66,6 +67,13 @@ describe("evolve cycle change detection", () => {
         hnSignal: []
       })
     ).toBe("consecutive-plan-guard");
+  });
+
+
+  test("derives a stable cycle status code from journal outcomes", () => {
+    expect(deriveCycleStatus("committed")).toBe("ok");
+    expect(deriveCycleStatus("planned")).toBe("planned");
+    expect(deriveCycleStatus("reverted")).toBe("reverted");
   });
 
   test("allows only one consecutive planning cycle", () => {

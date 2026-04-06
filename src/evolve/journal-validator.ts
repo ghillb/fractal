@@ -12,7 +12,12 @@ export type JournalMachineReadableBlock = {
   targetFiles: string[];
   nextCyclePlan: string[];
   blockingReason?: string;
+  cycleStatus?: string;
 };
+
+export function deriveCycleStatus(outcome: JournalMachineReadableBlock["outcome"]): string {
+  return outcome === "committed" ? "ok" : outcome === "planned" ? "planned" : "reverted";
+}
 
 export const ENTRY_PREFIX = "<!-- FRACTAL_ENTRY ";
 export const ENTRY_SUFFIX = " -->";
