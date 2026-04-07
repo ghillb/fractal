@@ -12,7 +12,7 @@ export type JournalMachineReadableBlock = {
   targetFiles: string[];
   nextCyclePlan: string[];
   blockingReason?: string;
-  cycleStatus?: string;
+  cycleStatus?: CycleOutcomeCode;
 };
 
 export type CycleOutcomeCode = "ok" | "no-op" | "failed";
