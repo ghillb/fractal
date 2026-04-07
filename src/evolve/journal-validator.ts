@@ -15,8 +15,10 @@ export type JournalMachineReadableBlock = {
   cycleStatus?: string;
 };
 
-export function deriveCycleStatus(outcome: JournalMachineReadableBlock["outcome"]): string {
-  return outcome === "committed" ? "ok" : outcome === "planned" ? "planned" : "reverted";
+export type CycleOutcomeCode = "ok" | "no-op" | "failed";
+
+export function deriveCycleStatus(outcome: JournalMachineReadableBlock["outcome"]): CycleOutcomeCode {
+  return outcome === "committed" ? "ok" : outcome === "planned" ? "no-op" : "failed";
 }
 
 export const ENTRY_PREFIX = "<!-- FRACTAL_ENTRY ";
@@ -74,6 +76,10 @@ export function validateJournalMachineReadablePayload(payload: unknown): string 
 
   if (record.outcome !== "committed" && record.outcome !== "planned" && record.outcome !== "reverted") {
     return 'outcome must be one of "committed", "planned", or "reverted"';
+  }
+
+  if (record.cycleStatus !== undefined && record.cycleStatus !== "ok" && record.cycleStatus !== "no-op" && record.cycleStatus !== "failed") {
+    return 'cycleStatus must be one of "ok", "no-op", or "failed" when present';
   }
 
   if (!Array.isArray(record.targetFiles) || !record.targetFiles.every((item) => typeof item === "string")) {

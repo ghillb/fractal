@@ -38,7 +38,6 @@ describe("evolve cycle change detection", () => {
     ]);
   });
 
-
   test("emits a minimal decision reason code for task routing", () => {
     expect(
       getWorkflowDecisionReason({
@@ -69,11 +68,10 @@ describe("evolve cycle change detection", () => {
     ).toBe("consecutive-plan-guard");
   });
 
-
   test("derives a stable cycle status code from journal outcomes", () => {
     expect(deriveCycleStatus("committed")).toBe("ok");
-    expect(deriveCycleStatus("planned")).toBe("planned");
-    expect(deriveCycleStatus("reverted")).toBe("reverted");
+    expect(deriveCycleStatus("planned")).toBe("no-op");
+    expect(deriveCycleStatus("reverted")).toBe("failed");
   });
 
   test("allows only one consecutive planning cycle", () => {
@@ -141,9 +139,6 @@ describe("evolve cycle change detection", () => {
       })
     ).toBe(false);
   });
-
-
-
 
   test("exposes workflow routing audit with reason and match state", () => {
     expect(
