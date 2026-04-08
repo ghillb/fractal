@@ -1,10 +1,13 @@
 import type { JournalEntry, JournalPlanHandoff } from "./journal.ts";
+import { deriveCycleStatus } from "./journal-validator.ts";
 
 export type JournalMachineReadablePayload = Pick<
   JournalEntry,
   "timestampUtc" | "chosenChange" | "rationale" | "outcome" | "targetFiles" | "nextCyclePlan"
 > & {
   blockingReason?: string;
+  cycleStatus: ReturnType<typeof deriveCycleStatus>;
+  capabilities: ["cycle-status-inspection"];
 };
 
 export type JournalPayloadValidationResult<T> =
@@ -27,6 +30,8 @@ export function buildJournalMachineReadablePayload(entry: JournalEntry): Journal
     outcome: entry.outcome,
     targetFiles: entry.targetFiles,
     blockingReason: entry.blockingReason,
+    cycleStatus: deriveCycleStatus(entry.outcome),
+    capabilities: ["cycle-status-inspection"],
     nextCyclePlan: entry.nextCyclePlan
   };
 }

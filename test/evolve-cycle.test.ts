@@ -12,6 +12,7 @@ import {
   shouldApplyHotFilePressure
 } from "../src/evolve/cycle.ts";
 import { deriveCycleStatus } from "../src/evolve/journal-validator.ts";
+import { serializeJournalMachineReadablePayload } from "../src/evolve/journal-schema.ts";
 import { assertWorkflowSelectionPrecedence, buildWorkflowRoutingAudit, getWorkflowDecisionReason, selectEvolveWorkflow } from "../src/evolve/workflows.ts";
 
 describe("evolve cycle change detection", () => {
@@ -72,6 +73,28 @@ describe("evolve cycle change detection", () => {
     expect(deriveCycleStatus("committed")).toBe("ok");
     expect(deriveCycleStatus("planned")).toBe("no-op");
     expect(deriveCycleStatus("reverted")).toBe("failed");
+  });
+
+  test("emits a stable capability marker alongside cycle status in journal payloads", () => {
+    const payload = JSON.parse(
+      serializeJournalMachineReadablePayload({
+        timestampUtc: "2026-03-22T00:00:00.000Z",
+        mode: "real",
+        goal: "goal",
+        chosenChange: "change",
+        rationale: "rationale",
+        outcome: "committed",
+        targetFiles: ["src/evolve/cycle.ts"],
+        filesTouched: ["src/evolve/cycle.ts"],
+        lintOutcome: "pass",
+        testOutcome: "pass",
+        followUps: [],
+        nextCyclePlan: []
+      })
+    ) as { capabilities?: string[]; cycleStatus?: string };
+
+    expect(payload.capabilities).toEqual(["cycle-status-inspection"]);
+    expect(payload.cycleStatus).toBe("ok");
   });
 
   test("allows only one consecutive planning cycle", () => {
