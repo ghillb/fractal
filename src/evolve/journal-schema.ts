@@ -7,8 +7,10 @@ export type JournalMachineReadablePayload = Pick<
 > & {
   blockingReason?: string;
   cycleStatus: ReturnType<typeof deriveCycleStatus>;
-  capabilities: ["cycle-status-inspection"];
+  capabilities: CapabilityMarker[];
 };
+
+export type CapabilityMarker = "cycle-status-inspection";
 
 export type JournalPayloadValidationResult<T> =
   | { ok: true; value: T }

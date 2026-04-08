@@ -95,6 +95,7 @@ describe("evolve cycle change detection", () => {
 
     expect(payload.capabilities).toEqual(["cycle-status-inspection"]);
     expect(payload.cycleStatus).toBe("ok");
+    expect(JSON.stringify(payload)).toContain('"capabilities":["cycle-status-inspection"]');
   });
 
   test("allows only one consecutive planning cycle", () => {
