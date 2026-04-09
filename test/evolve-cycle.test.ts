@@ -9,7 +9,8 @@ import {
 import {
   canUsePlanMode,
   listChangedFilesFromStatus,
-  shouldApplyHotFilePressure
+  shouldApplyHotFilePressure,
+  summarizeJournalCapabilities
 } from "../src/evolve/cycle.ts";
 import { deriveCycleStatus } from "../src/evolve/journal-validator.ts";
 import { serializeJournalMachineReadablePayload, CYCLE_STATUS_INSPECTION_CAPABILITY } from "../src/evolve/journal-schema.ts";
@@ -73,6 +74,21 @@ describe("evolve cycle change detection", () => {
     expect(deriveCycleStatus("committed")).toBe("ok");
     expect(deriveCycleStatus("planned")).toBe("no-op");
     expect(deriveCycleStatus("reverted")).toBe("failed");
+  });
+
+  test("normalizes journal capability metadata into a stable summary object", () => {
+    expect(summarizeJournalCapabilities("committed")).toEqual({
+      cycleStatus: "ok",
+      capabilities: [CYCLE_STATUS_INSPECTION_CAPABILITY]
+    });
+
+    const roundTrip = JSON.parse(JSON.stringify(summarizeJournalCapabilities("planned"))) as {
+      cycleStatus: string;
+      capabilities: string[];
+    };
+
+    expect(roundTrip.capabilities).toContain(CYCLE_STATUS_INSPECTION_CAPABILITY);
+    expect(roundTrip.cycleStatus).toBe("no-op");
   });
 
   test("emits a stable capability marker alongside cycle status in journal payloads", () => {
