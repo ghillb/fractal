@@ -8,6 +8,7 @@ import { spriteEphemeralWorkflow } from "../tools/sprites.ts";
 import { gatherObservations } from "./observe.ts";
 import { appendJournal } from "./journal.ts";
 import { deriveCycleStatus } from "./journal-validator.ts";
+import { CYCLE_STATUS_INSPECTION_CAPABILITY } from "./journal-schema.ts";
 import { buildWorkflowRoutingAudit, selectEvolveWorkflow } from "./workflows.ts";
 import type { EvolutionDecision, ObserveData } from "./types.ts";
 
@@ -233,7 +234,7 @@ export async function runEvolveCycle(options: { dryRun?: boolean; goal?: string 
   const observations = await gatherObservations();
   const workflowSelection = selectEvolveWorkflow(observations);
   const workflowAudit = buildWorkflowRoutingAudit(observations, workflowSelection.kind);
-  logger.info("workflow_selection", { ...workflowSelection, audit: workflowAudit, cycleStatus: deriveCycleStatus("planned") } as unknown as Record<string, unknown>);
+  logger.info("workflow_selection", { ...workflowSelection, audit: workflowAudit, cycleStatus: deriveCycleStatus("planned"), capabilities: [CYCLE_STATUS_INSPECTION_CAPABILITY] } as unknown as Record<string, unknown>);
   if (options.dryRun) {
     console.log(JSON.stringify({ mode, goal, workflowSelection, workflowAudit }, null, 2));
     return;

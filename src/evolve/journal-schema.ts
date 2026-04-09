@@ -12,6 +12,8 @@ export type JournalMachineReadablePayload = Pick<
 
 export type CapabilityMarker = "cycle-status-inspection";
 
+export const CYCLE_STATUS_INSPECTION_CAPABILITY: CapabilityMarker = "cycle-status-inspection";
+
 export type JournalPayloadValidationResult<T> =
   | { ok: true; value: T }
   | { ok: false; reason: string };
@@ -33,7 +35,7 @@ export function buildJournalMachineReadablePayload(entry: JournalEntry): Journal
     targetFiles: entry.targetFiles,
     blockingReason: entry.blockingReason,
     cycleStatus: deriveCycleStatus(entry.outcome),
-    capabilities: ["cycle-status-inspection"],
+    capabilities: [CYCLE_STATUS_INSPECTION_CAPABILITY],
     nextCyclePlan: entry.nextCyclePlan
   };
 }

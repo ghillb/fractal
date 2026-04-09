@@ -12,7 +12,7 @@ import {
   shouldApplyHotFilePressure
 } from "../src/evolve/cycle.ts";
 import { deriveCycleStatus } from "../src/evolve/journal-validator.ts";
-import { serializeJournalMachineReadablePayload } from "../src/evolve/journal-schema.ts";
+import { serializeJournalMachineReadablePayload, CYCLE_STATUS_INSPECTION_CAPABILITY } from "../src/evolve/journal-schema.ts";
 import { assertWorkflowSelectionPrecedence, buildWorkflowRoutingAudit, getWorkflowDecisionReason, selectEvolveWorkflow } from "../src/evolve/workflows.ts";
 
 describe("evolve cycle change detection", () => {
@@ -93,9 +93,9 @@ describe("evolve cycle change detection", () => {
       })
     ) as { capabilities?: string[]; cycleStatus?: string };
 
-    expect(payload.capabilities).toEqual(["cycle-status-inspection"]);
+    expect(payload.capabilities).toEqual([CYCLE_STATUS_INSPECTION_CAPABILITY]);
     expect(payload.cycleStatus).toBe("ok");
-    expect(JSON.stringify(payload)).toContain('"capabilities":["cycle-status-inspection"]');
+    expect(JSON.stringify(payload)).toContain(`"capabilities":["${CYCLE_STATUS_INSPECTION_CAPABILITY}"]`);
   });
 
   test("allows only one consecutive planning cycle", () => {
