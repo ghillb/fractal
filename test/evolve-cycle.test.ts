@@ -91,6 +91,17 @@ describe("evolve cycle change detection", () => {
     expect(roundTrip.cycleStatus).toBe("no-op");
   });
 
+
+  test("preserves the capability marker through a read/write round trip", () => {
+    const summary = summarizeJournalCapabilities("committed");
+    const roundTrip = JSON.parse(JSON.stringify(summary)) as typeof summary;
+
+    expect(roundTrip).toEqual({
+      cycleStatus: "ok",
+      capabilities: [CYCLE_STATUS_INSPECTION_CAPABILITY]
+    });
+  });
+
   test("emits a stable capability marker alongside cycle status in journal payloads", () => {
     const payload = JSON.parse(
       serializeJournalMachineReadablePayload({
