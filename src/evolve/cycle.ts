@@ -8,7 +8,7 @@ import { spriteEphemeralWorkflow } from "../tools/sprites.ts";
 import { gatherObservations } from "./observe.ts";
 import { appendJournal } from "./journal.ts";
 import { deriveCycleStatus } from "./journal-validator.ts";
-import { CYCLE_STATUS_INSPECTION_CAPABILITY, type CapabilityMarker } from "./journal-schema.ts";
+import { CYCLE_STATUS_INSPECTION_CAPABILITY, type CapabilityMarker, type JournalMachineReadablePayload } from "./journal-schema.ts";
 import { buildWorkflowRoutingAudit, selectEvolveWorkflow } from "./workflows.ts";
 import type { EvolutionDecision, ObserveData } from "./types.ts";
 
@@ -53,15 +53,15 @@ function parseDecision(text: string): EvolutionDecision {
 }
 
 
-export type JournalCapabilitySummary = {
-  cycleStatus: ReturnType<typeof deriveCycleStatus>;
-  capabilities: CapabilityMarker[];
-};
+export type JournalCapabilitySummary = Pick<JournalMachineReadablePayload, "cycleStatus" | "capabilities">;
 
-export function summarizeJournalCapabilities(outcome: string): JournalCapabilitySummary {
+export function summarizeJournalCapabilities(
+  outcome: Parameters<typeof deriveCycleStatus>[0],
+  capabilities: CapabilityMarker[] = [CYCLE_STATUS_INSPECTION_CAPABILITY]
+): JournalCapabilitySummary {
   return {
-    cycleStatus: deriveCycleStatus(outcome as Parameters<typeof deriveCycleStatus>[0]),
-    capabilities: [CYCLE_STATUS_INSPECTION_CAPABILITY]
+    cycleStatus: deriveCycleStatus(outcome),
+    capabilities: Array.from(new Set(capabilities)).sort() as CapabilityMarker[]
   };
 }
 
