@@ -1,7 +1,17 @@
 import { readRecentEvolveJournalSummary } from "./read-evolve-journal-summary.ts";
 
-export type EvolveCapabilitySummary = {
+export type EvolveCapabilityDescriptor = Readonly<{
+  version: 1;
   source: "persisted-evolve-journal";
+}>;
+
+export const EVOLVE_CAPABILITY_DESCRIPTOR: EvolveCapabilityDescriptor = Object.freeze({
+  version: 1,
+  source: "persisted-evolve-journal"
+});
+
+export type EvolveCapabilitySummary = {
+  descriptor: EvolveCapabilityDescriptor;
   entryCount: number;
   latestTimestampUtc?: string;
   latestOutcome?: "committed" | "planned" | "reverted";
@@ -28,7 +38,7 @@ export async function readEvolveCapabilitySummary(
   }
 
   return {
-    source: "persisted-evolve-journal",
+    descriptor: EVOLVE_CAPABILITY_DESCRIPTOR,
     entryCount: entries.length,
     latestTimestampUtc: latest?.timestampUtc,
     latestOutcome: latest?.outcome,

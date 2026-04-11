@@ -2,10 +2,10 @@ import { describe, expect, test } from "bun:test";
 import { mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { readEvolveCapabilitySummary } from "../src/evolve/capability-summary.ts";
+import { EVOLVE_CAPABILITY_DESCRIPTOR, readEvolveCapabilitySummary } from "../src/evolve/capability-summary.ts";
 
 describe("evolve capability summary", () => {
-  test("summarizes persisted journal capabilities in a compact downstream-friendly shape", async () => {
+  test("keeps the versioned descriptor stable and read-only across a journal round trip", async () => {
     const temp = mkdtempSync(join(tmpdir(), "fractal-capability-summary-"));
     const journalPath = join(temp, "JOURNAL.md");
     writeFileSync(
@@ -19,8 +19,16 @@ describe("evolve capability summary", () => {
       "utf8"
     );
 
-    await expect(readEvolveCapabilitySummary(2, journalPath)).resolves.toEqual({
-      source: "persisted-evolve-journal",
+    const summary = await readEvolveCapabilitySummary(2, journalPath);
+
+    expect(summary.descriptor).toEqual(EVOLVE_CAPABILITY_DESCRIPTOR);
+    expect(Object.isFrozen(summary.descriptor)).toBe(true);
+    expect(Object.isFrozen(EVOLVE_CAPABILITY_DESCRIPTOR)).toBe(true);
+    expect(() => {
+      (summary.descriptor as { version: number }).version = 2;
+    }).toThrow();
+    expect(summary).toEqual({
+      descriptor: EVOLVE_CAPABILITY_DESCRIPTOR,
       entryCount: 2,
       latestTimestampUtc: "2026-03-11T00:00:00.000Z",
       latestOutcome: "planned",
