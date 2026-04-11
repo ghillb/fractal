@@ -2,7 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { EVOLVE_CAPABILITY_DESCRIPTOR, readEvolveCapabilitySummary } from "../src/evolve/capability-summary.ts";
+import { EVOLVE_CAPABILITY_DESCRIPTOR, EVOLVE_CAPABILITY_DESCRIPTOR_VERSION, readEvolveCapabilitySummary } from "../src/evolve/capability-summary.ts";
 
 describe("evolve capability summary", () => {
   test("keeps the versioned descriptor stable and read-only across a journal round trip", async () => {
@@ -22,6 +22,7 @@ describe("evolve capability summary", () => {
     const summary = await readEvolveCapabilitySummary(2, journalPath);
 
     expect(summary.descriptor).toEqual(EVOLVE_CAPABILITY_DESCRIPTOR);
+    expect(summary.descriptor.version).toBe(EVOLVE_CAPABILITY_DESCRIPTOR_VERSION);
     expect(Object.isFrozen(summary.descriptor)).toBe(true);
     expect(Object.isFrozen(EVOLVE_CAPABILITY_DESCRIPTOR)).toBe(true);
     expect(() => {

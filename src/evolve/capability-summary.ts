@@ -1,12 +1,14 @@
 import { readRecentEvolveJournalSummary } from "./read-evolve-journal-summary.ts";
 
+export const EVOLVE_CAPABILITY_DESCRIPTOR_VERSION = 1 as const;
+
 export type EvolveCapabilityDescriptor = Readonly<{
-  version: 1;
+  version: typeof EVOLVE_CAPABILITY_DESCRIPTOR_VERSION;
   source: "persisted-evolve-journal";
 }>;
 
 export const EVOLVE_CAPABILITY_DESCRIPTOR: EvolveCapabilityDescriptor = Object.freeze({
-  version: 1,
+  version: EVOLVE_CAPABILITY_DESCRIPTOR_VERSION,
   source: "persisted-evolve-journal"
 });
 
