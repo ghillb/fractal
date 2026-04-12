@@ -3,7 +3,9 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import {
   countTrailingPlannedEntries,
-  extractLatestPlanFromJournalWithDiagnostics
+  extractLatestPlanFromJournalWithDiagnostics,
+  getJournalCapabilityDescriptor,
+  JOURNAL_CAPABILITY_DESCRIPTOR
 } from "../src/evolve/journal";
 import {
   parseMachineReadableBlocks,
@@ -35,6 +37,15 @@ describe("persisted evolve journal machine-readable history", () => {
     for (const block of blocks) {
       expect(validateMachineReadableBlock(block)).toBeUndefined();
     }
+  });
+
+
+  test("journal capability descriptor is stable across a round trip and read-only", () => {
+    const descriptor = getJournalCapabilityDescriptor();
+
+    expect(descriptor).toEqual(JOURNAL_CAPABILITY_DESCRIPTOR);
+    expect(JSON.parse(JSON.stringify(descriptor))).toEqual(JOURNAL_CAPABILITY_DESCRIPTOR);
+    expect(descriptor).toMatchObject({ readOnly: true, schemaVersion: "1.0", module: "src/evolve/journal.ts" });
   });
 
   test("entry markers and handoff_json lines stay paired with identical payloads", () => {

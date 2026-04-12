@@ -169,6 +169,33 @@ export async function ensureJournal(): Promise<void> {
   }
 }
 
+
+export type JournalCapabilityDescriptor = {
+  schemaVersion: string;
+  module: string;
+  readOnly: true;
+  machineReadable: {
+    markerPrefix: string;
+    handoffPrefix: string;
+    payloadCapabilities: string[];
+  };
+};
+
+export const JOURNAL_CAPABILITY_DESCRIPTOR: JournalCapabilityDescriptor = {
+  schemaVersion: "1.0",
+  module: "src/evolve/journal.ts",
+  readOnly: true,
+  machineReadable: {
+    markerPrefix: ENTRY_MARKER_PREFIX,
+    handoffPrefix: HANDOFF_PREFIX,
+    payloadCapabilities: ["cycle-status-inspection"]
+  }
+};
+
+export function getJournalCapabilityDescriptor(): JournalCapabilityDescriptor {
+  return JSON.parse(JSON.stringify(JOURNAL_CAPABILITY_DESCRIPTOR)) as JournalCapabilityDescriptor;
+}
+
 export async function appendJournal(entry: JournalEntry): Promise<void> {
   await ensureJournal();
   const markerPayload = serializeJournalMachineReadablePayload(entry);
