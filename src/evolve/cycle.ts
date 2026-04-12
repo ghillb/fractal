@@ -12,6 +12,37 @@ import { CYCLE_STATUS_INSPECTION_CAPABILITY, type CapabilityMarker, type Journal
 import { buildWorkflowRoutingAudit, selectEvolveWorkflow } from "./workflows.ts";
 import type { EvolutionDecision, ObserveData } from "./types.ts";
 
+export const EVOLVE_CAPABILITY_DESCRIPTOR_VERSION = 1 as const;
+export type EvolveCapabilityDescriptor = Readonly<{
+  version: typeof EVOLVE_CAPABILITY_DESCRIPTOR_VERSION;
+  source: "persisted-evolve-journal";
+  entryCount: number;
+  latestTimestampUtc?: string;
+  latestOutcome?: JournalOutcome;
+  latestTargetFiles: string[];
+  capabilityNames: string[];
+}>;
+
+export function discoverEvolveCapabilityDescriptor(
+  entries: ReadonlyArray<Pick<JournalEntry, "timestampUtc" | "outcome" | "targetFiles">>
+): EvolveCapabilityDescriptor {
+  const capabilityNames = new Set<string>(["persisted-evolve-journal"]);
+  for (const entry of entries) {
+    capabilityNames.add(`outcome:${entry.outcome}`);
+    for (const targetFile of entry.targetFiles) capabilityNames.add(`target:${targetFile}`);
+  }
+  const latest = entries[0];
+  return Object.freeze({
+    version: EVOLVE_CAPABILITY_DESCRIPTOR_VERSION,
+    source: "persisted-evolve-journal",
+    entryCount: entries.length,
+    latestTimestampUtc: latest?.timestampUtc,
+    latestOutcome: latest?.outcome,
+    latestTargetFiles: latest ? [...latest.targetFiles] : [],
+    capabilityNames: [...capabilityNames].sort()
+  });
+}
+
 const DEFAULT_MISSION =
   "Become an entity that is ever more capable while improving safely.";
 const EVOLVE_AGENT_MAX_STEPS = 50;

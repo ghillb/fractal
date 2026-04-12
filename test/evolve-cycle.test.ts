@@ -8,6 +8,7 @@ import {
 } from "../src/evolve/observe.ts";
 import {
   canUsePlanMode,
+  discoverEvolveCapabilityDescriptor,
   discoverJournalCapabilities,
   listChangedFilesFromStatus,
   shouldApplyHotFilePressure,
@@ -130,6 +131,49 @@ describe("evolve cycle change detection", () => {
     ]);
     expect(roundTrip.capabilities).toEqual([CYCLE_STATUS_INSPECTION_CAPABILITY]);
     expect(roundTrip).not.toHaveProperty("blockingReason");
+  });
+
+
+  test("discovers a versioned persisted journal capability descriptor with stable round-trip shape", () => {
+    const descriptor = discoverEvolveCapabilityDescriptor([
+      {
+        timestampUtc: "2026-03-24T03:00:00.000Z",
+        outcome: "committed",
+        targetFiles: ["src/evolve/cycle.ts"]
+      },
+      {
+        timestampUtc: "2026-03-23T02:00:00.000Z",
+        outcome: "planned",
+        targetFiles: ["test/evolve-cycle.test.ts", "src/evolve/journal.ts"]
+      }
+    ]);
+    const roundTrip = JSON.parse(JSON.stringify(descriptor)) as typeof descriptor;
+
+    expect(roundTrip).toEqual({
+      version: 1,
+      source: "persisted-evolve-journal",
+      entryCount: 2,
+      latestTimestampUtc: "2026-03-24T03:00:00.000Z",
+      latestOutcome: "committed",
+      latestTargetFiles: ["src/evolve/cycle.ts"],
+      capabilityNames: [
+        "outcome:committed",
+        "outcome:planned",
+        "persisted-evolve-journal",
+        "target:src/evolve/cycle.ts",
+        "target:src/evolve/journal.ts",
+        "target:test/evolve-cycle.test.ts"
+      ]
+    });
+    expect(Object.keys(roundTrip)).toEqual([
+      "version",
+      "source",
+      "entryCount",
+      "latestTimestampUtc",
+      "latestOutcome",
+      "latestTargetFiles",
+      "capabilityNames"
+    ]);
   });
 
   test("emits a stable capability marker alongside cycle status in journal payloads", () => {
