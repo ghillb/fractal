@@ -6,7 +6,7 @@ import { runAgent } from "../agent/runner.ts";
 import { extractOutputText, openAiResponses } from "../agent/openai.ts";
 import { spriteEphemeralWorkflow } from "../tools/sprites.ts";
 import { gatherObservations } from "./observe.ts";
-import { appendJournal } from "./journal.ts";
+import { appendJournal, type JournalEntry, type JournalOutcome } from "./journal.ts";
 import { deriveCycleStatus } from "./journal-validator.ts";
 import { CYCLE_STATUS_INSPECTION_CAPABILITY, type CapabilityMarker, type JournalMachineReadablePayload } from "./journal-schema.ts";
 import { buildWorkflowRoutingAudit, selectEvolveWorkflow } from "./workflows.ts";
@@ -52,17 +52,36 @@ function parseDecision(text: string): EvolutionDecision {
   };
 }
 
-
 export type JournalCapabilitySummary = Pick<JournalMachineReadablePayload, "cycleStatus" | "capabilities">;
 
 export function summarizeJournalCapabilities(
-  outcome: Parameters<typeof deriveCycleStatus>[0],
+  outcome: JournalOutcome,
   capabilities: CapabilityMarker[] = [CYCLE_STATUS_INSPECTION_CAPABILITY]
 ): JournalCapabilitySummary {
   return {
     cycleStatus: deriveCycleStatus(outcome),
     capabilities: Array.from(new Set(capabilities)).sort() as CapabilityMarker[]
   };
+}
+
+function journalCapabilityDescriptor(entry: Pick<JournalEntry, "outcome" | "timestampUtc" | "chosenChange" | "rationale" | "targetFiles" | "nextCyclePlan" | "blockingReason">): JournalMachineReadablePayload {
+  return {
+    timestampUtc: entry.timestampUtc,
+    chosenChange: entry.chosenChange,
+    rationale: entry.rationale,
+    outcome: entry.outcome,
+    targetFiles: [...entry.targetFiles],
+    nextCyclePlan: [...entry.nextCyclePlan],
+    blockingReason: entry.blockingReason,
+    cycleStatus: deriveCycleStatus(entry.outcome),
+    capabilities: [CYCLE_STATUS_INSPECTION_CAPABILITY]
+  };
+}
+
+export function discoverJournalCapabilities(
+  entry: Pick<JournalEntry, "outcome" | "timestampUtc" | "chosenChange" | "rationale" | "targetFiles" | "nextCyclePlan" | "blockingReason">
+): Readonly<JournalMachineReadablePayload> {
+  return journalCapabilityDescriptor(entry);
 }
 
 function gitStatusPorcelain(): string {
