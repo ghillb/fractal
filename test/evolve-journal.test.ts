@@ -4,6 +4,7 @@ import { join } from "node:path";
 import {
   countTrailingPlannedEntries,
   extractLatestPlanFromJournalWithDiagnostics,
+  exportJournalCapabilityDescriptor,
   getJournalCapabilityDescriptor,
   JOURNAL_CAPABILITY_DESCRIPTOR
 } from "../src/evolve/journal";
@@ -44,6 +45,7 @@ describe("persisted evolve journal machine-readable history", () => {
     const descriptor = getJournalCapabilityDescriptor();
 
     expect(descriptor).toEqual(JOURNAL_CAPABILITY_DESCRIPTOR);
+    expect(JSON.parse(exportJournalCapabilityDescriptor())).toEqual(JOURNAL_CAPABILITY_DESCRIPTOR);
     expect(JSON.parse(JSON.stringify(descriptor))).toEqual(JOURNAL_CAPABILITY_DESCRIPTOR);
     expect(descriptor).toMatchObject({ readOnly: true, schemaVersion: "1.0", module: "src/evolve/journal.ts" });
   });

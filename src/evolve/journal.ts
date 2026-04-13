@@ -196,6 +196,10 @@ export function getJournalCapabilityDescriptor(): JournalCapabilityDescriptor {
   return JSON.parse(JSON.stringify(JOURNAL_CAPABILITY_DESCRIPTOR)) as JournalCapabilityDescriptor;
 }
 
+export function exportJournalCapabilityDescriptor(): string {
+  return JSON.stringify(JOURNAL_CAPABILITY_DESCRIPTOR);
+}
+
 export async function appendJournal(entry: JournalEntry): Promise<void> {
   await ensureJournal();
   const markerPayload = serializeJournalMachineReadablePayload(entry);
