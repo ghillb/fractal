@@ -50,6 +50,15 @@ describe("persisted evolve journal machine-readable history", () => {
     expect(descriptor).toMatchObject({ readOnly: true, schemaVersion: "1.0", module: "src/evolve/journal.ts" });
   });
 
+  test("capability descriptor is machine-readable and stable under serialization", () => {
+    const descriptor = getJournalCapabilityDescriptor();
+    const exported = exportJournalCapabilityDescriptor();
+
+    expect(exported).toBe('{"schemaVersion":"1.0","module":"src/evolve/journal.ts","readOnly":true,"machineReadable":{"markerPrefix":"<!-- FRACTAL_ENTRY ","handoffPrefix":"- handoff_json: ","payloadCapabilities":["cycle-status-inspection"]}}');
+    expect(JSON.parse(exported)).toEqual(descriptor);
+    expect(descriptor.machineReadable.payloadCapabilities).toEqual(["cycle-status-inspection"]);
+  });
+
   test("entry markers and handoff_json lines stay paired with identical payloads", () => {
     const journal = readFileSync(JOURNAL_PATH, "utf8");
     const blocks = parseMachineReadableBlocks(journal);

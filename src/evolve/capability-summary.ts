@@ -5,12 +5,30 @@ export const EVOLVE_CAPABILITY_DESCRIPTOR_VERSION = 1 as const;
 export type EvolveCapabilityDescriptor = Readonly<{
   version: typeof EVOLVE_CAPABILITY_DESCRIPTOR_VERSION;
   source: "persisted-evolve-journal";
+  readOnly: true;
+  machineReadable: Readonly<{
+    entryLimit: number;
+    summaryFormat: "machine-readable";
+  }>;
 }>;
 
 export const EVOLVE_CAPABILITY_DESCRIPTOR: EvolveCapabilityDescriptor = Object.freeze({
   version: EVOLVE_CAPABILITY_DESCRIPTOR_VERSION,
-  source: "persisted-evolve-journal"
+  source: "persisted-evolve-journal",
+  readOnly: true,
+  machineReadable: Object.freeze({
+    entryLimit: 5,
+    summaryFormat: "machine-readable"
+  })
 });
+
+export function getEvolveCapabilityDescriptor(): EvolveCapabilityDescriptor {
+  return JSON.parse(JSON.stringify(EVOLVE_CAPABILITY_DESCRIPTOR)) as EvolveCapabilityDescriptor;
+}
+
+export function exportEvolveCapabilityDescriptor(): string {
+  return JSON.stringify(EVOLVE_CAPABILITY_DESCRIPTOR);
+}
 
 export type EvolveCapabilitySummary = {
   descriptor: EvolveCapabilityDescriptor;
@@ -22,7 +40,7 @@ export type EvolveCapabilitySummary = {
 };
 
 export async function readEvolveCapabilitySummary(
-  limit = 5,
+  limit = EVOLVE_CAPABILITY_DESCRIPTOR.machineReadable.entryLimit,
   path = "JOURNAL.md"
 ): Promise<EvolveCapabilitySummary> {
   const entries = await readRecentEvolveJournalSummary(limit, path);

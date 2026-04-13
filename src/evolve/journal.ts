@@ -46,6 +46,36 @@ const ENTRY_MARKER_SUFFIX = " -->";
 const HANDOFF_PREFIX = "- handoff_json: ";
 const MAX_REJECTION_SUMMARY = 3;
 
+export type JournalCapabilityDescriptor = {
+  schemaVersion: string;
+  module: string;
+  readOnly: true;
+  machineReadable: {
+    markerPrefix: string;
+    handoffPrefix: string;
+    payloadCapabilities: string[];
+  };
+};
+
+export const JOURNAL_CAPABILITY_DESCRIPTOR: JournalCapabilityDescriptor = {
+  schemaVersion: "1.0",
+  module: "src/evolve/journal.ts",
+  readOnly: true,
+  machineReadable: {
+    markerPrefix: ENTRY_MARKER_PREFIX,
+    handoffPrefix: HANDOFF_PREFIX,
+    payloadCapabilities: ["cycle-status-inspection"]
+  }
+};
+
+export function getJournalCapabilityDescriptor(): JournalCapabilityDescriptor {
+  return JSON.parse(JSON.stringify(JOURNAL_CAPABILITY_DESCRIPTOR)) as JournalCapabilityDescriptor;
+}
+
+export function exportJournalCapabilityDescriptor(): string {
+  return JSON.stringify(JOURNAL_CAPABILITY_DESCRIPTOR);
+}
+
 function summarizeRejections(results: JournalPayloadValidationResult<JournalPlanHandoff>[]): string[] {
   const counts = new Map<string, number>();
 
@@ -167,37 +197,6 @@ export async function ensureJournal(): Promise<void> {
   } catch {
     await appendFile("JOURNAL.md", HEADER, "utf8");
   }
-}
-
-
-export type JournalCapabilityDescriptor = {
-  schemaVersion: string;
-  module: string;
-  readOnly: true;
-  machineReadable: {
-    markerPrefix: string;
-    handoffPrefix: string;
-    payloadCapabilities: string[];
-  };
-};
-
-export const JOURNAL_CAPABILITY_DESCRIPTOR: JournalCapabilityDescriptor = {
-  schemaVersion: "1.0",
-  module: "src/evolve/journal.ts",
-  readOnly: true,
-  machineReadable: {
-    markerPrefix: ENTRY_MARKER_PREFIX,
-    handoffPrefix: HANDOFF_PREFIX,
-    payloadCapabilities: ["cycle-status-inspection"]
-  }
-};
-
-export function getJournalCapabilityDescriptor(): JournalCapabilityDescriptor {
-  return JSON.parse(JSON.stringify(JOURNAL_CAPABILITY_DESCRIPTOR)) as JournalCapabilityDescriptor;
-}
-
-export function exportJournalCapabilityDescriptor(): string {
-  return JSON.stringify(JOURNAL_CAPABILITY_DESCRIPTOR);
 }
 
 export async function appendJournal(entry: JournalEntry): Promise<void> {
