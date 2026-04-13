@@ -30,6 +30,8 @@ export function exportEvolveCapabilityDescriptor(): string {
   return JSON.stringify(EVOLVE_CAPABILITY_DESCRIPTOR);
 }
 
+export const EVOLVE_CAPABILITY_DESCRIPTOR_EXPORT = exportEvolveCapabilityDescriptor();
+
 export type EvolveCapabilitySummary = {
   descriptor: EvolveCapabilityDescriptor;
   entryCount: number;

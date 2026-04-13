@@ -9,6 +9,13 @@ import {
   JOURNAL_CAPABILITY_DESCRIPTOR
 } from "../src/evolve/journal";
 import {
+  EVOLVE_CAPABILITY_DESCRIPTOR,
+  EVOLVE_CAPABILITY_DESCRIPTOR_EXPORT,
+  EVOLVE_CAPABILITY_DESCRIPTOR_VERSION,
+  exportEvolveCapabilityDescriptor,
+  getEvolveCapabilityDescriptor
+} from "../src/evolve/capability-summary.ts";
+import {
   parseMachineReadableBlocks,
   validateMachineReadableBlock,
   type JournalMachineReadableBlock
@@ -57,6 +64,22 @@ describe("persisted evolve journal machine-readable history", () => {
     expect(exported).toBe('{"schemaVersion":"1.0","module":"src/evolve/journal.ts","readOnly":true,"machineReadable":{"markerPrefix":"<!-- FRACTAL_ENTRY ","handoffPrefix":"- handoff_json: ","payloadCapabilities":["cycle-status-inspection"]}}');
     expect(JSON.parse(exported)).toEqual(descriptor);
     expect(descriptor.machineReadable.payloadCapabilities).toEqual(["cycle-status-inspection"]);
+  });
+
+  test("versioned evolve capability descriptor exports as stable machine-readable JSON", () => {
+    const descriptor = getEvolveCapabilityDescriptor();
+
+    expect(descriptor).toEqual(EVOLVE_CAPABILITY_DESCRIPTOR);
+    expect(descriptor.version).toBe(EVOLVE_CAPABILITY_DESCRIPTOR_VERSION);
+    expect(Object.isFrozen(EVOLVE_CAPABILITY_DESCRIPTOR)).toBe(true);
+    expect(JSON.parse(exportEvolveCapabilityDescriptor())).toEqual(EVOLVE_CAPABILITY_DESCRIPTOR);
+    expect(exportEvolveCapabilityDescriptor()).toBe(EVOLVE_CAPABILITY_DESCRIPTOR_EXPORT);
+    expect(descriptor).toMatchObject({
+      version: EVOLVE_CAPABILITY_DESCRIPTOR_VERSION,
+      source: "persisted-evolve-journal",
+      readOnly: true,
+      machineReadable: { entryLimit: 5, summaryFormat: "machine-readable" }
+    });
   });
 
   test("entry markers and handoff_json lines stay paired with identical payloads", () => {
