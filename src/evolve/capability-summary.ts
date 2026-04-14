@@ -23,7 +23,10 @@ export const EVOLVE_CAPABILITY_DESCRIPTOR: EvolveCapabilityDescriptor = Object.f
 });
 
 export function getEvolveCapabilityDescriptor(): EvolveCapabilityDescriptor {
-  return JSON.parse(JSON.stringify(EVOLVE_CAPABILITY_DESCRIPTOR)) as EvolveCapabilityDescriptor;
+  return Object.freeze({
+    ...EVOLVE_CAPABILITY_DESCRIPTOR,
+    machineReadable: Object.freeze({ ...EVOLVE_CAPABILITY_DESCRIPTOR.machineReadable })
+  }) as EvolveCapabilityDescriptor;
 }
 
 export function exportEvolveCapabilityDescriptor(): string {
