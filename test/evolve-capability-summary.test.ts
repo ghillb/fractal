@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import {
+  EVOLVE_CAPABILITY_DESCRIPTOR_EXPORT,
   EVOLVE_CAPABILITY_DESCRIPTOR_VERSION,
   getEvolveCapabilityDescriptor,
   readEvolveCapabilitySummary
@@ -26,6 +27,9 @@ describe("evolve capability summary", () => {
     const descriptor = getEvolveCapabilityDescriptor();
     const summary = await readEvolveCapabilitySummary(2, journalPath);
 
+    expect(EVOLVE_CAPABILITY_DESCRIPTOR_EXPORT).toBe(
+      '{"version":1,"source":"persisted-evolve-journal","readOnly":true,"machineReadable":{"entryLimit":5,"summaryFormat":"machine-readable"}}'
+    );
     expect(descriptor.version).toBe(EVOLVE_CAPABILITY_DESCRIPTOR_VERSION);
     expect(Object.isFrozen(descriptor)).toBe(true);
     expect(() => {
