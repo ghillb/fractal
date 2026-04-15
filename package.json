@@ -5,7 +5,8 @@
   "type": "module",
   "description": "Minimal Bun + TypeScript LLM coding agent with autonomous evolve cycle.",
   "exports": {
-    "./src/evolve/journal-validator": "./src/evolve/journal-validator.ts"
+    "./src/evolve/journal-validator": "./src/evolve/journal-validator.ts",
+    "./src/evolve": "./src/evolve/index.ts"
   },
   "scripts": {
     "agent": "bun run src/agent/cli.ts",
