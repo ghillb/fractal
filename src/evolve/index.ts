@@ -8,3 +8,5 @@ export {
   type EvolveCapabilityDescriptor,
   type EvolveCapabilitySummary
 } from "./capability-summary.ts";
+
+export { getEvolveCapabilityDescriptor as evolveCapabilityDescriptor } from "./capability-summary.ts";
