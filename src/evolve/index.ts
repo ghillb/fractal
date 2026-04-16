@@ -1,3 +1,5 @@
+import { getEvolveCapabilityDescriptor } from "./capability-summary.ts";
+
 export {
   EVOLVE_CAPABILITY_DESCRIPTOR,
   EVOLVE_CAPABILITY_DESCRIPTOR_EXPORT,
@@ -10,3 +12,7 @@ export {
 } from "./capability-summary.ts";
 
 export { getEvolveCapabilityDescriptor as evolveCapabilityDescriptor } from "./capability-summary.ts";
+
+export function getEvolveCapabilityManifest() {
+  return getEvolveCapabilityDescriptor();
+}

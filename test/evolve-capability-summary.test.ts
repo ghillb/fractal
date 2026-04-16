@@ -3,6 +3,7 @@ import {
   EVOLVE_CAPABILITY_DESCRIPTOR_EXPORT,
   EVOLVE_CAPABILITY_DESCRIPTOR_VERSION,
   getEvolveCapabilityDescriptor,
+  getEvolveCapabilityManifest,
   readEvolveCapabilitySummary
 } from "../src/evolve/index.ts";
 import { mkdtempSync, writeFileSync } from "node:fs";
@@ -25,6 +26,7 @@ describe("evolve capability summary", () => {
     );
 
     const descriptor = getEvolveCapabilityDescriptor();
+    const manifest = getEvolveCapabilityManifest();
     const summary = await readEvolveCapabilitySummary(2, journalPath);
 
     expect(EVOLVE_CAPABILITY_DESCRIPTOR_EXPORT).toBe(
@@ -35,6 +37,7 @@ describe("evolve capability summary", () => {
     expect(() => {
       (descriptor as { version: number }).version = 2;
     }).toThrow();
+    expect(manifest).toEqual(descriptor);
     expect(summary.descriptor).toEqual(descriptor);
     expect(summary.descriptor.version).toBe(EVOLVE_CAPABILITY_DESCRIPTOR_VERSION);
     expect(Object.isFrozen(summary.descriptor)).toBe(true);
