@@ -29,6 +29,10 @@ export function getEvolveCapabilityDescriptor(): EvolveCapabilityDescriptor {
   }) as EvolveCapabilityDescriptor;
 }
 
+export function getEvolveCapabilityDescriptorAdapter(): EvolveCapabilityDescriptor {
+  return getEvolveCapabilityDescriptor();
+}
+
 export function exportEvolveCapabilityDescriptor(): string {
   return JSON.stringify(EVOLVE_CAPABILITY_DESCRIPTOR);
 }
