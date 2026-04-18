@@ -1,4 +1,4 @@
-import { appendFile, access } from "node:fs/promises";
+import { appendFile, access, readFile } from "node:fs/promises";
 import { constants } from "node:fs";
 import {
   serializeJournalMachineReadablePayload,
@@ -40,6 +40,18 @@ export type JournalReadDiagnostics = {
   rejectionSummary: string[];
 };
 
+export type RepositoryHealthSummary = Readonly<{
+  version: 1;
+  readOnly: true;
+  source: "persisted-evolve-journal";
+  machineReadable: Readonly<{
+    hasJournal: boolean;
+    latestTimestampUtc?: string;
+    latestOutcome?: JournalOutcome;
+    plannedStreak: number;
+  }>;
+}>;
+
 const HEADER = `# JOURNAL\n\nAutonomous evolve cycle log.\n\n`;
 const ENTRY_MARKER_PREFIX = "<!-- FRACTAL_ENTRY ";
 const ENTRY_MARKER_SUFFIX = " -->";
@@ -75,6 +87,40 @@ export function getJournalCapabilityDescriptor(): JournalCapabilityDescriptor {
 
 export function exportJournalCapabilityDescriptor(): string {
   return JSON.stringify(JOURNAL_CAPABILITY_DESCRIPTOR);
+}
+
+export async function readRepositoryHealthSummary(path = "JOURNAL.md"): Promise<RepositoryHealthSummary> {
+  let journal: string;
+  try {
+    journal = await readFile(path, "utf8");
+  } catch (error) {
+    const code = (error as NodeJS.ErrnoException).code;
+    if (code === "ENOENT") {
+      return {
+        version: 1,
+        readOnly: true,
+        source: "persisted-evolve-journal",
+        machineReadable: {
+          hasJournal: false,
+          plannedStreak: 0
+        }
+      };
+    }
+    throw error;
+  }
+
+  const latest = extractLatestPlanFromJournal(journal);
+  return {
+    version: 1,
+    readOnly: true,
+    source: "persisted-evolve-journal",
+    machineReadable: {
+      hasJournal: true,
+      latestTimestampUtc: latest?.timestampUtc,
+      latestOutcome: latest?.outcome,
+      plannedStreak: countTrailingPlannedEntries(journal)
+    }
+  };
 }
 
 function parseUtcTimestamp(timestampUtc: string): number | undefined {

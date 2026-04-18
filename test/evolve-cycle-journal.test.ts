@@ -3,6 +3,7 @@ import {
   JOURNAL_CAPABILITY_DESCRIPTOR,
   exportJournalCapabilityDescriptor,
   getJournalCapabilityDescriptor,
+  readRepositoryHealthSummary,
   extractLatestPlanFromJournalWithDiagnostics,
   countTrailingPlannedEntries
 } from "../src/evolve/journal.ts";
@@ -19,6 +20,20 @@ describe("cycle journal integrity checks", () => {
     expect(descriptor.readOnly).toBe(true);
     expect(descriptor.schemaVersion).toBe("1.0");
     expect(descriptor.machineReadable.payloadCapabilities).toEqual(["cycle-status-inspection"]);
+  });
+
+  test("returns a minimal read-only repository health summary without mutating state", async () => {
+    const summary = await readRepositoryHealthSummary("./does-not-exist-journal.md");
+
+    expect(summary).toEqual({
+      version: 1,
+      readOnly: true,
+      source: "persisted-evolve-journal",
+      machineReadable: {
+        hasJournal: false,
+        plannedStreak: 0
+      }
+    });
   });
 
   test("rejects out-of-order persisted records before they influence planning", () => {
