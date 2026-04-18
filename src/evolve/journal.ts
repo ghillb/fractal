@@ -45,6 +45,7 @@ const ENTRY_MARKER_PREFIX = "<!-- FRACTAL_ENTRY ";
 const ENTRY_MARKER_SUFFIX = " -->";
 const HANDOFF_PREFIX = "- handoff_json: ";
 const MAX_REJECTION_SUMMARY = 3;
+const MAX_ALLOWED_TIMESTAMP_DRIFT_MS = 0;
 
 export type JournalCapabilityDescriptor = {
   schemaVersion: string;
@@ -74,6 +75,30 @@ export function getJournalCapabilityDescriptor(): JournalCapabilityDescriptor {
 
 export function exportJournalCapabilityDescriptor(): string {
   return JSON.stringify(JOURNAL_CAPABILITY_DESCRIPTOR);
+}
+
+function parseUtcTimestamp(timestampUtc: string): number | undefined {
+  const parsed = Date.parse(timestampUtc);
+  return Number.isNaN(parsed) ? undefined : parsed;
+}
+
+function validateJournalEntryOrdering(entries: JournalPlanHandoff[]): string | undefined {
+  let previousTimestamp: number | undefined;
+
+  for (const entry of entries) {
+    const timestamp = parseUtcTimestamp(entry.timestampUtc);
+    if (timestamp === undefined) {
+      return `invalid timestamp ordering at JOURNAL.md: unable to parse ${entry.timestampUtc}`;
+    }
+
+    if (previousTimestamp !== undefined && timestamp < previousTimestamp - MAX_ALLOWED_TIMESTAMP_DRIFT_MS) {
+      return `out-of-order journal entry at JOURNAL.md: ${entry.timestampUtc} precedes a newer persisted record`;
+    }
+
+    previousTimestamp = timestamp;
+  }
+
+  return undefined;
 }
 
 function summarizeRejections(results: JournalPayloadValidationResult<JournalPlanHandoff>[]): string[] {
@@ -117,6 +142,7 @@ export function extractLatestPlanFromJournalWithDiagnostics(
 ): { handoff?: JournalPlanHandoff; diagnostics: JournalReadDiagnostics } {
   const lines = text.split("\n");
   const rejections: JournalPayloadValidationResult<JournalPlanHandoff>[] = [];
+  const orderedEntries: JournalPlanHandoff[] = [];
 
   for (let index = lines.length - 1; index >= 0; index -= 1) {
     const line = lines[index]?.trim();
@@ -127,6 +153,12 @@ export function extractLatestPlanFromJournalWithDiagnostics(
     const marker = parseJournalMarker(line);
     if (marker) {
       if (marker.ok) {
+        orderedEntries.push(marker.value);
+        const orderingError = validateJournalEntryOrdering(orderedEntries.slice().reverse());
+        if (orderingError) {
+          rejections.push({ ok: false, reason: orderingError });
+          continue;
+        }
         return {
           handoff: marker.value,
           diagnostics: {
@@ -147,6 +179,12 @@ export function extractLatestPlanFromJournalWithDiagnostics(
     try {
       const handoff = validateJournalPlanHandoff(JSON.parse(line.slice(HANDOFF_PREFIX.length)));
       if (handoff.ok) {
+        orderedEntries.push(handoff.value);
+        const orderingError = validateJournalEntryOrdering(orderedEntries.slice().reverse());
+        if (orderingError) {
+          rejections.push({ ok: false, reason: orderingError });
+          continue;
+        }
         return {
           handoff: handoff.value,
           diagnostics: {
