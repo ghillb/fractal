@@ -75,3 +75,11 @@ export async function readEvolveCapabilitySummary(
     capabilityNames: [...capabilityNames].sort()
   };
 }
+
+export const evolveCapabilitySummary = {
+  version: EVOLVE_CAPABILITY_DESCRIPTOR_VERSION,
+  descriptor: EVOLVE_CAPABILITY_DESCRIPTOR,
+  getDescriptor: getEvolveCapabilityDescriptor,
+  getVersionedDescriptor: getVersionedEvolveCapabilityDescriptor,
+  read: readEvolveCapabilitySummary
+} as const;
