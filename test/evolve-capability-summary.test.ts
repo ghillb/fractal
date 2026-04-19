@@ -4,6 +4,7 @@ import {
   EVOLVE_CAPABILITY_DESCRIPTOR_EXPORT,
   EVOLVE_CAPABILITY_DESCRIPTOR_VERSION,
   evolveCapabilityDescriptor,
+  evolveCapabilityDescriptorVersioned,
   getEvolveCapabilityDescriptor,
   getEvolveCapabilityDescriptorAdapter,
   getEvolveCapabilityManifest,
@@ -34,6 +35,7 @@ describe("evolve capability summary", () => {
     const versionedManifest = getEvolveCapabilityManifestVersioned();
     const adapter = getEvolveCapabilityDescriptorAdapter();
     const alias = evolveCapabilityDescriptor();
+    const versionedAlias = evolveCapabilityDescriptorVersioned();
     const summary = await readEvolveCapabilitySummary(2, journalPath);
 
     expect(EVOLVE_CAPABILITY_DESCRIPTOR_EXPORT).toBe(
@@ -48,6 +50,7 @@ describe("evolve capability summary", () => {
     expect(versionedManifest).toEqual(descriptor);
     expect(adapter).toEqual(descriptor);
     expect(alias).toEqual(descriptor);
+    expect(versionedAlias).toEqual(descriptor);
     expect(summary.descriptor).toEqual(descriptor);
     expect(summary.descriptor.version).toBe(EVOLVE_CAPABILITY_DESCRIPTOR_VERSION);
     expect(Object.isFrozen(summary.descriptor)).toBe(true);

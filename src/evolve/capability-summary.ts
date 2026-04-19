@@ -35,6 +35,10 @@ export function exportEvolveCapabilityDescriptor(): string {
 
 export const EVOLVE_CAPABILITY_DESCRIPTOR_EXPORT = exportEvolveCapabilityDescriptor();
 
+export function getVersionedEvolveCapabilityDescriptor(): EvolveCapabilityDescriptor {
+  return getEvolveCapabilityDescriptor();
+}
+
 export type EvolveCapabilitySummary = {
   descriptor: EvolveCapabilityDescriptor;
   entryCount: number;
@@ -63,7 +67,7 @@ export async function readEvolveCapabilitySummary(
   }
 
   return {
-    descriptor: EVOLVE_CAPABILITY_DESCRIPTOR,
+    descriptor: getVersionedEvolveCapabilityDescriptor(),
     entryCount: entries.length,
     latestTimestampUtc: latest?.timestampUtc,
     latestOutcome: latest?.outcome,

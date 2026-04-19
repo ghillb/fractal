@@ -4,6 +4,7 @@ export {
   EVOLVE_CAPABILITY_DESCRIPTOR_VERSION,
   exportEvolveCapabilityDescriptor,
   getEvolveCapabilityDescriptor,
+  getVersionedEvolveCapabilityDescriptor,
   readEvolveCapabilitySummary,
   type EvolveCapabilityDescriptor,
   type EvolveCapabilitySummary
@@ -13,7 +14,8 @@ export {
   getEvolveCapabilityDescriptor as evolveCapabilityDescriptor,
   getEvolveCapabilityDescriptor as getEvolveCapabilityDescriptorAdapter,
   getEvolveCapabilityDescriptor as getEvolveCapabilityManifest,
-  getEvolveCapabilityDescriptor as getEvolveCapabilityManifestVersioned
+  getEvolveCapabilityDescriptor as getEvolveCapabilityManifestVersioned,
+  getVersionedEvolveCapabilityDescriptor as evolveCapabilityDescriptorVersioned
 } from "./capability-summary.ts";
 
 export type { EvolveCapabilityDescriptor as EvolveCapabilityManifest } from "./capability-summary.ts";
