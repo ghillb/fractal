@@ -49,6 +49,12 @@ export type RepositoryHealthSummary = Readonly<{
     latestTimestampUtc?: string;
     latestOutcome?: JournalOutcome;
     plannedStreak: number;
+    capabilitySnapshot: Readonly<{
+      version: 1;
+      capability: "repository-introspection";
+      readOnly: true;
+      sourceModule: "src/evolve/journal.ts";
+    }>;
   }>;
 }>;
 
@@ -102,7 +108,13 @@ export async function readRepositoryHealthSummary(path = "JOURNAL.md"): Promise<
         source: "persisted-evolve-journal",
         machineReadable: {
           hasJournal: false,
-          plannedStreak: 0
+          plannedStreak: 0,
+          capabilitySnapshot: {
+            version: 1,
+            capability: "repository-introspection",
+            readOnly: true,
+            sourceModule: "src/evolve/journal.ts"
+          }
         }
       };
     }
@@ -118,7 +130,13 @@ export async function readRepositoryHealthSummary(path = "JOURNAL.md"): Promise<
       hasJournal: true,
       latestTimestampUtc: latest?.timestampUtc,
       latestOutcome: latest?.outcome,
-      plannedStreak: countTrailingPlannedEntries(journal)
+      plannedStreak: countTrailingPlannedEntries(journal),
+      capabilitySnapshot: {
+        version: 1,
+        capability: "repository-introspection",
+        readOnly: true,
+        sourceModule: "src/evolve/journal.ts"
+      }
     }
   };
 }

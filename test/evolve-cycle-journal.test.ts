@@ -31,7 +31,13 @@ describe("cycle journal integrity checks", () => {
       source: "persisted-evolve-journal",
       machineReadable: {
         hasJournal: false,
-        plannedStreak: 0
+        plannedStreak: 0,
+        capabilitySnapshot: {
+          version: 1,
+          capability: "repository-introspection",
+          readOnly: true,
+          sourceModule: "src/evolve/journal.ts"
+        }
       }
     });
   });
