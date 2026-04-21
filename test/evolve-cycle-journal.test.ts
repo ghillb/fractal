@@ -3,6 +3,7 @@ import {
   JOURNAL_CAPABILITY_DESCRIPTOR,
   exportJournalCapabilityDescriptor,
   getJournalCapabilityDescriptor,
+  readRepositoryCapabilityManifest,
   readRepositoryHealthSummary,
   extractLatestPlanFromJournalWithDiagnostics,
   countTrailingPlannedEntries
@@ -20,6 +21,37 @@ describe("cycle journal integrity checks", () => {
     expect(descriptor.readOnly).toBe(true);
     expect(descriptor.schemaVersion).toBe("1.0");
     expect(descriptor.machineReadable.payloadCapabilities).toEqual(["cycle-status-inspection"]);
+  });
+
+
+  test("exports a stable repository capability manifest with immutable nested summaries", async () => {
+    const manifest = await readRepositoryCapabilityManifest("./does-not-exist-journal.md");
+
+    expect(manifest).toEqual({
+      version: 1,
+      readOnly: true,
+      source: "persisted-evolve-journal",
+      machineReadable: {
+        entryCount: 0,
+        latestTimestampUtc: undefined,
+        latestOutcome: undefined,
+        latestTargetFiles: [],
+        capabilityNames: ["persisted-evolve-journal", "repository-introspection"],
+        capabilitySnapshot: {
+          version: 1,
+          capability: "repository-introspection",
+          readOnly: true,
+          sourceModule: "src/evolve/journal.ts"
+        }
+      }
+    });
+
+    manifest.machineReadable.latestTargetFiles.push("mutated");
+    manifest.machineReadable.capabilityNames.push("mutated");
+
+    const reread = await readRepositoryCapabilityManifest("./does-not-exist-journal.md");
+    expect(reread.machineReadable.latestTargetFiles).toEqual([]);
+    expect(reread.machineReadable.capabilityNames).toEqual(["persisted-evolve-journal", "repository-introspection"]);
   });
 
   test("returns a minimal read-only repository health summary without mutating state", async () => {

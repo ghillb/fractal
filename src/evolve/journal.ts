@@ -95,6 +95,48 @@ export function exportJournalCapabilityDescriptor(): string {
   return JSON.stringify(JOURNAL_CAPABILITY_DESCRIPTOR);
 }
 
+export type RepositoryCapabilityManifest = Readonly<{
+  version: 1;
+  readOnly: true;
+  source: "persisted-evolve-journal";
+  machineReadable: Readonly<{
+    entryCount: number;
+    latestTimestampUtc?: string;
+    latestOutcome?: JournalOutcome;
+    latestTargetFiles: string[];
+    capabilityNames: string[];
+    capabilitySnapshot: RepositoryHealthSummary["machineReadable"]["capabilitySnapshot"];
+  }>;
+}>;
+
+function freezeRepositoryCapabilityManifest(manifest: RepositoryCapabilityManifest): RepositoryCapabilityManifest {
+  return {
+    ...manifest,
+    machineReadable: {
+      ...manifest.machineReadable,
+      latestTargetFiles: [...manifest.machineReadable.latestTargetFiles],
+      capabilityNames: [...manifest.machineReadable.capabilityNames]
+    }
+  };
+}
+
+export async function readRepositoryCapabilityManifest(path = "JOURNAL.md"): Promise<RepositoryCapabilityManifest> {
+  const healthSummary = await readRepositoryHealthSummary(path);
+  return freezeRepositoryCapabilityManifest({
+    version: 1,
+    readOnly: true,
+    source: "persisted-evolve-journal",
+    machineReadable: {
+      entryCount: healthSummary.machineReadable.hasJournal ? 1 : 0,
+      latestTimestampUtc: healthSummary.machineReadable.latestTimestampUtc,
+      latestOutcome: healthSummary.machineReadable.latestOutcome,
+      latestTargetFiles: [],
+      capabilityNames: ["persisted-evolve-journal", "repository-introspection"].sort(),
+      capabilitySnapshot: healthSummary.machineReadable.capabilitySnapshot
+    }
+  });
+}
+
 export async function readRepositoryHealthSummary(path = "JOURNAL.md"): Promise<RepositoryHealthSummary> {
   let journal: string;
   try {
