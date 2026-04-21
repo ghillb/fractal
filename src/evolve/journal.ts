@@ -103,21 +103,21 @@ export type RepositoryCapabilityManifest = Readonly<{
     entryCount: number;
     latestTimestampUtc?: string;
     latestOutcome?: JournalOutcome;
-    latestTargetFiles: string[];
-    capabilityNames: string[];
+    latestTargetFiles: readonly string[];
+    capabilityNames: readonly string[];
     capabilitySnapshot: RepositoryHealthSummary["machineReadable"]["capabilitySnapshot"];
   }>;
 }>;
 
 function freezeRepositoryCapabilityManifest(manifest: RepositoryCapabilityManifest): RepositoryCapabilityManifest {
-  return {
+  return Object.freeze({
     ...manifest,
-    machineReadable: {
+    machineReadable: Object.freeze({
       ...manifest.machineReadable,
-      latestTargetFiles: [...manifest.machineReadable.latestTargetFiles],
-      capabilityNames: [...manifest.machineReadable.capabilityNames]
-    }
-  };
+      latestTargetFiles: Object.freeze([...manifest.machineReadable.latestTargetFiles]),
+      capabilityNames: Object.freeze([...manifest.machineReadable.capabilityNames])
+    })
+  });
 }
 
 export async function readRepositoryCapabilityManifest(path = "JOURNAL.md"): Promise<RepositoryCapabilityManifest> {

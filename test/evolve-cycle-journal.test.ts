@@ -46,8 +46,8 @@ describe("cycle journal integrity checks", () => {
       }
     });
 
-    manifest.machineReadable.latestTargetFiles.push("mutated");
-    manifest.machineReadable.capabilityNames.push("mutated");
+    expect(Object.isFrozen(manifest.machineReadable.latestTargetFiles)).toBe(true);
+    expect(Object.isFrozen(manifest.machineReadable.capabilityNames)).toBe(true);
 
     const reread = await readRepositoryCapabilityManifest("./does-not-exist-journal.md");
     expect(reread.machineReadable.latestTargetFiles).toEqual([]);

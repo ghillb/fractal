@@ -9,7 +9,8 @@ import {
   readEvolveCapabilitySummary,
   type EvolveCapabilityDescriptor,
   type EvolveCapabilitySummary
-} from "./capability-summary";
+} from "./capability-summary.ts";
+import { evolveCapabilityRegistry } from "./capability-registry.ts";
 
 export {
   EVOLVE_CAPABILITY_DESCRIPTOR,
@@ -21,7 +22,8 @@ export {
   getVersionedEvolveCapabilityDescriptor,
   readEvolveCapabilitySummary,
   type EvolveCapabilityDescriptor,
-  type EvolveCapabilitySummary
+  type EvolveCapabilitySummary,
+  evolveCapabilityRegistry
 };
 
 export {
@@ -30,14 +32,15 @@ export {
   getEvolveCapabilityDescriptor as getEvolveCapabilityManifest,
   getEvolveCapabilityDescriptor as getEvolveCapabilityManifestVersioned,
   getVersionedEvolveCapabilityDescriptor as evolveCapabilityDescriptorVersioned
-} from "./capability-summary";
+} from "./capability-summary.ts";
 
-export type { EvolveCapabilityDescriptor as EvolveCapabilityManifest } from "./capability-summary";
+export type { EvolveCapabilityDescriptor as EvolveCapabilityManifest } from "./capability-summary.ts";
 
 export const evolveCapabilityExport = Object.freeze({
   version: EVOLVE_CAPABILITY_DESCRIPTOR_VERSION,
   readOnly: true,
   getDescriptor: getVersionedEvolveCapabilityDescriptor,
   summary: evolveCapabilitySummary,
-  export: EVOLVE_CAPABILITY_DESCRIPTOR_EXPORT
+  export: EVOLVE_CAPABILITY_DESCRIPTOR_EXPORT,
+  registry: evolveCapabilityRegistry
 });

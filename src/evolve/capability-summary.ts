@@ -44,8 +44,8 @@ export type EvolveCapabilitySummary = {
   entryCount: number;
   latestTimestampUtc?: string;
   latestOutcome?: "committed" | "planned" | "reverted";
-  latestTargetFiles: string[];
-  capabilityNames: string[];
+  latestTargetFiles: readonly string[];
+  capabilityNames: readonly string[];
 };
 
 export async function readEvolveCapabilitySummary(
