@@ -36,7 +36,16 @@ export {
 
 export type { EvolveCapabilityDescriptor as EvolveCapabilityManifest } from "./capability-summary.ts";
 
-export const evolveCapabilityExport = Object.freeze({
+export type EvolveCapabilityExport = Readonly<{
+  version: typeof EVOLVE_CAPABILITY_DESCRIPTOR_VERSION;
+  readOnly: true;
+  getDescriptor: typeof getVersionedEvolveCapabilityDescriptor;
+  summary: typeof evolveCapabilitySummary;
+  export: typeof EVOLVE_CAPABILITY_DESCRIPTOR_EXPORT;
+  registry: typeof evolveCapabilityRegistry;
+}>;
+
+export const evolveCapabilityExport: EvolveCapabilityExport = Object.freeze({
   version: EVOLVE_CAPABILITY_DESCRIPTOR_VERSION,
   readOnly: true,
   getDescriptor: getVersionedEvolveCapabilityDescriptor,
