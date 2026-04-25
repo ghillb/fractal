@@ -32,3 +32,5 @@ export const capabilitySnapshot: CapabilitySnapshot = Object.freeze({
     registry: evolveCapabilityRegistry
   })
 });
+
+export const cliCapabilitySnapshot = capabilitySnapshot;
