@@ -1,5 +1,11 @@
 import { describe, expect, test } from "bun:test";
-import { CAPABILITY_SNAPSHOT_VERSION, capabilitySnapshot, cliCapabilitySnapshot, rootCapabilityExport } from "../src/capability-snapshot.ts";
+import {
+  CAPABILITY_SNAPSHOT_VERSION,
+  capabilitySnapshot,
+  cliCapabilitySnapshot,
+  exportCapabilitySnapshot,
+  rootCapabilityExport
+} from "../src/capability-snapshot.ts";
 import { validateMachineReadableBlock } from "../src/evolve/journal-validator.ts";
 
 describe("capability snapshot", () => {
@@ -12,6 +18,8 @@ describe("capability snapshot", () => {
     expect(capabilitySnapshot.validation.journalBlock).toBe(validateMachineReadableBlock);
     expect(cliCapabilitySnapshot).toBe(capabilitySnapshot);
     expect(rootCapabilityExport).toBe(capabilitySnapshot);
+    expect(exportCapabilitySnapshot()).toBe(capabilitySnapshot);
+    expect(exportCapabilitySnapshot()).toBe(exportCapabilitySnapshot());
 
     expect(() => {
       (capabilitySnapshot as { version: number }).version = 2;

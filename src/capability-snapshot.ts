@@ -35,5 +35,9 @@ export const capabilitySnapshot: CapabilitySnapshot = Object.freeze({
   })
 });
 
+export function exportCapabilitySnapshot(): CapabilitySnapshot {
+  return capabilitySnapshot;
+}
+
 export const cliCapabilitySnapshot = capabilitySnapshot;
 export const rootCapabilityExport = capabilitySnapshot;

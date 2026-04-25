@@ -1,1 +1,7 @@
-export { CAPABILITY_SNAPSHOT_VERSION, capabilitySnapshot, cliCapabilitySnapshot, rootCapabilityExport } from "./capability-snapshot.ts";
+export {
+  CAPABILITY_SNAPSHOT_VERSION,
+  capabilitySnapshot,
+  cliCapabilitySnapshot,
+  exportCapabilitySnapshot,
+  rootCapabilityExport
+} from "./capability-snapshot.ts";
