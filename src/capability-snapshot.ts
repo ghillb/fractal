@@ -9,8 +9,10 @@ import {
 } from "./evolve/index.ts";
 import { validateMachineReadableBlock } from "./evolve/journal-validator.ts";
 
+export const CAPABILITY_SNAPSHOT_VERSION = 1 as const;
+
 export type CapabilitySnapshot = Readonly<{
-  version: typeof EVOLVE_CAPABILITY_DESCRIPTOR_VERSION;
+  version: typeof CAPABILITY_SNAPSHOT_VERSION;
   readOnly: true;
   evolve: EvolveCapabilityExport;
   validation: Readonly<{
@@ -22,9 +24,9 @@ export type CapabilitySnapshot = Readonly<{
 }>;
 
 export const capabilitySnapshot: CapabilitySnapshot = Object.freeze({
-  version: EVOLVE_CAPABILITY_DESCRIPTOR_VERSION,
+  version: CAPABILITY_SNAPSHOT_VERSION,
   readOnly: true,
-  evolve: evolveCapabilityExport,
+  evolve: Object.freeze(evolveCapabilityExport),
   validation: Object.freeze({
     journalBlock: validateMachineReadableBlock,
     summary: readEvolveCapabilitySummary,
@@ -34,3 +36,4 @@ export const capabilitySnapshot: CapabilitySnapshot = Object.freeze({
 });
 
 export const cliCapabilitySnapshot = capabilitySnapshot;
+export const rootCapabilityExport = capabilitySnapshot;
