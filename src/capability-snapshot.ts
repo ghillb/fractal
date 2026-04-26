@@ -39,5 +39,17 @@ export function exportCapabilitySnapshot(): CapabilitySnapshot {
   return capabilitySnapshot;
 }
 
+export function exportVersionedCapabilitySnapshot(): Readonly<{
+  version: typeof CAPABILITY_SNAPSHOT_VERSION;
+  readOnly: true;
+  capability: CapabilitySnapshot;
+}> {
+  return Object.freeze({
+    version: CAPABILITY_SNAPSHOT_VERSION,
+    readOnly: true,
+    capability: capabilitySnapshot
+  });
+}
+
 export const cliCapabilitySnapshot = capabilitySnapshot;
 export const rootCapabilityExport = capabilitySnapshot;

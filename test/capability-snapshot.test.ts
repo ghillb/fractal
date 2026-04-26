@@ -4,6 +4,7 @@ import {
   capabilitySnapshot,
   cliCapabilitySnapshot,
   exportCapabilitySnapshot,
+  exportVersionedCapabilitySnapshot,
   rootCapabilityExport
 } from "../src/capability-snapshot.ts";
 import { validateMachineReadableBlock } from "../src/evolve/journal-validator.ts";
@@ -18,11 +19,16 @@ describe("capability snapshot", () => {
     expect(capabilitySnapshot.validation.journalBlock).toBe(validateMachineReadableBlock);
     expect(cliCapabilitySnapshot).toBe(capabilitySnapshot);
     expect(rootCapabilityExport).toBe(capabilitySnapshot);
+    const exported = exportVersionedCapabilitySnapshot();
+    expect(exported.version).toBe(CAPABILITY_SNAPSHOT_VERSION);
+    expect(exported.readOnly).toBe(true);
+    expect(exported.capability).toBe(capabilitySnapshot);
+    expect(Object.isFrozen(exported)).toBe(true);
     expect(exportCapabilitySnapshot()).toBe(capabilitySnapshot);
     expect(exportCapabilitySnapshot()).toBe(exportCapabilitySnapshot());
 
     expect(() => {
-      (capabilitySnapshot as { version: number }).version = 2;
+      (exported as { version: number }).version = 2;
     }).toThrow();
   });
 });
