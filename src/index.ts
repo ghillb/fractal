@@ -28,26 +28,4 @@ export {
   type EvolveCapabilityExport
 } from "./evolve/index.ts";
 
-export type RepositoryCapabilitySnapshot = Readonly<{
-  version: typeof EVOLVE_CAPABILITY_DESCRIPTOR_VERSION;
-  readOnly: true;
-  evolve: EvolveCapabilityExport;
-  validation: Readonly<{
-    getDescriptor: typeof getVersionedEvolveCapabilityDescriptor;
-    readSummary: typeof readEvolveCapabilitySummary;
-    registry: typeof evolveCapabilityRegistry;
-  }>;
-}>;
-
-export const repositoryCapabilitySnapshot: RepositoryCapabilitySnapshot = Object.freeze({
-  version: EVOLVE_CAPABILITY_DESCRIPTOR_VERSION,
-  readOnly: true,
-  evolve: evolveCapabilityExport,
-  validation: Object.freeze({
-    getDescriptor: getVersionedEvolveCapabilityDescriptor,
-    readSummary: readEvolveCapabilitySummary,
-    registry: evolveCapabilityRegistry
-  })
-});
-
-export const rootCapabilityExport = repositoryCapabilitySnapshot;
+export { capabilitySnapshot, CAPABILITY_SNAPSHOT_VERSION, exportCapabilitySnapshot, exportVersionedCapabilitySnapshot, rootCapabilityExport, repositoryCapabilitySnapshot } from "./capability-snapshot.ts";

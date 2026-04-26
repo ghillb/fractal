@@ -1,25 +1,30 @@
 import { describe, expect, test } from "bun:test";
 import {
-  EVOLVE_CAPABILITY_DESCRIPTOR_VERSION,
-  evolveCapabilityExport,
-  repositoryCapabilitySnapshot,
+  CAPABILITY_SNAPSHOT_VERSION,
+  capabilitySnapshot,
+  exportVersionedCapabilitySnapshot,
   rootCapabilityExport
-} from "../src/index.ts";
+} from "../src/capability-snapshot.ts";
+import { EVOLVE_CAPABILITY_DESCRIPTOR_VERSION, evolveCapabilityExport } from "../src/evolve/index.ts";
+import { repositoryCapabilitySnapshot } from "../src/index.ts";
 
 describe("repository root capability export", () => {
-  test("exposes an immutable versioned boundary object", () => {
-    expect(rootCapabilityExport).toBe(repositoryCapabilitySnapshot);
+  test("exposes a versioned immutable boundary object", () => {
+    expect(rootCapabilityExport).toBe(capabilitySnapshot);
+    expect(repositoryCapabilitySnapshot).toBe(capabilitySnapshot);
     expect(rootCapabilityExport).toMatchObject({
-      version: EVOLVE_CAPABILITY_DESCRIPTOR_VERSION,
+      version: CAPABILITY_SNAPSHOT_VERSION,
       readOnly: true,
       evolve: evolveCapabilityExport
     });
+    expect(rootCapabilityExport.version).toBe(CAPABILITY_SNAPSHOT_VERSION);
+    expect(evolveCapabilityExport.version).toBe(EVOLVE_CAPABILITY_DESCRIPTOR_VERSION);
     expect(Object.isFrozen(rootCapabilityExport)).toBe(true);
     expect(Object.isFrozen(rootCapabilityExport.evolve)).toBe(true);
     expect(Object.isFrozen(rootCapabilityExport.validation)).toBe(true);
-    expect(typeof rootCapabilityExport.evolve.getDescriptor).toBe("function");
-    expect(rootCapabilityExport.evolve.summary.read).toBeTypeOf("function");
-    expect(rootCapabilityExport.evolve.registry.read).toBeTypeOf("function");
-    expect(rootCapabilityExport.validation.readSummary).toBeTypeOf("function");
+    expect(() => {
+      (rootCapabilityExport.evolve as { version: number }).version = 2;
+    }).toThrow();
+    expect(exportVersionedCapabilitySnapshot().capability).toBe(capabilitySnapshot);
   });
 });
