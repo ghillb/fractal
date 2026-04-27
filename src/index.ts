@@ -1,4 +1,12 @@
 import {
+  CAPABILITY_SNAPSHOT_VERSION,
+  capabilitySnapshot,
+  exportCapabilitySnapshot,
+  exportVersionedCapabilitySnapshot,
+  rootCapabilityExport,
+  type CapabilitySnapshot
+} from "./capability-snapshot.ts";
+import {
   EVOLVE_CAPABILITY_DESCRIPTOR_VERSION,
   evolveCapabilityExport,
   evolveCapabilityRegistry,
@@ -11,17 +19,14 @@ import {
   type EvolveCapabilitySummary,
   type EvolveCapabilityExport
 } from "./evolve/index.ts";
-import {
+
+export {
   CAPABILITY_SNAPSHOT_VERSION,
   capabilitySnapshot,
   exportCapabilitySnapshot,
   exportVersionedCapabilitySnapshot,
-  repositoryCapabilitySnapshot,
   rootCapabilityExport,
-  type CapabilitySnapshot
-} from "./capability-snapshot.ts";
-
-export {
+  type CapabilitySnapshot,
   EVOLVE_CAPABILITY_DESCRIPTOR_VERSION,
   evolveCapabilityExport,
   evolveCapabilityRegistry,
@@ -32,14 +37,7 @@ export {
   readEvolveCapabilitySummary,
   type EvolveCapabilityDescriptor,
   type EvolveCapabilitySummary,
-  type EvolveCapabilityExport,
-  CAPABILITY_SNAPSHOT_VERSION,
-  capabilitySnapshot,
-  exportCapabilitySnapshot,
-  exportVersionedCapabilitySnapshot,
-  repositoryCapabilitySnapshot,
-  rootCapabilityExport,
-  type CapabilitySnapshot
+  type EvolveCapabilityExport
 };
 
 export type VersionedCapabilityDiscovery = Readonly<{

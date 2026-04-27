@@ -9,7 +9,7 @@ import {
 } from "./evolve/index.ts";
 import { validateMachineReadableBlock } from "./evolve/journal-validator.ts";
 
-export const CAPABILITY_SNAPSHOT_VERSION = 1 as const;
+export const CAPABILITY_SNAPSHOT_VERSION = 2 as const;
 
 export type CapabilitySnapshot = Readonly<{
   version: typeof CAPABILITY_SNAPSHOT_VERSION;

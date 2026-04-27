@@ -11,7 +11,7 @@ import { validateMachineReadableBlock } from "../src/evolve/journal-validator.ts
 
 describe("capability snapshot", () => {
   test("exports a versioned immutable aggregate of read-only entrypoints and validation hooks", () => {
-    expect(CAPABILITY_SNAPSHOT_VERSION).toBe(1);
+    expect(CAPABILITY_SNAPSHOT_VERSION).toBe(2);
     expect(capabilitySnapshot.version).toBe(CAPABILITY_SNAPSHOT_VERSION);
     expect(capabilitySnapshot.readOnly).toBe(true);
     expect(Object.isFrozen(capabilitySnapshot)).toBe(true);
