@@ -53,5 +53,4 @@ export function exportVersionedCapabilitySnapshot(): Readonly<{
 
 export const cliCapabilitySnapshot = capabilitySnapshot;
 export const rootCapabilityExport = capabilitySnapshot;
-
 export const repositoryCapabilitySnapshot = capabilitySnapshot;

@@ -2,16 +2,24 @@ import { describe, expect, test } from "bun:test";
 import {
   CAPABILITY_SNAPSHOT_VERSION,
   capabilitySnapshot,
+  exportCapabilityDiscovery,
   exportVersionedCapabilitySnapshot,
+  getVersionedCapabilityDiscovery,
+  repositoryCapabilitySnapshot,
   rootCapabilityExport
-} from "../src/capability-snapshot.ts";
+} from "../src/index.ts";
 import { EVOLVE_CAPABILITY_DESCRIPTOR_VERSION, evolveCapabilityExport } from "../src/evolve/index.ts";
-import { repositoryCapabilitySnapshot } from "../src/index.ts";
 
 describe("repository root capability export", () => {
   test("exposes a versioned immutable boundary object", () => {
     expect(rootCapabilityExport).toBe(capabilitySnapshot);
     expect(repositoryCapabilitySnapshot).toBe(capabilitySnapshot);
+    expect(exportCapabilityDiscovery()).toBe(capabilitySnapshot);
+    expect(getVersionedCapabilityDiscovery()).toEqual({
+      version: CAPABILITY_SNAPSHOT_VERSION,
+      readOnly: true,
+      capability: capabilitySnapshot
+    });
     expect(rootCapabilityExport).toMatchObject({
       version: CAPABILITY_SNAPSHOT_VERSION,
       readOnly: true,
