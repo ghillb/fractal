@@ -7,6 +7,13 @@ import {
   type CapabilitySnapshot
 } from "./capability-snapshot.ts";
 import {
+  DIAGNOSTICS_VERSION,
+  exportDiagnosticsMetadata,
+  getDiagnosticsMetadata,
+  getVersionedDiagnosticsMetadata,
+  type DiagnosticsMetadata
+} from "./diagnostics.ts";
+import {
   EVENT_INTROSPECTION_VERSION,
   exportEventIntrospectionMetadata,
   getEventIntrospectionMetadata,
@@ -34,6 +41,11 @@ export {
   exportVersionedCapabilitySnapshot,
   rootCapabilityExport,
   type CapabilitySnapshot,
+  DIAGNOSTICS_VERSION,
+  exportDiagnosticsMetadata,
+  getDiagnosticsMetadata,
+  getVersionedDiagnosticsMetadata,
+  type DiagnosticsMetadata,
   EVENT_INTROSPECTION_VERSION,
   exportEventIntrospectionMetadata,
   getEventIntrospectionMetadata,
