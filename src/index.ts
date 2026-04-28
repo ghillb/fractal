@@ -7,6 +7,13 @@ import {
   type CapabilitySnapshot
 } from "./capability-snapshot.ts";
 import {
+  EVENT_INTROSPECTION_VERSION,
+  exportEventIntrospectionMetadata,
+  getEventIntrospectionMetadata,
+  getVersionedEventIntrospectionMetadata,
+  type EventIntrospectionMetadata
+} from "./event-introspection.ts";
+import {
   EVOLVE_CAPABILITY_DESCRIPTOR_VERSION,
   evolveCapabilityExport,
   evolveCapabilityRegistry,
@@ -27,6 +34,11 @@ export {
   exportVersionedCapabilitySnapshot,
   rootCapabilityExport,
   type CapabilitySnapshot,
+  EVENT_INTROSPECTION_VERSION,
+  exportEventIntrospectionMetadata,
+  getEventIntrospectionMetadata,
+  getVersionedEventIntrospectionMetadata,
+  type EventIntrospectionMetadata,
   EVOLVE_CAPABILITY_DESCRIPTOR_VERSION,
   evolveCapabilityExport,
   evolveCapabilityRegistry,
