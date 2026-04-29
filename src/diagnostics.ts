@@ -41,15 +41,17 @@ const diagnosticsMetadata: DiagnosticsMetadata = Object.freeze({
   ])
 });
 
+export type VersionedDiagnosticsMetadata = Readonly<{
+  version: typeof DIAGNOSTICS_VERSION;
+  readOnly: true;
+  metadata: DiagnosticsMetadata;
+}>;
+
 export function exportDiagnosticsMetadata(): DiagnosticsMetadata {
   return diagnosticsMetadata;
 }
 
-export function getVersionedDiagnosticsMetadata(): Readonly<{
-  version: typeof DIAGNOSTICS_VERSION;
-  readOnly: true;
-  metadata: DiagnosticsMetadata;
-}> {
+export function getVersionedDiagnosticsMetadata(): VersionedDiagnosticsMetadata {
   return Object.freeze({
     version: DIAGNOSTICS_VERSION,
     readOnly: true,

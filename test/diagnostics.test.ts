@@ -22,6 +22,7 @@ describe("diagnostics metadata", () => {
     expect(Object.isFrozen(firstField)).toBe(true);
     expect(versioned.metadata.domain).toBe("diagnostics");
     expect(firstField.name).toBe("version");
+    expect("fields" in versioned.metadata).toBe(true);
 
     expect(() => {
       (versioned as { version: number }).version = 2;
