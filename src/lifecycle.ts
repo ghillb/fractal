@@ -26,8 +26,22 @@ const lifecycleInspection: LifecycleInspection = Object.freeze({
   status: lifecycleStatus
 });
 
+export type VersionedLifecycleInspection = Readonly<{
+  version: typeof LIFECYCLE_VERSION;
+  readOnly: true;
+  inspection: LifecycleInspection;
+}>;
+
 export function getLifecycleInspection(): LifecycleInspection {
   return lifecycleInspection;
+}
+
+export function getVersionedLifecycleInspection(): VersionedLifecycleInspection {
+  return Object.freeze({
+    version: LIFECYCLE_VERSION,
+    readOnly: true,
+    inspection: lifecycleInspection
+  });
 }
 
 export function exportLifecycleInspection(): LifecycleInspection {
