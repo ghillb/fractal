@@ -1,4 +1,10 @@
 import {
+  LIFECYCLE_VERSION,
+  exportLifecycleInspection,
+  getLifecycleInspection,
+  type LifecycleInspection
+} from "./lifecycle.ts";
+import {
   CAPABILITY_SNAPSHOT_VERSION,
   capabilitySnapshot,
   exportCapabilitySnapshot,
@@ -35,6 +41,10 @@ import {
 } from "./evolve/index.ts";
 
 export {
+  LIFECYCLE_VERSION,
+  exportLifecycleInspection,
+  getLifecycleInspection,
+  type LifecycleInspection,
   CAPABILITY_SNAPSHOT_VERSION,
   capabilitySnapshot,
   exportCapabilitySnapshot,
@@ -86,4 +96,22 @@ export function exportCapabilityDiscovery(): CapabilitySnapshot {
 
 export function getVersionedDiagnosticsDiscovery(): VersionedDiagnosticsDiscovery {
   return getVersionedDiagnosticsMetadata();
+}
+
+export type VersionedLifecycleDiscovery = Readonly<{
+  version: typeof LIFECYCLE_VERSION;
+  readOnly: true;
+  lifecycle: LifecycleInspection;
+}>;
+
+export function getVersionedLifecycleDiscovery(): VersionedLifecycleDiscovery {
+  return Object.freeze({
+    version: LIFECYCLE_VERSION,
+    readOnly: true,
+    lifecycle: getLifecycleInspection()
+  });
+}
+
+export function exportLifecycleDiscovery(): LifecycleInspection {
+  return exportLifecycleInspection();
 }
