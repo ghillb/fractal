@@ -70,10 +70,20 @@ export type VersionedCapabilityDiscovery = Readonly<{
   capability: CapabilitySnapshot;
 }>;
 
+export type VersionedDiagnosticsDiscovery = Readonly<{
+  version: typeof DIAGNOSTICS_VERSION;
+  readOnly: true;
+  metadata: DiagnosticsMetadata;
+}>;
+
 export function getVersionedCapabilityDiscovery(): VersionedCapabilityDiscovery {
   return exportVersionedCapabilitySnapshot();
 }
 
 export function exportCapabilityDiscovery(): CapabilitySnapshot {
   return capabilitySnapshot;
+}
+
+export function getVersionedDiagnosticsDiscovery(): VersionedDiagnosticsDiscovery {
+  return getVersionedDiagnosticsMetadata();
 }

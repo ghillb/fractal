@@ -40,6 +40,7 @@ describe("diagnostics metadata", () => {
       "fields"
     ]);
     expect(rootVersioned).toEqual(versioned);
+    expect(Object.keys(rootVersioned)).toEqual(["version", "readOnly", "metadata"]);
 
     expect(() => {
       (versioned as { version: number }).version = 2;
