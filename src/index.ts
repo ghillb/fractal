@@ -3,6 +3,7 @@ import {
   exportLifecycleInspection,
   getLifecycleInspection,
   getVersionedLifecycleInspection,
+  type LifecycleDerivedStatus,
   type LifecycleInspection,
   type LifecycleStatusSummary,
   type VersionedLifecycleInspection
@@ -48,6 +49,7 @@ export {
   exportLifecycleInspection,
   getLifecycleInspection,
   getVersionedLifecycleInspection,
+  type LifecycleDerivedStatus,
   type LifecycleInspection,
   type LifecycleStatusSummary,
   type VersionedLifecycleInspection,

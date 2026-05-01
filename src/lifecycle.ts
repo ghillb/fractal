@@ -12,12 +12,19 @@ export type LifecycleStatusSummary = Readonly<{
   stable: true;
 }>;
 
+export type LifecycleDerivedStatus = Readonly<{
+  version: typeof LIFECYCLE_VERSION;
+  ready: boolean;
+  state: "operational" | "transitioning";
+}>;
+
 export type LifecycleInspection = Readonly<{
   version: typeof LIFECYCLE_VERSION;
   readOnly: true;
   domain: "lifecycle";
   status: LifecycleStatus;
   summary: LifecycleStatusSummary;
+  derivedStatus: LifecycleDerivedStatus;
 }>;
 
 const lifecycleStatus: LifecycleStatus = Object.freeze({
@@ -32,12 +39,19 @@ const lifecycleSummary: LifecycleStatusSummary = Object.freeze({
   stable: true
 });
 
+const lifecycleDerivedStatus: LifecycleDerivedStatus = Object.freeze({
+  version: LIFECYCLE_VERSION,
+  ready: lifecycleStatus.phase === "ready" && lifecycleStatus.active,
+  state: lifecycleStatus.phase === "ready" ? "operational" : "transitioning"
+});
+
 const lifecycleInspection: LifecycleInspection = Object.freeze({
   version: LIFECYCLE_VERSION,
   readOnly: true,
   domain: "lifecycle",
   status: lifecycleStatus,
-  summary: lifecycleSummary
+  summary: lifecycleSummary,
+  derivedStatus: lifecycleDerivedStatus
 });
 
 export type VersionedLifecycleInspection = Readonly<{

@@ -2,7 +2,8 @@ import { describe, expect, test } from "bun:test";
 import {
   LIFECYCLE_VERSION,
   getLifecycleInspection,
-  getVersionedLifecycleInspection
+  getVersionedLifecycleInspection,
+  type LifecycleDerivedStatus
 } from "../src/lifecycle.ts";
 import {
   LIFECYCLE_VERSION as LIFECYCLE_VERSION_FROM_ROOT,
@@ -35,7 +36,13 @@ describe("lifecycle inspection adapter", () => {
       label: "ready",
       stable: true
     });
+    expect(versioned.inspection.derivedStatus).toEqual({
+      version: LIFECYCLE_VERSION,
+      ready: true,
+      state: "operational"
+    } satisfies LifecycleDerivedStatus);
     expect(Object.isFrozen(versioned.inspection.summary)).toBe(true);
+    expect(Object.isFrozen(versioned.inspection.derivedStatus)).toBe(true);
     expect(() => {
       (versioned as { version: number }).version = 2;
     }).toThrow();
