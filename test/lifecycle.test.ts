@@ -30,6 +30,12 @@ describe("lifecycle inspection adapter", () => {
     expect(Object.isFrozen(versioned.inspection.status)).toBe(true);
     expect(versioned.inspection.domain).toBe("lifecycle");
     expect(versioned.inspection.status.phase).toBe("ready");
+    expect(versioned.inspection.summary).toEqual({
+      version: LIFECYCLE_VERSION,
+      label: "ready",
+      stable: true
+    });
+    expect(Object.isFrozen(versioned.inspection.summary)).toBe(true);
     expect(() => {
       (versioned as { version: number }).version = 2;
     }).toThrow();

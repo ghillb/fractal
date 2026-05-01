@@ -4,6 +4,7 @@ import {
   getLifecycleInspection,
   getVersionedLifecycleInspection,
   type LifecycleInspection,
+  type LifecycleStatusSummary,
   type VersionedLifecycleInspection
 } from "./lifecycle.ts";
 import {
@@ -48,6 +49,7 @@ export {
   getLifecycleInspection,
   getVersionedLifecycleInspection,
   type LifecycleInspection,
+  type LifecycleStatusSummary,
   type VersionedLifecycleInspection,
   CAPABILITY_SNAPSHOT_VERSION,
   capabilitySnapshot,
