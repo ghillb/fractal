@@ -15,6 +15,11 @@ export type DiagnosticsMetadata = Readonly<{
     immutable: true;
     derived: true;
   }>;
+  summary: Readonly<{
+    version: typeof DIAGNOSTICS_VERSION;
+    label: string;
+    stable: true;
+  }>;
   fields: ReadonlyArray<DiagnosticsField>;
 }>;
 
@@ -26,6 +31,11 @@ const diagnosticsMetadata: DiagnosticsMetadata = Object.freeze({
     version: DIAGNOSTICS_VERSION,
     immutable: true,
     derived: true
+  }),
+  summary: Object.freeze({
+    version: DIAGNOSTICS_VERSION,
+    label: "diagnostics",
+    stable: true
   }),
   fields: Object.freeze([
     Object.freeze({
@@ -47,6 +57,11 @@ const diagnosticsMetadata: DiagnosticsMetadata = Object.freeze({
       name: "status",
       type: "readonly status object",
       description: "Versioned derived status summary for diagnostics consumers."
+    }),
+    Object.freeze({
+      name: "summary",
+      type: "readonly summary object",
+      description: "Versioned derived summary label for diagnostics consumers."
     }),
     Object.freeze({
       name: "fields",

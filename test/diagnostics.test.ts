@@ -32,6 +32,7 @@ describe("diagnostics metadata", () => {
     expect(Object.isFrozen(versioned)).toBe(true);
     expect(Object.isFrozen(versioned.metadata)).toBe(true);
     expect(Object.isFrozen(versioned.metadata.status)).toBe(true);
+    expect(Object.isFrozen(versioned.metadata.summary)).toBe(true);
     expect(Object.isFrozen(versioned.metadata.fields)).toBe(true);
     expect(versioned.metadata.domain).toBe("diagnostics");
     expect(versioned.metadata.status).toEqual({
@@ -39,11 +40,17 @@ describe("diagnostics metadata", () => {
       immutable: true,
       derived: true
     });
+    expect(versioned.metadata.summary).toEqual({
+      version: DIAGNOSTICS_VERSION,
+      label: "diagnostics",
+      stable: true
+    });
     expect(versioned.metadata.fields.map((field) => field.name)).toEqual([
       "version",
       "readOnly",
       "domain",
       "status",
+      "summary",
       "fields"
     ]);
     expect(rootVersioned).toEqual(versioned);
