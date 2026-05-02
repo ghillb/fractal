@@ -10,6 +10,10 @@ export type DiagnosticsMetadata = Readonly<{
   version: typeof DIAGNOSTICS_VERSION;
   readOnly: true;
   domain: "diagnostics";
+  status: Readonly<{
+    version: typeof DIAGNOSTICS_VERSION;
+    immutable: true;
+  }>;
   fields: ReadonlyArray<DiagnosticsField>;
 }>;
 
@@ -17,6 +21,10 @@ const diagnosticsMetadata: DiagnosticsMetadata = Object.freeze({
   version: DIAGNOSTICS_VERSION,
   readOnly: true,
   domain: "diagnostics",
+  status: Object.freeze({
+    version: DIAGNOSTICS_VERSION,
+    immutable: true
+  }),
   fields: Object.freeze([
     Object.freeze({
       name: "version",
@@ -32,6 +40,11 @@ const diagnosticsMetadata: DiagnosticsMetadata = Object.freeze({
       name: "domain",
       type: "string",
       description: "Canonical domain label for diagnostics consumers."
+    }),
+    Object.freeze({
+      name: "status",
+      type: "readonly status object",
+      description: "Versioned derived status summary for diagnostics consumers."
     }),
     Object.freeze({
       name: "fields",

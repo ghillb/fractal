@@ -31,12 +31,15 @@ describe("diagnostics metadata", () => {
     expect(rootMetadata).toBe(metadata);
     expect(Object.isFrozen(versioned)).toBe(true);
     expect(Object.isFrozen(versioned.metadata)).toBe(true);
+    expect(Object.isFrozen(versioned.metadata.status)).toBe(true);
     expect(Object.isFrozen(versioned.metadata.fields)).toBe(true);
     expect(versioned.metadata.domain).toBe("diagnostics");
+    expect(versioned.metadata.status).toEqual({ version: DIAGNOSTICS_VERSION, immutable: true });
     expect(versioned.metadata.fields.map((field) => field.name)).toEqual([
       "version",
       "readOnly",
       "domain",
+      "status",
       "fields"
     ]);
     expect(rootVersioned).toEqual(versioned);
@@ -47,6 +50,9 @@ describe("diagnostics metadata", () => {
     }).toThrow();
     expect(() => {
       (versioned.metadata as { domain: string }).domain = "mutated";
+    }).toThrow();
+    expect(() => {
+      (versioned.metadata.status as { immutable: boolean }).immutable = false;
     }).toThrow();
   });
 });

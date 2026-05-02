@@ -21,7 +21,8 @@ import {
   exportDiagnosticsMetadata,
   getDiagnosticsMetadata,
   getVersionedDiagnosticsMetadata,
-  type DiagnosticsMetadata
+  type DiagnosticsMetadata,
+  type VersionedDiagnosticsMetadata
 } from "./diagnostics.ts";
 import {
   EVENT_INTROSPECTION_VERSION,
@@ -88,11 +89,7 @@ export type VersionedCapabilityDiscovery = Readonly<{
   capability: CapabilitySnapshot;
 }>;
 
-export type VersionedDiagnosticsDiscovery = Readonly<{
-  version: typeof DIAGNOSTICS_VERSION;
-  readOnly: true;
-  metadata: DiagnosticsMetadata;
-}>;
+export type VersionedDiagnosticsDiscovery = VersionedDiagnosticsMetadata;
 
 export function getVersionedCapabilityDiscovery(): VersionedCapabilityDiscovery {
   return exportVersionedCapabilitySnapshot();
