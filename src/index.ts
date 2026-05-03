@@ -1,4 +1,11 @@
 import {
+  CAPABILITIES_VERSION,
+  exportCapabilityCapability,
+  getVersionedCapabilityCapability,
+  type CapabilityCapability,
+  type VersionedCapabilityCapability
+} from "./capabilities.ts";
+import {
   LIFECYCLE_VERSION,
   exportLifecycleInspection,
   getLifecycleInspection,
@@ -45,7 +52,27 @@ import {
   type EvolveCapabilityExport
 } from "./evolve/index.ts";
 
+
+export type VersionedCapabilityDiscovery = Readonly<{
+  version: typeof CAPABILITY_SNAPSHOT_VERSION;
+  readOnly: true;
+  capability: CapabilitySnapshot;
+}>;
+
+export function getVersionedCapabilityDiscovery(): VersionedCapabilityDiscovery {
+  return exportVersionedCapabilitySnapshot();
+}
+
+export function exportCapabilityDiscovery(): CapabilitySnapshot {
+  return capabilitySnapshot;
+}
+
 export {
+  CAPABILITIES_VERSION,
+  exportCapabilityCapability,
+  getVersionedCapabilityCapability,
+  type CapabilityCapability,
+  type VersionedCapabilityCapability,
   LIFECYCLE_VERSION,
   exportLifecycleInspection,
   getLifecycleInspection,
@@ -82,41 +109,3 @@ export {
   type EvolveCapabilitySummary,
   type EvolveCapabilityExport
 };
-
-export type VersionedCapabilityDiscovery = Readonly<{
-  version: typeof CAPABILITY_SNAPSHOT_VERSION;
-  readOnly: true;
-  capability: CapabilitySnapshot;
-}>;
-
-export type VersionedDiagnosticsDiscovery = VersionedDiagnosticsMetadata;
-
-export function getVersionedCapabilityDiscovery(): VersionedCapabilityDiscovery {
-  return exportVersionedCapabilitySnapshot();
-}
-
-export function exportCapabilityDiscovery(): CapabilitySnapshot {
-  return capabilitySnapshot;
-}
-
-export function getVersionedDiagnosticsDiscovery(): VersionedDiagnosticsDiscovery {
-  return getVersionedDiagnosticsMetadata();
-}
-
-export type VersionedLifecycleDiscovery = Readonly<{
-  version: typeof LIFECYCLE_VERSION;
-  readOnly: true;
-  lifecycle: LifecycleInspection;
-}>;
-
-export function getVersionedLifecycleDiscovery(): VersionedLifecycleDiscovery {
-  return Object.freeze({
-    version: LIFECYCLE_VERSION,
-    readOnly: true,
-    lifecycle: getLifecycleInspection()
-  });
-}
-
-export function exportLifecycleDiscovery(): LifecycleInspection {
-  return exportLifecycleInspection();
-}
