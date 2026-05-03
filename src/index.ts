@@ -52,7 +52,6 @@ import {
   type EvolveCapabilityExport
 } from "./evolve/index.ts";
 
-
 export type VersionedCapabilityDiscovery = Readonly<{
   version: typeof CAPABILITY_SNAPSHOT_VERSION;
   readOnly: true;
