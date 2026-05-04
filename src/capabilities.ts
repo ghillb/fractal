@@ -1,4 +1,4 @@
-export const CAPABILITIES_VERSION = 2 as const;
+export const CAPABILITIES_VERSION = 3 as const;
 
 export type CapabilityField = Readonly<{
   name: string;
