@@ -27,6 +27,7 @@ describe("capability capability facade", () => {
     expect(Object.isFrozen(versioned)).toBe(true);
     expect(Object.isFrozen(versioned.capability)).toBe(true);
     expect(Object.isFrozen(versioned.capability.fields)).toBe(true);
+    expect(Object.isFrozen(versioned.capability.immutability)).toBe(true);
     expect(versioned.capability).toEqual({
       version: CAPABILITIES_VERSION,
       readOnly: true,
@@ -36,20 +37,31 @@ describe("capability capability facade", () => {
         label: "capabilities",
         stable: true
       },
-      fields: expect.any(Array)
+      fields: expect.any(Array),
+      immutability: {
+        version: CAPABILITIES_VERSION,
+        frozen: true,
+        stableShape: true
+      }
     });
     expect(versioned.capability.fields.map((field) => field.name)).toEqual([
       "version",
       "readOnly",
       "derived",
       "capability",
-      "fields"
+      "fields",
+      "immutability"
     ]);
+    expect(versioned.capability.immutability).toEqual({
+      version: CAPABILITIES_VERSION,
+      frozen: true,
+      stableShape: true
+    });
     expect(() => {
       (versioned as { version: number }).version = 2;
     }).toThrow();
     expect(() => {
-      ((versioned.capability as unknown) as { capability: { label: string } }).capability.label = "mutated";
+      ((versioned.capability as unknown) as { immutability: { frozen: boolean } }).immutability.frozen = false;
     }).toThrow();
   });
 });

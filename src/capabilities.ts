@@ -1,4 +1,4 @@
-export const CAPABILITIES_VERSION = 1 as const;
+export const CAPABILITIES_VERSION = 2 as const;
 
 export type CapabilityField = Readonly<{
   name: string;
@@ -16,6 +16,11 @@ export type CapabilityCapability = Readonly<{
     stable: true;
   }>;
   fields: ReadonlyArray<CapabilityField>;
+  immutability: Readonly<{
+    version: typeof CAPABILITIES_VERSION;
+    frozen: true;
+    stableShape: true;
+  }>;
 }>;
 
 const capabilityCapability: CapabilityCapability = Object.freeze({
@@ -52,8 +57,18 @@ const capabilityCapability: CapabilityCapability = Object.freeze({
       name: "fields",
       type: "readonly metadata[]",
       description: "Structured read-only descriptions of exported capability fields."
+    }),
+    Object.freeze({
+      name: "immutability",
+      type: "readonly derived summary object",
+      description: "Versioned derived summary that encodes the facade's frozen public shape."
     })
-  ])
+  ]),
+  immutability: Object.freeze({
+    version: CAPABILITIES_VERSION,
+    frozen: true,
+    stableShape: true
+  })
 });
 
 export type VersionedCapabilityCapability = Readonly<{
