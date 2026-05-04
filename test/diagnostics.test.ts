@@ -33,6 +33,8 @@ describe("diagnostics metadata", () => {
     expect(Object.isFrozen(versioned.metadata)).toBe(true);
     expect(Object.isFrozen(versioned.metadata.status)).toBe(true);
     expect(Object.isFrozen(versioned.metadata.summary)).toBe(true);
+    expect(Object.isFrozen(versioned.metadata.lineage)).toBe(true);
+    expect(Object.isFrozen(versioned.metadata.lineage.derivedFrom)).toBe(true);
     expect(Object.isFrozen(versioned.metadata.fields)).toBe(true);
     expect(versioned.metadata.domain).toBe("diagnostics");
     expect(versioned.metadata.status).toEqual({
@@ -45,12 +47,18 @@ describe("diagnostics metadata", () => {
       label: "diagnostics",
       stable: true
     });
+    expect(versioned.metadata.lineage).toEqual({
+      version: DIAGNOSTICS_VERSION,
+      source: "src/diagnostics.ts",
+      derivedFrom: ["version", "readOnly", "domain", "status", "summary", "fields"]
+    });
     expect(versioned.metadata.fields.map((field) => field.name)).toEqual([
       "version",
       "readOnly",
       "domain",
       "status",
       "summary",
+      "lineage",
       "fields"
     ]);
     expect(rootVersioned).toEqual(versioned);
@@ -64,6 +72,9 @@ describe("diagnostics metadata", () => {
     }).toThrow();
     expect(() => {
       (versioned.metadata.status as { immutable: boolean }).immutable = false;
+    }).toThrow();
+    expect(() => {
+      (versioned.metadata.lineage as { source: string }).source = "mutated";
     }).toThrow();
   });
 });

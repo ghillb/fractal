@@ -1,4 +1,4 @@
-export const DIAGNOSTICS_VERSION = 1 as const;
+export const DIAGNOSTICS_VERSION = 2 as const;
 
 export type DiagnosticsField = Readonly<{
   name: string;
@@ -20,6 +20,11 @@ export type DiagnosticsMetadata = Readonly<{
     label: string;
     stable: true;
   }>;
+  lineage: Readonly<{
+    version: typeof DIAGNOSTICS_VERSION;
+    source: "src/diagnostics.ts";
+    derivedFrom: ReadonlyArray<"version" | "readOnly" | "domain" | "status" | "summary" | "fields">;
+  }>;
   fields: ReadonlyArray<DiagnosticsField>;
 }>;
 
@@ -36,6 +41,11 @@ const diagnosticsMetadata: DiagnosticsMetadata = Object.freeze({
     version: DIAGNOSTICS_VERSION,
     label: "diagnostics",
     stable: true
+  }),
+  lineage: Object.freeze({
+    version: DIAGNOSTICS_VERSION,
+    source: "src/diagnostics.ts",
+    derivedFrom: Object.freeze(["version", "readOnly", "domain", "status", "summary", "fields"] as const)
   }),
   fields: Object.freeze([
     Object.freeze({
@@ -62,6 +72,11 @@ const diagnosticsMetadata: DiagnosticsMetadata = Object.freeze({
       name: "summary",
       type: "readonly summary object",
       description: "Versioned derived summary label for diagnostics consumers."
+    }),
+    Object.freeze({
+      name: "lineage",
+      type: "readonly lineage object",
+      description: "Versioned derived provenance for the diagnostics facade."
     }),
     Object.freeze({
       name: "fields",
