@@ -37,6 +37,7 @@ describe("diagnostics metadata", () => {
     expect(Object.isFrozen(versioned.metadata.lineage.derivedFrom)).toBe(true);
     expect(Object.isFrozen(versioned.metadata.fields)).toBe(true);
     expect(versioned.metadata.domain).toBe("diagnostics");
+    expect(versioned.metadata.derivedVersion).toBe(DIAGNOSTICS_VERSION);
     expect(versioned.metadata.status).toEqual({
       version: DIAGNOSTICS_VERSION,
       immutable: true,
@@ -50,12 +51,13 @@ describe("diagnostics metadata", () => {
     expect(versioned.metadata.lineage).toEqual({
       version: DIAGNOSTICS_VERSION,
       source: "src/diagnostics.ts",
-      derivedFrom: ["version", "readOnly", "domain", "status", "summary", "fields"]
+      derivedFrom: ["version", "readOnly", "domain", "derivedVersion", "status", "summary", "fields"]
     });
     expect(versioned.metadata.fields.map((field) => field.name)).toEqual([
       "version",
       "readOnly",
       "domain",
+      "derivedVersion",
       "status",
       "summary",
       "lineage",

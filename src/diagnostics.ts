@@ -10,6 +10,7 @@ export type DiagnosticsMetadata = Readonly<{
   version: typeof DIAGNOSTICS_VERSION;
   readOnly: true;
   domain: "diagnostics";
+  derivedVersion: typeof DIAGNOSTICS_VERSION;
   status: Readonly<{
     version: typeof DIAGNOSTICS_VERSION;
     immutable: true;
@@ -23,7 +24,7 @@ export type DiagnosticsMetadata = Readonly<{
   lineage: Readonly<{
     version: typeof DIAGNOSTICS_VERSION;
     source: "src/diagnostics.ts";
-    derivedFrom: ReadonlyArray<"version" | "readOnly" | "domain" | "status" | "summary" | "fields">;
+    derivedFrom: ReadonlyArray<"version" | "readOnly" | "domain" | "derivedVersion" | "status" | "summary" | "fields">;
   }>;
   fields: ReadonlyArray<DiagnosticsField>;
 }>;
@@ -32,6 +33,7 @@ const diagnosticsMetadata: DiagnosticsMetadata = Object.freeze({
   version: DIAGNOSTICS_VERSION,
   readOnly: true,
   domain: "diagnostics",
+  derivedVersion: DIAGNOSTICS_VERSION,
   status: Object.freeze({
     version: DIAGNOSTICS_VERSION,
     immutable: true,
@@ -45,7 +47,7 @@ const diagnosticsMetadata: DiagnosticsMetadata = Object.freeze({
   lineage: Object.freeze({
     version: DIAGNOSTICS_VERSION,
     source: "src/diagnostics.ts",
-    derivedFrom: Object.freeze(["version", "readOnly", "domain", "status", "summary", "fields"] as const)
+    derivedFrom: Object.freeze(["version", "readOnly", "domain", "derivedVersion", "status", "summary", "fields"] as const)
   }),
   fields: Object.freeze([
     Object.freeze({
@@ -62,6 +64,11 @@ const diagnosticsMetadata: DiagnosticsMetadata = Object.freeze({
       name: "domain",
       type: "string",
       description: "Canonical domain label for diagnostics consumers."
+    }),
+    Object.freeze({
+      name: "derivedVersion",
+      type: "number",
+      description: "Versioned derived field that mirrors the diagnostics facade version."
     }),
     Object.freeze({
       name: "status",
