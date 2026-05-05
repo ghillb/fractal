@@ -1,4 +1,4 @@
-export const DIAGNOSTICS_VERSION = 2 as const;
+export const DIAGNOSTICS_VERSION = 3 as const;
 
 export type DiagnosticsField = Readonly<{
   name: string;
@@ -24,7 +24,12 @@ export type DiagnosticsMetadata = Readonly<{
   lineage: Readonly<{
     version: typeof DIAGNOSTICS_VERSION;
     source: "src/diagnostics.ts";
-    derivedFrom: ReadonlyArray<"version" | "readOnly" | "domain" | "derivedVersion" | "status" | "summary" | "fields">;
+    derivedFrom: ReadonlyArray<"version" | "readOnly" | "domain" | "derivedVersion" | "status" | "summary" | "derivedSignature" | "fields">;
+  }>;
+  derivedSignature: Readonly<{
+    version: typeof DIAGNOSTICS_VERSION;
+    value: string;
+    derived: true;
   }>;
   fields: ReadonlyArray<DiagnosticsField>;
 }>;
@@ -47,49 +52,23 @@ const diagnosticsMetadata: DiagnosticsMetadata = Object.freeze({
   lineage: Object.freeze({
     version: DIAGNOSTICS_VERSION,
     source: "src/diagnostics.ts",
-    derivedFrom: Object.freeze(["version", "readOnly", "domain", "derivedVersion", "status", "summary", "fields"] as const)
+    derivedFrom: Object.freeze(["version", "readOnly", "domain", "derivedVersion", "status", "summary", "derivedSignature", "fields"] as const)
+  }),
+  derivedSignature: Object.freeze({
+    version: DIAGNOSTICS_VERSION,
+    value: "diagnostics@3",
+    derived: true
   }),
   fields: Object.freeze([
-    Object.freeze({
-      name: "version",
-      type: "number",
-      description: "Stable version tag for the diagnostics facade."
-    }),
-    Object.freeze({
-      name: "readOnly",
-      type: "boolean",
-      description: "Signals that the facade is immutable and side-effect free."
-    }),
-    Object.freeze({
-      name: "domain",
-      type: "string",
-      description: "Canonical domain label for diagnostics consumers."
-    }),
-    Object.freeze({
-      name: "derivedVersion",
-      type: "number",
-      description: "Versioned derived field that mirrors the diagnostics facade version."
-    }),
-    Object.freeze({
-      name: "status",
-      type: "readonly status object",
-      description: "Versioned derived status summary for diagnostics consumers."
-    }),
-    Object.freeze({
-      name: "summary",
-      type: "readonly summary object",
-      description: "Versioned derived summary label for diagnostics consumers."
-    }),
-    Object.freeze({
-      name: "lineage",
-      type: "readonly lineage object",
-      description: "Versioned derived provenance for the diagnostics facade."
-    }),
-    Object.freeze({
-      name: "fields",
-      type: "readonly metadata[]",
-      description: "Structured read-only descriptions of exported metadata fields."
-    })
+    Object.freeze({ name: "version", type: "number", description: "Stable version tag for the diagnostics facade." }),
+    Object.freeze({ name: "readOnly", type: "boolean", description: "Signals that the facade is immutable and side-effect free." }),
+    Object.freeze({ name: "domain", type: "string", description: "Canonical domain label for diagnostics consumers." }),
+    Object.freeze({ name: "derivedVersion", type: "number", description: "Versioned derived field that mirrors the diagnostics facade version." }),
+    Object.freeze({ name: "status", type: "readonly status object", description: "Versioned derived status summary for diagnostics consumers." }),
+    Object.freeze({ name: "summary", type: "readonly summary object", description: "Versioned derived summary label for diagnostics consumers." }),
+    Object.freeze({ name: "lineage", type: "readonly lineage object", description: "Versioned derived provenance for the diagnostics facade." }),
+    Object.freeze({ name: "derivedSignature", type: "readonly signature object", description: "Versioned derived signature for consumers that need a stable fingerprint." }),
+    Object.freeze({ name: "fields", type: "readonly metadata[]", description: "Structured read-only descriptions of exported metadata fields." })
   ])
 });
 
@@ -104,11 +83,7 @@ export function exportDiagnosticsMetadata(): DiagnosticsMetadata {
 }
 
 export function getVersionedDiagnosticsMetadata(): VersionedDiagnosticsMetadata {
-  return Object.freeze({
-    version: DIAGNOSTICS_VERSION,
-    readOnly: true,
-    metadata: diagnosticsMetadata
-  });
+  return Object.freeze({ version: DIAGNOSTICS_VERSION, readOnly: true, metadata: diagnosticsMetadata });
 }
 
 export function getDiagnosticsMetadata(): DiagnosticsMetadata {

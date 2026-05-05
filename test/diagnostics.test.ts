@@ -35,6 +35,7 @@ describe("diagnostics metadata", () => {
     expect(Object.isFrozen(versioned.metadata.summary)).toBe(true);
     expect(Object.isFrozen(versioned.metadata.lineage)).toBe(true);
     expect(Object.isFrozen(versioned.metadata.lineage.derivedFrom)).toBe(true);
+    expect(Object.isFrozen(versioned.metadata.derivedSignature)).toBe(true);
     expect(Object.isFrozen(versioned.metadata.fields)).toBe(true);
     expect(versioned.metadata.domain).toBe("diagnostics");
     expect(versioned.metadata.derivedVersion).toBe(DIAGNOSTICS_VERSION);
@@ -51,7 +52,12 @@ describe("diagnostics metadata", () => {
     expect(versioned.metadata.lineage).toEqual({
       version: DIAGNOSTICS_VERSION,
       source: "src/diagnostics.ts",
-      derivedFrom: ["version", "readOnly", "domain", "derivedVersion", "status", "summary", "fields"]
+      derivedFrom: ["version", "readOnly", "domain", "derivedVersion", "status", "summary", "derivedSignature", "fields"]
+    });
+    expect(versioned.metadata.derivedSignature).toEqual({
+      version: DIAGNOSTICS_VERSION,
+      value: "diagnostics@3",
+      derived: true
     });
     expect(versioned.metadata.fields.map((field) => field.name)).toEqual([
       "version",
@@ -61,6 +67,7 @@ describe("diagnostics metadata", () => {
       "status",
       "summary",
       "lineage",
+      "derivedSignature",
       "fields"
     ]);
     expect(rootVersioned).toEqual(versioned);
@@ -77,6 +84,9 @@ describe("diagnostics metadata", () => {
     }).toThrow();
     expect(() => {
       (versioned.metadata.lineage as { source: string }).source = "mutated";
+    }).toThrow();
+    expect(() => {
+      (versioned.metadata.derivedSignature as { value: string }).value = "mutated";
     }).toThrow();
   });
 });
