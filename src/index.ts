@@ -18,8 +18,10 @@ import {
 import {
   CAPABILITY_SNAPSHOT_VERSION,
   capabilitySnapshot,
+  exportCapabilityDiscovery,
   exportCapabilitySnapshot,
   exportVersionedCapabilitySnapshot,
+  getVersionedCapabilityDiscovery,
   rootCapabilityExport,
   type CapabilitySnapshot
 } from "./capability-snapshot.ts";
@@ -39,6 +41,14 @@ import {
   type EventIntrospectionMetadata
 } from "./event-introspection.ts";
 import {
+  TELEMETRY_VERSION,
+  exportTelemetryMetadata,
+  getTelemetryMetadata,
+  getVersionedTelemetryMetadata,
+  type TelemetryMetadata,
+  type VersionedTelemetryMetadata
+} from "./telemetry.ts";
+import {
   EVOLVE_CAPABILITY_DESCRIPTOR_VERSION,
   evolveCapabilityExport,
   evolveCapabilityRegistry,
@@ -51,20 +61,6 @@ import {
   type EvolveCapabilitySummary,
   type EvolveCapabilityExport
 } from "./evolve/index.ts";
-
-export type VersionedCapabilityDiscovery = Readonly<{
-  version: typeof CAPABILITY_SNAPSHOT_VERSION;
-  readOnly: true;
-  capability: CapabilitySnapshot;
-}>;
-
-export function getVersionedCapabilityDiscovery(): VersionedCapabilityDiscovery {
-  return exportVersionedCapabilitySnapshot();
-}
-
-export function exportCapabilityDiscovery(): CapabilitySnapshot {
-  return capabilitySnapshot;
-}
 
 export {
   CAPABILITIES_VERSION,
@@ -82,8 +78,10 @@ export {
   type VersionedLifecycleInspection,
   CAPABILITY_SNAPSHOT_VERSION,
   capabilitySnapshot,
+  exportCapabilityDiscovery,
   exportCapabilitySnapshot,
   exportVersionedCapabilitySnapshot,
+  getVersionedCapabilityDiscovery,
   rootCapabilityExport,
   type CapabilitySnapshot,
   DIAGNOSTICS_VERSION,
@@ -96,6 +94,12 @@ export {
   getEventIntrospectionMetadata,
   getVersionedEventIntrospectionMetadata,
   type EventIntrospectionMetadata,
+  TELEMETRY_VERSION,
+  exportTelemetryMetadata,
+  getTelemetryMetadata,
+  getVersionedTelemetryMetadata,
+  type TelemetryMetadata,
+  type VersionedTelemetryMetadata,
   EVOLVE_CAPABILITY_DESCRIPTOR_VERSION,
   evolveCapabilityExport,
   evolveCapabilityRegistry,

@@ -51,6 +51,18 @@ export function exportVersionedCapabilitySnapshot(): Readonly<{
   });
 }
 
+export function exportCapabilityDiscovery(): CapabilitySnapshot {
+  return capabilitySnapshot;
+}
+
+export function getVersionedCapabilityDiscovery(): Readonly<{
+  version: typeof CAPABILITY_SNAPSHOT_VERSION;
+  readOnly: true;
+  capability: CapabilitySnapshot;
+}> {
+  return exportVersionedCapabilitySnapshot();
+}
+
 export const cliCapabilitySnapshot = capabilitySnapshot;
 export const rootCapabilityExport = capabilitySnapshot;
 export const repositoryCapabilitySnapshot = capabilitySnapshot;
