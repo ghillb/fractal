@@ -1,4 +1,4 @@
-export const CAPABILITIES_VERSION = 3 as const;
+export const CAPABILITIES_VERSION = 4 as const;
 
 export type CapabilityField = Readonly<{
   name: string;
@@ -20,6 +20,11 @@ export type CapabilityCapability = Readonly<{
     version: typeof CAPABILITIES_VERSION;
     frozen: true;
     stableShape: true;
+  }>;
+  derivedSignature: Readonly<{
+    version: typeof CAPABILITIES_VERSION;
+    value: string;
+    derived: true;
   }>;
 }>;
 
@@ -62,12 +67,22 @@ const capabilityCapability: CapabilityCapability = Object.freeze({
       name: "immutability",
       type: "readonly derived summary object",
       description: "Versioned derived summary that encodes the facade's frozen public shape."
+    }),
+    Object.freeze({
+      name: "derivedSignature",
+      type: "readonly signature object",
+      description: "Versioned derived signature for consumers that need a stable fingerprint."
     })
   ]),
   immutability: Object.freeze({
     version: CAPABILITIES_VERSION,
     frozen: true,
     stableShape: true
+  }),
+  derivedSignature: Object.freeze({
+    version: CAPABILITIES_VERSION,
+    value: "capabilities@4",
+    derived: true
   })
 });
 

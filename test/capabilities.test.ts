@@ -28,6 +28,7 @@ describe("capability capability facade", () => {
     expect(Object.isFrozen(versioned.capability)).toBe(true);
     expect(Object.isFrozen(versioned.capability.fields)).toBe(true);
     expect(Object.isFrozen(versioned.capability.immutability)).toBe(true);
+    expect(Object.isFrozen(versioned.capability.derivedSignature)).toBe(true);
     expect(versioned.capability).toEqual({
       version: CAPABILITIES_VERSION,
       readOnly: true,
@@ -42,6 +43,11 @@ describe("capability capability facade", () => {
         version: CAPABILITIES_VERSION,
         frozen: true,
         stableShape: true
+      },
+      derivedSignature: {
+        version: CAPABILITIES_VERSION,
+        value: "capabilities@4",
+        derived: true
       }
     });
     expect(versioned.capability.fields.map((field) => field.name)).toEqual([
@@ -50,12 +56,13 @@ describe("capability capability facade", () => {
       "derived",
       "capability",
       "fields",
-      "immutability"
+      "immutability",
+      "derivedSignature"
     ]);
-    expect(versioned.capability.immutability).toEqual({
+    expect(versioned.capability.derivedSignature).toEqual({
       version: CAPABILITIES_VERSION,
-      frozen: true,
-      stableShape: true
+      value: "capabilities@4",
+      derived: true
     });
     expect(() => {
       (versioned as { version: number }).version = 2;
