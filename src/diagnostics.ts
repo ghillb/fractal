@@ -24,7 +24,12 @@ export type DiagnosticsMetadata = Readonly<{
   lineage: Readonly<{
     version: typeof DIAGNOSTICS_VERSION;
     source: "src/diagnostics.ts";
-    derivedFrom: ReadonlyArray<"version" | "readOnly" | "domain" | "derivedVersion" | "status" | "summary" | "derivedSignature" | "fields">;
+    derivedFrom: ReadonlyArray<"version" | "readOnly" | "domain" | "derivedVersion" | "status" | "summary" | "derivedSignature" | "fields" | "surface">;
+  }>;
+  surface: Readonly<{
+    version: typeof DIAGNOSTICS_VERSION;
+    shape: string;
+    derived: true;
   }>;
   derivedSignature: Readonly<{
     version: typeof DIAGNOSTICS_VERSION;
@@ -52,7 +57,12 @@ const diagnosticsMetadata: DiagnosticsMetadata = Object.freeze({
   lineage: Object.freeze({
     version: DIAGNOSTICS_VERSION,
     source: "src/diagnostics.ts",
-    derivedFrom: Object.freeze(["version", "readOnly", "domain", "derivedVersion", "status", "summary", "derivedSignature", "fields"] as const)
+    derivedFrom: Object.freeze(["version", "readOnly", "domain", "derivedVersion", "status", "summary", "derivedSignature", "fields", "surface"] as const)
+  }),
+  surface: Object.freeze({
+    version: DIAGNOSTICS_VERSION,
+    shape: "versioned-readonly-derived-facade",
+    derived: true
   }),
   derivedSignature: Object.freeze({
     version: DIAGNOSTICS_VERSION,
@@ -67,6 +77,7 @@ const diagnosticsMetadata: DiagnosticsMetadata = Object.freeze({
     Object.freeze({ name: "status", type: "readonly status object", description: "Versioned derived status summary for diagnostics consumers." }),
     Object.freeze({ name: "summary", type: "readonly summary object", description: "Versioned derived summary label for diagnostics consumers." }),
     Object.freeze({ name: "lineage", type: "readonly lineage object", description: "Versioned derived provenance for the diagnostics facade." }),
+    Object.freeze({ name: "surface", type: "readonly surface object", description: "Versioned derived public shape summary for the diagnostics facade." }),
     Object.freeze({ name: "derivedSignature", type: "readonly signature object", description: "Versioned derived signature for consumers that need a stable fingerprint." }),
     Object.freeze({ name: "fields", type: "readonly metadata[]", description: "Structured read-only descriptions of exported metadata fields." })
   ])
