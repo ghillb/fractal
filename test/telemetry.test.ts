@@ -34,6 +34,7 @@ describe("telemetry metadata", () => {
     expect(Object.isFrozen(versioned.telemetry.fields)).toBe(true);
     expect(Object.isFrozen(versioned.telemetry.snapshot)).toBe(true);
     expect(Object.isFrozen(versioned.telemetry.derivedSignature)).toBe(true);
+    expect(Object.isFrozen(versioned.telemetry.publicShape)).toBe(true);
     expect(versioned.telemetry.domain).toBe("telemetry");
     expect(versioned.telemetry.derivedVersion).toBe(TELEMETRY_VERSION);
     expect(versioned.telemetry.snapshot).toEqual({
@@ -46,6 +47,12 @@ describe("telemetry metadata", () => {
       value: "telemetry@1",
       derived: true
     });
+    expect(versioned.telemetry.publicShape).toEqual({
+      version: TELEMETRY_VERSION,
+      readOnly: true,
+      domain: "telemetry",
+      derivedVersion: TELEMETRY_VERSION
+    });
     expect(versioned.telemetry.fields.map((field) => field.name)).toEqual([
       "version",
       "readOnly",
@@ -53,7 +60,8 @@ describe("telemetry metadata", () => {
       "derivedVersion",
       "fields",
       "snapshot",
-      "derivedSignature"
+      "derivedSignature",
+      "publicShape"
     ]);
     expect(rootVersioned).toEqual(versioned);
     expect(Object.keys(rootVersioned)).toEqual(["version", "readOnly", "telemetry"]);
@@ -69,6 +77,9 @@ describe("telemetry metadata", () => {
     }).toThrow();
     expect(() => {
       (versioned.telemetry.derivedSignature as { value: string }).value = "mutated";
+    }).toThrow();
+    expect(() => {
+      (versioned.telemetry.publicShape as { domain: string }).domain = "mutated";
     }).toThrow();
   });
 });

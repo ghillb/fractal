@@ -22,6 +22,12 @@ export type TelemetryMetadata = Readonly<{
     value: string;
     derived: true;
   }>;
+  publicShape: Readonly<{
+    version: typeof TELEMETRY_VERSION;
+    readOnly: true;
+    domain: "telemetry";
+    derivedVersion: typeof TELEMETRY_VERSION;
+  }>;
 }>;
 
 const telemetryMetadata: TelemetryMetadata = Object.freeze({
@@ -64,6 +70,11 @@ const telemetryMetadata: TelemetryMetadata = Object.freeze({
       name: "derivedSignature",
       type: "readonly signature object",
       description: "Versioned derived signature for consumers that need a stable fingerprint."
+    }),
+    Object.freeze({
+      name: "publicShape",
+      type: "readonly public-shape summary",
+      description: "Versioned derived public shape summary for stable consumer assertions."
     })
   ]),
   snapshot: Object.freeze({
@@ -75,6 +86,12 @@ const telemetryMetadata: TelemetryMetadata = Object.freeze({
     version: TELEMETRY_VERSION,
     value: "telemetry@1",
     derived: true
+  }),
+  publicShape: Object.freeze({
+    version: TELEMETRY_VERSION,
+    readOnly: true,
+    domain: "telemetry",
+    derivedVersion: TELEMETRY_VERSION
   })
 });
 
