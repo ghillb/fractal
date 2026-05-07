@@ -27,6 +27,7 @@ export type TelemetryMetadata = Readonly<{
     readOnly: true;
     domain: "telemetry";
     derivedVersion: typeof TELEMETRY_VERSION;
+    stableShape: true;
   }>;
 }>;
 
@@ -75,7 +76,7 @@ const telemetryMetadata: TelemetryMetadata = Object.freeze({
       name: "publicShape",
       type: "readonly public-shape summary",
       description: "Versioned derived public shape summary for stable consumer assertions."
-    })
+    }),
   ]),
   snapshot: Object.freeze({
     version: TELEMETRY_VERSION,
@@ -91,7 +92,8 @@ const telemetryMetadata: TelemetryMetadata = Object.freeze({
     version: TELEMETRY_VERSION,
     readOnly: true,
     domain: "telemetry",
-    derivedVersion: TELEMETRY_VERSION
+    derivedVersion: TELEMETRY_VERSION,
+    stableShape: true
   })
 });
 

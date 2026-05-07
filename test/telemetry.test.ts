@@ -51,7 +51,8 @@ describe("telemetry metadata", () => {
       version: TELEMETRY_VERSION,
       readOnly: true,
       domain: "telemetry",
-      derivedVersion: TELEMETRY_VERSION
+      derivedVersion: TELEMETRY_VERSION,
+      stableShape: true
     });
     expect(versioned.telemetry.fields.map((field) => field.name)).toEqual([
       "version",
