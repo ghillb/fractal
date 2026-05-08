@@ -36,6 +36,7 @@ describe("diagnostics metadata", () => {
     expect(Object.isFrozen(versioned.metadata.lineage)).toBe(true);
     expect(Object.isFrozen(versioned.metadata.lineage.derivedFrom)).toBe(true);
     expect(Object.isFrozen(versioned.metadata.surface)).toBe(true);
+    expect(Object.isFrozen(versioned.metadata.publicShape)).toBe(true);
     expect(Object.isFrozen(versioned.metadata.derivedSignature)).toBe(true);
     expect(Object.isFrozen(versioned.metadata.fields)).toBe(true);
     expect(versioned.metadata.domain).toBe("diagnostics");
@@ -53,12 +54,19 @@ describe("diagnostics metadata", () => {
     expect(versioned.metadata.lineage).toEqual({
       version: DIAGNOSTICS_VERSION,
       source: "src/diagnostics.ts",
-      derivedFrom: ["version", "readOnly", "domain", "derivedVersion", "status", "summary", "derivedSignature", "fields", "surface"]
+      derivedFrom: ["version", "readOnly", "domain", "derivedVersion", "status", "summary", "derivedSignature", "fields", "surface", "publicShape"]
     });
     expect(versioned.metadata.surface).toEqual({
       version: DIAGNOSTICS_VERSION,
       shape: "versioned-readonly-derived-facade",
       derived: true
+    });
+    expect(versioned.metadata.publicShape).toEqual({
+      version: DIAGNOSTICS_VERSION,
+      readOnly: true,
+      domain: "diagnostics",
+      derivedVersion: DIAGNOSTICS_VERSION,
+      stableShape: true
     });
     expect(versioned.metadata.derivedSignature).toEqual({
       version: DIAGNOSTICS_VERSION,
@@ -74,6 +82,7 @@ describe("diagnostics metadata", () => {
       "summary",
       "lineage",
       "surface",
+      "publicShape",
       "derivedSignature",
       "fields"
     ]);
@@ -94,6 +103,9 @@ describe("diagnostics metadata", () => {
     }).toThrow();
     expect(() => {
       (versioned.metadata.surface as { shape: string }).shape = "mutated";
+    }).toThrow();
+    expect(() => {
+      (versioned.metadata.publicShape as { stableShape: boolean }).stableShape = false;
     }).toThrow();
     expect(() => {
       (versioned.metadata.derivedSignature as { value: string }).value = "mutated";

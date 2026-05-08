@@ -89,6 +89,7 @@ export {
   getDiagnosticsMetadata,
   getVersionedDiagnosticsMetadata,
   type DiagnosticsMetadata,
+  type VersionedDiagnosticsMetadata,
   EVENT_INTROSPECTION_VERSION,
   exportEventIntrospectionMetadata,
   getEventIntrospectionMetadata,
