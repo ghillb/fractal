@@ -9,11 +9,12 @@ import {
 } from "./evolve/index.ts";
 import { validateMachineReadableBlock } from "./evolve/journal-validator.ts";
 
-export const CAPABILITY_SNAPSHOT_VERSION = 2 as const;
+export const CAPABILITY_SNAPSHOT_VERSION = 3 as const;
 
 export type CapabilitySnapshot = Readonly<{
   version: typeof CAPABILITY_SNAPSHOT_VERSION;
   readOnly: true;
+  derivedVersion: typeof CAPABILITY_SNAPSHOT_VERSION;
   evolve: EvolveCapabilityExport;
   validation: Readonly<{
     journalBlock: typeof validateMachineReadableBlock;
@@ -21,17 +22,28 @@ export type CapabilitySnapshot = Readonly<{
     descriptor: typeof getVersionedEvolveCapabilityDescriptor;
     registry: typeof evolveCapabilityRegistry;
   }>;
+  surface: Readonly<{
+    version: typeof CAPABILITY_SNAPSHOT_VERSION;
+    stableShape: true;
+    derived: true;
+  }>;
 }>;
 
 export const capabilitySnapshot: CapabilitySnapshot = Object.freeze({
   version: CAPABILITY_SNAPSHOT_VERSION,
   readOnly: true,
+  derivedVersion: CAPABILITY_SNAPSHOT_VERSION,
   evolve: Object.freeze(evolveCapabilityExport),
   validation: Object.freeze({
     journalBlock: validateMachineReadableBlock,
     summary: readEvolveCapabilitySummary,
     descriptor: getVersionedEvolveCapabilityDescriptor,
     registry: evolveCapabilityRegistry
+  }),
+  surface: Object.freeze({
+    version: CAPABILITY_SNAPSHOT_VERSION,
+    stableShape: true,
+    derived: true
   })
 });
 
