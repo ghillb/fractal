@@ -14,10 +14,12 @@ describe("capability snapshot", () => {
     expect(CAPABILITY_SNAPSHOT_VERSION).toBe(3);
     expect(capabilitySnapshot.version).toBe(CAPABILITY_SNAPSHOT_VERSION);
     expect(capabilitySnapshot.derivedVersion).toBe(CAPABILITY_SNAPSHOT_VERSION);
+    expect(capabilitySnapshot.snapshotVersion).toBe(CAPABILITY_SNAPSHOT_VERSION);
     expect(capabilitySnapshot.readOnly).toBe(true);
     expect(Object.isFrozen(capabilitySnapshot)).toBe(true);
     expect(Object.isFrozen(capabilitySnapshot.validation)).toBe(true);
     expect(Object.isFrozen(capabilitySnapshot.surface)).toBe(true);
+    expect(capabilitySnapshot.surface.snapshotVersion).toBe(CAPABILITY_SNAPSHOT_VERSION);
     expect(capabilitySnapshot.validation.journalBlock).toBe(validateMachineReadableBlock);
     expect(cliCapabilitySnapshot).toBe(capabilitySnapshot);
     expect(rootCapabilityExport).toBe(capabilitySnapshot);
@@ -34,6 +36,12 @@ describe("capability snapshot", () => {
     }).toThrow();
     expect(() => {
       (capabilitySnapshot as { derivedVersion: number }).derivedVersion = 2;
+    }).toThrow();
+    expect(() => {
+      (capabilitySnapshot as { snapshotVersion: number }).snapshotVersion = 2;
+    }).toThrow();
+    expect(() => {
+      (capabilitySnapshot.surface as { snapshotVersion: number }).snapshotVersion = 2;
     }).toThrow();
   });
 });

@@ -15,6 +15,7 @@ export type CapabilitySnapshot = Readonly<{
   version: typeof CAPABILITY_SNAPSHOT_VERSION;
   readOnly: true;
   derivedVersion: typeof CAPABILITY_SNAPSHOT_VERSION;
+  snapshotVersion: typeof CAPABILITY_SNAPSHOT_VERSION;
   evolve: EvolveCapabilityExport;
   validation: Readonly<{
     journalBlock: typeof validateMachineReadableBlock;
@@ -26,6 +27,7 @@ export type CapabilitySnapshot = Readonly<{
     version: typeof CAPABILITY_SNAPSHOT_VERSION;
     stableShape: true;
     derived: true;
+    snapshotVersion: typeof CAPABILITY_SNAPSHOT_VERSION;
   }>;
 }>;
 
@@ -33,6 +35,7 @@ export const capabilitySnapshot: CapabilitySnapshot = Object.freeze({
   version: CAPABILITY_SNAPSHOT_VERSION,
   readOnly: true,
   derivedVersion: CAPABILITY_SNAPSHOT_VERSION,
+  snapshotVersion: CAPABILITY_SNAPSHOT_VERSION,
   evolve: Object.freeze(evolveCapabilityExport),
   validation: Object.freeze({
     journalBlock: validateMachineReadableBlock,
@@ -43,7 +46,8 @@ export const capabilitySnapshot: CapabilitySnapshot = Object.freeze({
   surface: Object.freeze({
     version: CAPABILITY_SNAPSHOT_VERSION,
     stableShape: true,
-    derived: true
+    derived: true,
+    snapshotVersion: CAPABILITY_SNAPSHOT_VERSION
   })
 });
 
