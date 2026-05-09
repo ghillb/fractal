@@ -37,6 +37,7 @@ describe("diagnostics metadata", () => {
     expect(Object.isFrozen(versioned.metadata.lineage.derivedFrom)).toBe(true);
     expect(Object.isFrozen(versioned.metadata.surface)).toBe(true);
     expect(Object.isFrozen(versioned.metadata.publicShape)).toBe(true);
+    expect(Object.isFrozen(versioned.metadata.publicShapeSignature)).toBe(true);
     expect(Object.isFrozen(versioned.metadata.derivedSignature)).toBe(true);
     expect(Object.isFrozen(versioned.metadata.fields)).toBe(true);
     expect(versioned.metadata.domain).toBe("diagnostics");
@@ -54,7 +55,7 @@ describe("diagnostics metadata", () => {
     expect(versioned.metadata.lineage).toEqual({
       version: DIAGNOSTICS_VERSION,
       source: "src/diagnostics.ts",
-      derivedFrom: ["version", "readOnly", "domain", "derivedVersion", "status", "summary", "derivedSignature", "fields", "surface", "publicShape"]
+      derivedFrom: ["version", "readOnly", "domain", "derivedVersion", "status", "summary", "derivedSignature", "fields", "surface", "publicShape", "publicShapeSignature"]
     });
     expect(versioned.metadata.surface).toEqual({
       version: DIAGNOSTICS_VERSION,
@@ -67,6 +68,11 @@ describe("diagnostics metadata", () => {
       domain: "diagnostics",
       derivedVersion: DIAGNOSTICS_VERSION,
       stableShape: true
+    });
+    expect(versioned.metadata.publicShapeSignature).toEqual({
+      version: DIAGNOSTICS_VERSION,
+      value: "diagnostics:public-shape@3",
+      derived: true
     });
     expect(versioned.metadata.derivedSignature).toEqual({
       version: DIAGNOSTICS_VERSION,
@@ -83,6 +89,7 @@ describe("diagnostics metadata", () => {
       "lineage",
       "surface",
       "publicShape",
+      "publicShapeSignature",
       "derivedSignature",
       "fields"
     ]);
@@ -106,6 +113,9 @@ describe("diagnostics metadata", () => {
     }).toThrow();
     expect(() => {
       (versioned.metadata.publicShape as { stableShape: boolean }).stableShape = false;
+    }).toThrow();
+    expect(() => {
+      (versioned.metadata.publicShapeSignature as { value: string }).value = "mutated";
     }).toThrow();
     expect(() => {
       (versioned.metadata.derivedSignature as { value: string }).value = "mutated";
