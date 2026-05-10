@@ -22,6 +22,20 @@ describe("event introspection metadata", () => {
     expect(Object.isFrozen(metadata)).toBe(true);
     expect(Object.isFrozen(metadata.fields)).toBe(true);
     expect(Object.isFrozen(metadata.publicShape)).toBe(true);
+    expect(Object.isFrozen(metadata.versionedPublicShape)).toBe(true);
+    expect(Object.isFrozen(metadata.versionedPublicShape.publicShape)).toBe(true);
+    expect(metadata.versionedPublicShape).toEqual({
+      version: EVENT_INTROSPECTION_VERSION,
+      readOnly: true,
+      publicShape: {
+        version: EVENT_INTROSPECTION_VERSION,
+        stable: true,
+        derived: true,
+        readOnly: true,
+        domain: "event-introspection",
+        derivedVersion: EVENT_INTROSPECTION_VERSION
+      }
+    });
     expect(metadata.publicShape).toEqual({
       version: EVENT_INTROSPECTION_VERSION,
       stable: true,
@@ -30,16 +44,24 @@ describe("event introspection metadata", () => {
       domain: "event-introspection",
       derivedVersion: EVENT_INTROSPECTION_VERSION
     });
-    expect(metadata.fields.at(-1)).toEqual({
+    expect(metadata.fields.at(-2)).toEqual({
       name: "publicShape",
       type: "readonly derived shape",
       description: "Versioned derived summary of the public, stable metadata surface."
+    });
+    expect(metadata.fields.at(-1)).toEqual({
+      name: "versionedPublicShape",
+      type: "readonly derived shape",
+      description: "Versioned wrapper that exposes the public shape as an immutable boundary object."
     });
     expect(() => {
       (metadata as { version: number }).version = 99;
     }).toThrow();
     expect(() => {
       (metadata.publicShape as { stable: boolean }).stable = false;
+    }).toThrow();
+    expect(() => {
+      (metadata.versionedPublicShape as { readOnly: boolean }).readOnly = false;
     }).toThrow();
   });
 });

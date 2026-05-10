@@ -20,6 +20,18 @@ export type EventIntrospectionMetadata = Readonly<{
     domain: "event-introspection";
     derivedVersion: typeof EVENT_INTROSPECTION_VERSION;
   }>;
+  versionedPublicShape: Readonly<{
+    version: typeof EVENT_INTROSPECTION_VERSION;
+    readOnly: true;
+    publicShape: Readonly<{
+      version: typeof EVENT_INTROSPECTION_VERSION;
+      stable: true;
+      derived: true;
+      readOnly: true;
+      domain: "event-introspection";
+      derivedVersion: typeof EVENT_INTROSPECTION_VERSION;
+    }>;
+  }>;
 }>;
 
 const eventIntrospectionMetadata: EventIntrospectionMetadata = Object.freeze({
@@ -57,6 +69,11 @@ const eventIntrospectionMetadata: EventIntrospectionMetadata = Object.freeze({
       name: "publicShape",
       type: "readonly derived shape",
       description: "Versioned derived summary of the public, stable metadata surface."
+    }),
+    Object.freeze({
+      name: "versionedPublicShape",
+      type: "readonly derived shape",
+      description: "Versioned wrapper that exposes the public shape as an immutable boundary object."
     })
   ]),
   publicShape: Object.freeze({
@@ -66,6 +83,18 @@ const eventIntrospectionMetadata: EventIntrospectionMetadata = Object.freeze({
     readOnly: true,
     domain: "event-introspection",
     derivedVersion: EVENT_INTROSPECTION_VERSION
+  }),
+  versionedPublicShape: Object.freeze({
+    version: EVENT_INTROSPECTION_VERSION,
+    readOnly: true,
+    publicShape: Object.freeze({
+      version: EVENT_INTROSPECTION_VERSION,
+      stable: true,
+      derived: true,
+      readOnly: true,
+      domain: "event-introspection",
+      derivedVersion: EVENT_INTROSPECTION_VERSION
+    })
   })
 });
 
