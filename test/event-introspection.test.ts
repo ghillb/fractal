@@ -11,9 +11,10 @@ describe("event introspection metadata", () => {
     const metadata = getEventIntrospectionMetadata();
     const versioned = getVersionedEventIntrospectionMetadata();
 
-    expect(EVENT_INTROSPECTION_VERSION).toBe(2);
+    expect(EVENT_INTROSPECTION_VERSION).toBe(3);
     expect(metadata.version).toBe(EVENT_INTROSPECTION_VERSION);
     expect(metadata.readOnly).toBe(true);
+    expect(metadata.derivedVersion).toBe(EVENT_INTROSPECTION_VERSION);
     expect(versioned.version).toBe(EVENT_INTROSPECTION_VERSION);
     expect(versioned.readOnly).toBe(true);
     expect(versioned.metadata).toBe(metadata);
@@ -24,7 +25,10 @@ describe("event introspection metadata", () => {
     expect(metadata.publicShape).toEqual({
       version: EVENT_INTROSPECTION_VERSION,
       stable: true,
-      derived: true
+      derived: true,
+      readOnly: true,
+      domain: "event-introspection",
+      derivedVersion: EVENT_INTROSPECTION_VERSION
     });
     expect(metadata.fields.at(-1)).toEqual({
       name: "publicShape",

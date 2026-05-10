@@ -1,20 +1,24 @@
-export const EVENT_INTROSPECTION_VERSION = 2 as const;
+export const EVENT_INTROSPECTION_VERSION = 3 as const;
+
+export type EventIntrospectionField = Readonly<{
+  name: string;
+  type: string;
+  description: string;
+}>;
 
 export type EventIntrospectionMetadata = Readonly<{
   version: typeof EVENT_INTROSPECTION_VERSION;
   readOnly: true;
   domain: "event-introspection";
-  fields: ReadonlyArray<
-    Readonly<{
-      name: string;
-      type: string;
-      description: string;
-    }>
-  >;
+  derivedVersion: typeof EVENT_INTROSPECTION_VERSION;
+  fields: ReadonlyArray<EventIntrospectionField>;
   publicShape: Readonly<{
     version: typeof EVENT_INTROSPECTION_VERSION;
     stable: true;
     derived: true;
+    readOnly: true;
+    domain: "event-introspection";
+    derivedVersion: typeof EVENT_INTROSPECTION_VERSION;
   }>;
 }>;
 
@@ -22,6 +26,7 @@ const eventIntrospectionMetadata: EventIntrospectionMetadata = Object.freeze({
   version: EVENT_INTROSPECTION_VERSION,
   readOnly: true,
   domain: "event-introspection",
+  derivedVersion: EVENT_INTROSPECTION_VERSION,
   fields: Object.freeze([
     Object.freeze({
       name: "version",
@@ -39,6 +44,11 @@ const eventIntrospectionMetadata: EventIntrospectionMetadata = Object.freeze({
       description: "Canonical domain label for event/introspection consumers."
     }),
     Object.freeze({
+      name: "derivedVersion",
+      type: "number",
+      description: "Versioned derived field that mirrors the introspection facade version."
+    }),
+    Object.freeze({
       name: "fields",
       type: "readonly metadata[]",
       description: "Structured read-only descriptions of exported metadata fields."
@@ -52,7 +62,10 @@ const eventIntrospectionMetadata: EventIntrospectionMetadata = Object.freeze({
   publicShape: Object.freeze({
     version: EVENT_INTROSPECTION_VERSION,
     stable: true,
-    derived: true
+    derived: true,
+    readOnly: true,
+    domain: "event-introspection",
+    derivedVersion: EVENT_INTROSPECTION_VERSION
   })
 });
 
