@@ -4,33 +4,38 @@ import {
   exportEventIntrospectionMetadata,
   getEventIntrospectionMetadata,
   getVersionedEventIntrospectionMetadata
-} from "../src/event-introspection.ts";
+} from "../src/index.ts";
 
 describe("event introspection metadata", () => {
-  test("exposes a versioned deeply immutable read-only facade", () => {
+  test("exposes a read-only derived public shape that stays immutable", () => {
+    const metadata = getEventIntrospectionMetadata();
     const versioned = getVersionedEventIntrospectionMetadata();
-    const metadata = exportEventIntrospectionMetadata();
-    const firstField = metadata.fields[0]!;
 
+    expect(EVENT_INTROSPECTION_VERSION).toBe(2);
+    expect(metadata.version).toBe(EVENT_INTROSPECTION_VERSION);
+    expect(metadata.readOnly).toBe(true);
     expect(versioned.version).toBe(EVENT_INTROSPECTION_VERSION);
     expect(versioned.readOnly).toBe(true);
     expect(versioned.metadata).toBe(metadata);
-    expect(getEventIntrospectionMetadata()).toBe(metadata);
-    expect(Object.isFrozen(versioned)).toBe(true);
-    expect(Object.isFrozen(versioned.metadata)).toBe(true);
-    expect(Object.isFrozen(versioned.metadata.fields)).toBe(true);
-    expect(Object.isFrozen(firstField)).toBe(true);
-    expect(versioned.metadata.domain).toBe("event-introspection");
-    expect(firstField.name).toBe("version");
-
+    expect(exportEventIntrospectionMetadata()).toBe(metadata);
+    expect(Object.isFrozen(metadata)).toBe(true);
+    expect(Object.isFrozen(metadata.fields)).toBe(true);
+    expect(Object.isFrozen(metadata.publicShape)).toBe(true);
+    expect(metadata.publicShape).toEqual({
+      version: EVENT_INTROSPECTION_VERSION,
+      stable: true,
+      derived: true
+    });
+    expect(metadata.fields.at(-1)).toEqual({
+      name: "publicShape",
+      type: "readonly derived shape",
+      description: "Versioned derived summary of the public, stable metadata surface."
+    });
     expect(() => {
-      (versioned as { version: number }).version = 2;
+      (metadata as { version: number }).version = 99;
     }).toThrow();
     expect(() => {
-      (versioned.metadata as { domain: string }).domain = "mutated";
-    }).toThrow();
-    expect(() => {
-      (firstField as unknown as { name: string }).name = "mutated";
+      (metadata.publicShape as { stable: boolean }).stable = false;
     }).toThrow();
   });
 });

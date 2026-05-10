@@ -1,4 +1,4 @@
-export const EVENT_INTROSPECTION_VERSION = 1 as const;
+export const EVENT_INTROSPECTION_VERSION = 2 as const;
 
 export type EventIntrospectionMetadata = Readonly<{
   version: typeof EVENT_INTROSPECTION_VERSION;
@@ -11,6 +11,11 @@ export type EventIntrospectionMetadata = Readonly<{
       description: string;
     }>
   >;
+  publicShape: Readonly<{
+    version: typeof EVENT_INTROSPECTION_VERSION;
+    stable: true;
+    derived: true;
+  }>;
 }>;
 
 const eventIntrospectionMetadata: EventIntrospectionMetadata = Object.freeze({
@@ -37,8 +42,18 @@ const eventIntrospectionMetadata: EventIntrospectionMetadata = Object.freeze({
       name: "fields",
       type: "readonly metadata[]",
       description: "Structured read-only descriptions of exported metadata fields."
+    }),
+    Object.freeze({
+      name: "publicShape",
+      type: "readonly derived shape",
+      description: "Versioned derived summary of the public, stable metadata surface."
     })
-  ])
+  ]),
+  publicShape: Object.freeze({
+    version: EVENT_INTROSPECTION_VERSION,
+    stable: true,
+    derived: true
+  })
 });
 
 export function exportEventIntrospectionMetadata(): EventIntrospectionMetadata {
