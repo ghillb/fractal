@@ -31,6 +31,7 @@ export type CapabilitySnapshot = Readonly<{
     publicShapeVersion: typeof CAPABILITY_SNAPSHOT_VERSION;
     shapeVersion: typeof CAPABILITY_SNAPSHOT_VERSION;
     schemaVersion: typeof CAPABILITY_SNAPSHOT_VERSION;
+    exportVisibilityVersion: typeof CAPABILITY_SNAPSHOT_VERSION;
   }>;
 }>;
 
@@ -53,7 +54,8 @@ export const capabilitySnapshot: CapabilitySnapshot = Object.freeze({
     snapshotVersion: CAPABILITY_SNAPSHOT_VERSION,
     publicShapeVersion: CAPABILITY_SNAPSHOT_VERSION,
     shapeVersion: CAPABILITY_SNAPSHOT_VERSION,
-    schemaVersion: CAPABILITY_SNAPSHOT_VERSION
+    schemaVersion: CAPABILITY_SNAPSHOT_VERSION,
+    exportVisibilityVersion: CAPABILITY_SNAPSHOT_VERSION
   })
 });
 
