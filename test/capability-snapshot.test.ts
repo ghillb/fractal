@@ -22,6 +22,7 @@ describe("capability snapshot", () => {
     expect(capabilitySnapshot.surface.snapshotVersion).toBe(CAPABILITY_SNAPSHOT_VERSION);
     expect(capabilitySnapshot.surface.publicShapeVersion).toBe(CAPABILITY_SNAPSHOT_VERSION);
     expect(capabilitySnapshot.surface.shapeVersion).toBe(CAPABILITY_SNAPSHOT_VERSION);
+    expect(capabilitySnapshot.surface.schemaVersion).toBe(CAPABILITY_SNAPSHOT_VERSION);
     expect(capabilitySnapshot.validation.journalBlock).toBe(validateMachineReadableBlock);
     expect(cliCapabilitySnapshot).toBe(capabilitySnapshot);
     expect(rootCapabilityExport).toBe(capabilitySnapshot);
@@ -50,6 +51,9 @@ describe("capability snapshot", () => {
     }).toThrow();
     expect(() => {
       (capabilitySnapshot.surface as { shapeVersion: number }).shapeVersion = 2;
+    }).toThrow();
+    expect(() => {
+      (capabilitySnapshot.surface as { schemaVersion: number }).schemaVersion = 2;
     }).toThrow();
   });
 });
