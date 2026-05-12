@@ -46,6 +46,9 @@ describe("capability snapshot", () => {
       (capabilitySnapshot as { snapshotVersion: number }).snapshotVersion = 2;
     }).toThrow();
     expect(() => {
+      (capabilitySnapshot.surface as { derivedFromVersionedExport: boolean }).derivedFromVersionedExport = false;
+    }).toThrow();
+    expect(() => {
       (capabilitySnapshot.surface as { snapshotVersion: number }).snapshotVersion = 2;
     }).toThrow();
     expect(() => {

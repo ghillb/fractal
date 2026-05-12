@@ -27,6 +27,7 @@ export type CapabilitySnapshot = Readonly<{
     version: typeof CAPABILITY_SNAPSHOT_VERSION;
     stableShape: true;
     derived: true;
+    derivedFromVersionedExport: true;
     snapshotVersion: typeof CAPABILITY_SNAPSHOT_VERSION;
     publicShapeVersion: typeof CAPABILITY_SNAPSHOT_VERSION;
     shapeVersion: typeof CAPABILITY_SNAPSHOT_VERSION;
@@ -52,6 +53,7 @@ export const capabilitySnapshot: CapabilitySnapshot = Object.freeze({
     version: CAPABILITY_SNAPSHOT_VERSION,
     stableShape: true,
     derived: true,
+    derivedFromVersionedExport: true,
     snapshotVersion: CAPABILITY_SNAPSHOT_VERSION,
     publicShapeVersion: CAPABILITY_SNAPSHOT_VERSION,
     shapeVersion: CAPABILITY_SNAPSHOT_VERSION,
