@@ -9,7 +9,7 @@ import {
 } from "./evolve/index.ts";
 import { validateMachineReadableBlock } from "./evolve/journal-validator.ts";
 
-export const CAPABILITY_SNAPSHOT_VERSION = 3 as const;
+export const CAPABILITY_SNAPSHOT_VERSION = 4 as const;
 
 export type CapabilitySnapshot = Readonly<{
   version: typeof CAPABILITY_SNAPSHOT_VERSION;
@@ -34,6 +34,7 @@ export type CapabilitySnapshot = Readonly<{
     schemaVersion: typeof CAPABILITY_SNAPSHOT_VERSION;
     exportVisibilityVersion: typeof CAPABILITY_SNAPSHOT_VERSION;
     schemaStabilityVersion: typeof CAPABILITY_SNAPSHOT_VERSION;
+    schemaSignatureVersion: typeof CAPABILITY_SNAPSHOT_VERSION;
   }>;
 }>;
 
@@ -59,7 +60,8 @@ export const capabilitySnapshot: CapabilitySnapshot = Object.freeze({
     shapeVersion: CAPABILITY_SNAPSHOT_VERSION,
     schemaVersion: CAPABILITY_SNAPSHOT_VERSION,
     exportVisibilityVersion: CAPABILITY_SNAPSHOT_VERSION,
-    schemaStabilityVersion: CAPABILITY_SNAPSHOT_VERSION
+    schemaStabilityVersion: CAPABILITY_SNAPSHOT_VERSION,
+    schemaSignatureVersion: CAPABILITY_SNAPSHOT_VERSION
   })
 });
 

@@ -11,7 +11,7 @@ import { validateMachineReadableBlock } from "../src/evolve/journal-validator.ts
 
 describe("capability snapshot", () => {
   test("exports a versioned immutable aggregate of read-only entrypoints and validation hooks", () => {
-    expect(CAPABILITY_SNAPSHOT_VERSION).toBe(3);
+    expect(CAPABILITY_SNAPSHOT_VERSION).toBe(4);
     expect(capabilitySnapshot.version).toBe(CAPABILITY_SNAPSHOT_VERSION);
     expect(capabilitySnapshot.derivedVersion).toBe(CAPABILITY_SNAPSHOT_VERSION);
     expect(capabilitySnapshot.snapshotVersion).toBe(CAPABILITY_SNAPSHOT_VERSION);
@@ -25,6 +25,7 @@ describe("capability snapshot", () => {
     expect(capabilitySnapshot.surface.schemaVersion).toBe(CAPABILITY_SNAPSHOT_VERSION);
     expect(capabilitySnapshot.surface.exportVisibilityVersion).toBe(CAPABILITY_SNAPSHOT_VERSION);
     expect(capabilitySnapshot.surface.schemaStabilityVersion).toBe(CAPABILITY_SNAPSHOT_VERSION);
+    expect(capabilitySnapshot.surface.schemaSignatureVersion).toBe(CAPABILITY_SNAPSHOT_VERSION);
     expect(capabilitySnapshot.validation.journalBlock).toBe(validateMachineReadableBlock);
     expect(cliCapabilitySnapshot).toBe(capabilitySnapshot);
     expect(rootCapabilityExport).toBe(capabilitySnapshot);
@@ -65,6 +66,9 @@ describe("capability snapshot", () => {
     }).toThrow();
     expect(() => {
       (capabilitySnapshot.surface as { schemaStabilityVersion: number }).schemaStabilityVersion = 2;
+    }).toThrow();
+    expect(() => {
+      (capabilitySnapshot.surface as { schemaSignatureVersion: number }).schemaSignatureVersion = 2;
     }).toThrow();
   });
 });
