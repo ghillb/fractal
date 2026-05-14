@@ -12,7 +12,7 @@ describe("telemetry metadata", () => {
     const versioned = getVersionedTelemetryMetadata();
     const telemetry = versioned.telemetry;
 
-    expect(TELEMETRY_VERSION).toBe(3);
+    expect(TELEMETRY_VERSION).toBe(4);
     expect(versioned.version).toBe(TELEMETRY_VERSION);
     expect(versioned.readOnly).toBe(true);
     expect(telemetry.version).toBe(TELEMETRY_VERSION);
@@ -22,8 +22,11 @@ describe("telemetry metadata", () => {
     expect(telemetry.exportVisibility.visible).toBe(true);
     expect(telemetry.exportVisibility.derived).toBe(true);
     expect(telemetry.sourceFingerprint.version).toBe(TELEMETRY_VERSION);
-    expect(telemetry.sourceFingerprint.value).toBe("src/telemetry.ts@3");
+    expect(telemetry.sourceFingerprint.value).toBe("src/telemetry.ts@4");
     expect(telemetry.sourceFingerprint.derived).toBe(true);
+    expect(telemetry.derivedSurface.version).toBe(TELEMETRY_VERSION);
+    expect(telemetry.derivedSurface.shape).toBe("versioned-readonly-derived-facade");
+    expect(telemetry.derivedSurface.derived).toBe(true);
     expect(exportTelemetryMetadata()).toBe(telemetry);
     expect(getTelemetryMetadata()).toBe(telemetry);
     expect(exportTelemetryMetadataFromIndex()).toBe(telemetry);
@@ -36,9 +39,11 @@ describe("telemetry metadata", () => {
     expect(Object.isFrozen(telemetry.publicShape)).toBe(true);
     expect(Object.isFrozen(telemetry.exportVisibility)).toBe(true);
     expect(Object.isFrozen(telemetry.sourceFingerprint)).toBe(true);
+    expect(Object.isFrozen(telemetry.derivedSurface)).toBe(true);
     expect(() => { (telemetry as { version: number }).version = 3; }).toThrow();
     expect(() => { (telemetry.exportVisibility as { visible: boolean }).visible = false; }).toThrow();
     expect(() => { (telemetry.publicShape as { stableShape: boolean }).stableShape = false; }).toThrow();
     expect(() => { (telemetry.sourceFingerprint as { value: string }).value = "x"; }).toThrow();
+    expect(() => { (telemetry.derivedSurface as { shape: string }).shape = "x"; }).toThrow();
   });
 });
