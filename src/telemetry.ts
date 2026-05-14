@@ -12,6 +12,11 @@ export type TelemetryMetadata = Readonly<{
   domain: "telemetry";
   derivedVersion: typeof TELEMETRY_VERSION;
   fields: ReadonlyArray<TelemetryField>;
+  derivedVisibility: Readonly<{
+    version: typeof TELEMETRY_VERSION;
+    label: "public-export-visible";
+    derived: true;
+  }>;
   snapshot: Readonly<{
     version: typeof TELEMETRY_VERSION;
     immutable: true;
@@ -57,6 +62,7 @@ const telemetryMetadata: TelemetryMetadata = Object.freeze({
     Object.freeze({ name: "domain", type: "string", description: "Canonical domain label for telemetry consumers." }),
     Object.freeze({ name: "derivedVersion", type: "number", description: "Versioned derived field that mirrors the telemetry facade version." }),
     Object.freeze({ name: "fields", type: "readonly metadata[]", description: "Structured read-only descriptions of exported telemetry fields." }),
+    Object.freeze({ name: "derivedVisibility", type: "readonly visibility object", description: "Versioned derived visibility marker for the public export surface." }),
     Object.freeze({ name: "snapshot", type: "readonly derived summary object", description: "Versioned derived snapshot for consumers that need a stable shape guarantee." }),
     Object.freeze({ name: "derivedSignature", type: "readonly signature object", description: "Versioned derived signature for consumers that need a stable fingerprint." }),
     Object.freeze({ name: "publicShape", type: "readonly public-shape summary", description: "Versioned derived public shape summary for stable consumer assertions." }),
@@ -65,6 +71,7 @@ const telemetryMetadata: TelemetryMetadata = Object.freeze({
     Object.freeze({ name: "derivedSurface", type: "readonly derived surface object", description: "Versioned derived surface descriptor for stable export introspection." })
   ]),
   snapshot: Object.freeze({ version: TELEMETRY_VERSION, immutable: true, stableShape: true }),
+  derivedVisibility: Object.freeze({ version: TELEMETRY_VERSION, label: "public-export-visible", derived: true }),
   derivedSignature: Object.freeze({ version: TELEMETRY_VERSION, value: "telemetry@4", derived: true }),
   publicShape: Object.freeze({ version: TELEMETRY_VERSION, readOnly: true, domain: "telemetry", derivedVersion: TELEMETRY_VERSION, stableShape: true }),
   exportVisibility: Object.freeze({ version: TELEMETRY_VERSION, visible: true, derived: true }),

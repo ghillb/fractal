@@ -18,6 +18,9 @@ describe("telemetry metadata", () => {
     expect(telemetry.version).toBe(TELEMETRY_VERSION);
     expect(telemetry.readOnly).toBe(true);
     expect(telemetry.derivedVersion).toBe(TELEMETRY_VERSION);
+    expect(telemetry.derivedVisibility.version).toBe(TELEMETRY_VERSION);
+    expect(telemetry.derivedVisibility.label).toBe("public-export-visible");
+    expect(telemetry.derivedVisibility.derived).toBe(true);
     expect(telemetry.exportVisibility.version).toBe(TELEMETRY_VERSION);
     expect(telemetry.exportVisibility.visible).toBe(true);
     expect(telemetry.exportVisibility.derived).toBe(true);
@@ -38,10 +41,12 @@ describe("telemetry metadata", () => {
     expect(Object.isFrozen(telemetry.derivedSignature)).toBe(true);
     expect(Object.isFrozen(telemetry.publicShape)).toBe(true);
     expect(Object.isFrozen(telemetry.exportVisibility)).toBe(true);
+    expect(Object.isFrozen(telemetry.derivedVisibility)).toBe(true);
     expect(Object.isFrozen(telemetry.sourceFingerprint)).toBe(true);
     expect(Object.isFrozen(telemetry.derivedSurface)).toBe(true);
     expect(() => { (telemetry as { version: number }).version = 3; }).toThrow();
     expect(() => { (telemetry.exportVisibility as { visible: boolean }).visible = false; }).toThrow();
+    expect(() => { (telemetry.derivedVisibility as { label: string }).label = "x"; }).toThrow();
     expect(() => { (telemetry.publicShape as { stableShape: boolean }).stableShape = false; }).toThrow();
     expect(() => { (telemetry.sourceFingerprint as { value: string }).value = "x"; }).toThrow();
     expect(() => { (telemetry.derivedSurface as { shape: string }).shape = "x"; }).toThrow();
