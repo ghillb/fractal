@@ -49,6 +49,13 @@ import {
   type VersionedTelemetryMetadata
 } from "./telemetry.ts";
 import {
+  exportRepositoryCapabilitySurface,
+  getRepositoryCapabilitySurface,
+  getVersionedRepositoryCapabilitySurface,
+  type RepositoryCapabilitySurface,
+  type VersionedRepositoryCapabilitySurface
+} from "./repository-capability-surface.ts";
+import {
   EVOLVE_CAPABILITY_DESCRIPTOR_VERSION,
   evolveCapabilityExport,
   evolveCapabilityRegistry,
@@ -111,5 +118,10 @@ export {
   readEvolveCapabilitySummary,
   type EvolveCapabilityDescriptor,
   type EvolveCapabilitySummary,
-  type EvolveCapabilityExport
+  type EvolveCapabilityExport,
+  exportRepositoryCapabilitySurface,
+  getRepositoryCapabilitySurface,
+  getVersionedRepositoryCapabilitySurface,
+  type RepositoryCapabilitySurface,
+  type VersionedRepositoryCapabilitySurface
 };
