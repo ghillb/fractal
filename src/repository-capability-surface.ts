@@ -21,6 +21,11 @@ export type RepositoryCapabilitySurface = Readonly<{
     shape: "versioned-readonly-derived-surface";
     derived: true;
   }>;
+  publicShapeSignature: Readonly<{
+    version: typeof REPOSITORY_CAPABILITY_SURFACE_VERSION;
+    value: "versioned-readonly-derived-surface";
+    derived: true;
+  }>;
 }>;
 
 const repositoryCapabilitySurface: RepositoryCapabilitySurface = Object.freeze({
@@ -40,6 +45,11 @@ const repositoryCapabilitySurface: RepositoryCapabilitySurface = Object.freeze({
   publicShape: Object.freeze({
     version: REPOSITORY_CAPABILITY_SURFACE_VERSION,
     shape: "versioned-readonly-derived-surface",
+    derived: true
+  }),
+  publicShapeSignature: Object.freeze({
+    version: REPOSITORY_CAPABILITY_SURFACE_VERSION,
+    value: "versioned-readonly-derived-surface",
     derived: true
   })
 });
