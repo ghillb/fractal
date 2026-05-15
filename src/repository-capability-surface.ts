@@ -1,6 +1,6 @@
 import { capabilitySnapshot } from "./capability-snapshot.ts";
 
-export const REPOSITORY_CAPABILITY_SURFACE_VERSION = 1 as const;
+export const REPOSITORY_CAPABILITY_SURFACE_VERSION = 2 as const;
 
 export type RepositoryCapabilitySurface = Readonly<{
   version: typeof REPOSITORY_CAPABILITY_SURFACE_VERSION;
@@ -14,6 +14,11 @@ export type RepositoryCapabilitySurface = Readonly<{
   schemaStability: Readonly<{
     version: typeof REPOSITORY_CAPABILITY_SURFACE_VERSION;
     stable: true;
+    derived: true;
+  }>;
+  publicShape: Readonly<{
+    version: typeof REPOSITORY_CAPABILITY_SURFACE_VERSION;
+    shape: "versioned-readonly-derived-surface";
     derived: true;
   }>;
 }>;
@@ -30,6 +35,11 @@ const repositoryCapabilitySurface: RepositoryCapabilitySurface = Object.freeze({
   schemaStability: Object.freeze({
     version: REPOSITORY_CAPABILITY_SURFACE_VERSION,
     stable: true,
+    derived: true
+  }),
+  publicShape: Object.freeze({
+    version: REPOSITORY_CAPABILITY_SURFACE_VERSION,
+    shape: "versioned-readonly-derived-surface",
     derived: true
   })
 });

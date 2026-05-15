@@ -15,15 +15,17 @@ describe("repository capability surface", () => {
     const surface = exportRepositoryCapabilitySurface();
     const versioned = getVersionedRepositoryCapabilitySurface();
 
-    expect(REPOSITORY_CAPABILITY_SURFACE_VERSION).toBe(1);
+    expect(REPOSITORY_CAPABILITY_SURFACE_VERSION).toBe(2);
     expect(surface.version).toBe(REPOSITORY_CAPABILITY_SURFACE_VERSION);
     expect(surface.readOnly).toBe(true);
     expect(surface.derivedVersion).toBe(REPOSITORY_CAPABILITY_SURFACE_VERSION);
     expect(surface.exportVisibility.visible).toBe(true);
     expect(surface.schemaStability.stable).toBe(true);
+    expect(surface.publicShape.shape).toBe("versioned-readonly-derived-surface");
     expect(Object.isFrozen(surface)).toBe(true);
     expect(Object.isFrozen(surface.exportVisibility)).toBe(true);
     expect(Object.isFrozen(surface.schemaStability)).toBe(true);
+    expect(Object.isFrozen(surface.publicShape)).toBe(true);
     expect(getRepositoryCapabilitySurface()).toBe(surface);
     expect(exportRepositoryCapabilitySurfaceFromIndex()).toBe(surface);
     expect(versioned.surface).toBe(surface);
@@ -39,6 +41,9 @@ describe("repository capability surface", () => {
     }).toThrow();
     expect(() => {
       (surface.schemaStability as { stable: boolean }).stable = false;
+    }).toThrow();
+    expect(() => {
+      (surface.publicShape as { shape: string }).shape = "mutated";
     }).toThrow();
   });
 });
