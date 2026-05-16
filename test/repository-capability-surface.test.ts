@@ -24,12 +24,14 @@ describe("repository capability surface", () => {
     expect(surface.publicShape.shape).toBe("versioned-readonly-derived-surface");
     expect(surface.publicShapeSignature.value).toBe("versioned-readonly-derived-surface");
     expect(surface.schemaSignature.value).toBe("repository-capability-surface@2");
+    expect(surface.schemaVersion.value).toBe(2);
     expect(Object.isFrozen(surface)).toBe(true);
     expect(Object.isFrozen(surface.exportVisibility)).toBe(true);
     expect(Object.isFrozen(surface.schemaStability)).toBe(true);
     expect(Object.isFrozen(surface.publicShape)).toBe(true);
     expect(Object.isFrozen(surface.publicShapeSignature)).toBe(true);
     expect(Object.isFrozen(surface.schemaSignature)).toBe(true);
+    expect(Object.isFrozen(surface.schemaVersion)).toBe(true);
     expect(getRepositoryCapabilitySurface()).toBe(surface);
     expect(exportRepositoryCapabilitySurfaceFromIndex()).toBe(surface);
     expect(versioned.surface).toBe(surface);
@@ -54,6 +56,9 @@ describe("repository capability surface", () => {
     }).toThrow();
     expect(() => {
       (surface.schemaSignature as { value: string }).value = "mutated";
+    }).toThrow();
+    expect(() => {
+      (surface.schemaVersion as { value: number }).value = 3;
     }).toThrow();
   });
 });

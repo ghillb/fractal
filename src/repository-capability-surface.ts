@@ -31,6 +31,11 @@ export type RepositoryCapabilitySurface = Readonly<{
     value: "repository-capability-surface@2";
     derived: true;
   }>;
+  schemaVersion: Readonly<{
+    version: typeof REPOSITORY_CAPABILITY_SURFACE_VERSION;
+    value: 2;
+    derived: true;
+  }>;
 }>;
 
 const repositoryCapabilitySurface: RepositoryCapabilitySurface = Object.freeze({
@@ -60,6 +65,11 @@ const repositoryCapabilitySurface: RepositoryCapabilitySurface = Object.freeze({
   schemaSignature: Object.freeze({
     version: REPOSITORY_CAPABILITY_SURFACE_VERSION,
     value: "repository-capability-surface@2",
+    derived: true
+  }),
+  schemaVersion: Object.freeze({
+    version: REPOSITORY_CAPABILITY_SURFACE_VERSION,
+    value: 2,
     derived: true
   })
 });
