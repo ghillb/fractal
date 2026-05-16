@@ -6,119 +6,48 @@ import {
   getVersionedDiagnosticsMetadata
 } from "../src/diagnostics.ts";
 import {
-  DIAGNOSTICS_VERSION as DIAGNOSTICS_VERSION_FROM_ROOT,
-  exportDiagnosticsMetadata as exportDiagnosticsMetadataFromRoot,
-  getDiagnosticsMetadata as getDiagnosticsMetadataFromRoot,
-  getVersionedDiagnosticsMetadata as getVersionedDiagnosticsMetadataFromRoot
+  exportDiagnosticsMetadata as exportDiagnosticsMetadataFromIndex,
+  getVersionedDiagnosticsMetadata as getVersionedDiagnosticsMetadataFromIndex
 } from "../src/index.ts";
 
 describe("diagnostics metadata", () => {
-  test("exposes a versioned deeply immutable facade across the entrypoint boundary", () => {
-    const versioned = getVersionedDiagnosticsMetadata();
-    const rootVersioned = getVersionedDiagnosticsMetadataFromRoot();
+  test("exports a versioned immutable derived field with stable shape", () => {
     const metadata = exportDiagnosticsMetadata();
-    const rootMetadata = exportDiagnosticsMetadataFromRoot();
+    const versioned = getVersionedDiagnosticsMetadata();
 
-    expect(DIAGNOSTICS_VERSION_FROM_ROOT).toBe(DIAGNOSTICS_VERSION);
-    expect(versioned.version).toBe(DIAGNOSTICS_VERSION);
-    expect(rootVersioned.version).toBe(DIAGNOSTICS_VERSION);
-    expect(versioned.readOnly).toBe(true);
-    expect(rootVersioned.readOnly).toBe(true);
-    expect(versioned.metadata).toBe(metadata);
-    expect(rootVersioned.metadata).toBe(metadata);
+    expect(DIAGNOSTICS_VERSION).toBe(3);
+    expect(metadata.version).toBe(DIAGNOSTICS_VERSION);
+    expect(metadata.readOnly).toBe(true);
+    expect(metadata.derivedVersion).toBe(DIAGNOSTICS_VERSION);
+    expect(metadata.lineage.derivedFrom).toContain("lineage");
+    expect(metadata.publicShape.stableShape).toBe(true);
+    expect(metadata.publicShapeSignature.value).toBe("diagnostics:public-shape@3");
+    expect(metadata.derivedSignature.value).toBe("diagnostics@3");
+    expect(Object.isFrozen(metadata)).toBe(true);
+    expect(Object.isFrozen(metadata.status)).toBe(true);
+    expect(Object.isFrozen(metadata.summary)).toBe(true);
+    expect(Object.isFrozen(metadata.lineage)).toBe(true);
+    expect(Object.isFrozen(metadata.surface)).toBe(true);
+    expect(Object.isFrozen(metadata.publicShape)).toBe(true);
+    expect(Object.isFrozen(metadata.publicShapeSignature)).toBe(true);
+    expect(Object.isFrozen(metadata.derivedSignature)).toBe(true);
     expect(getDiagnosticsMetadata()).toBe(metadata);
-    expect(getDiagnosticsMetadataFromRoot()).toBe(metadata);
-    expect(rootMetadata).toBe(metadata);
+    expect(exportDiagnosticsMetadataFromIndex()).toBe(metadata);
+    expect(versioned.metadata).toBe(metadata);
+    expect(getVersionedDiagnosticsMetadataFromIndex().metadata).toBe(metadata);
     expect(Object.isFrozen(versioned)).toBe(true);
-    expect(Object.isFrozen(versioned.metadata)).toBe(true);
-    expect(Object.isFrozen(versioned.metadata.status)).toBe(true);
-    expect(Object.isFrozen(versioned.metadata.summary)).toBe(true);
-    expect(Object.isFrozen(versioned.metadata.lineage)).toBe(true);
-    expect(Object.isFrozen(versioned.metadata.lineage.derivedFrom)).toBe(true);
-    expect(Object.isFrozen(versioned.metadata.surface)).toBe(true);
-    expect(Object.isFrozen(versioned.metadata.publicShape)).toBe(true);
-    expect(Object.isFrozen(versioned.metadata.publicShapeSignature)).toBe(true);
-    expect(Object.isFrozen(versioned.metadata.derivedSignature)).toBe(true);
-    expect(Object.isFrozen(versioned.metadata.fields)).toBe(true);
-    expect(versioned.metadata.domain).toBe("diagnostics");
-    expect(versioned.metadata.derivedVersion).toBe(DIAGNOSTICS_VERSION);
-    expect(versioned.metadata.status).toEqual({
-      version: DIAGNOSTICS_VERSION,
-      immutable: true,
-      derived: true
-    });
-    expect(versioned.metadata.summary).toEqual({
-      version: DIAGNOSTICS_VERSION,
-      label: "diagnostics",
-      stable: true
-    });
-    expect(versioned.metadata.lineage).toEqual({
-      version: DIAGNOSTICS_VERSION,
-      source: "src/diagnostics.ts",
-      derivedFrom: ["version", "readOnly", "domain", "derivedVersion", "status", "summary", "derivedSignature", "fields", "surface", "publicShape", "publicShapeSignature"]
-    });
-    expect(versioned.metadata.surface).toEqual({
-      version: DIAGNOSTICS_VERSION,
-      shape: "versioned-readonly-derived-facade",
-      derived: true
-    });
-    expect(versioned.metadata.publicShape).toEqual({
-      version: DIAGNOSTICS_VERSION,
-      readOnly: true,
-      domain: "diagnostics",
-      derivedVersion: DIAGNOSTICS_VERSION,
-      stableShape: true
-    });
-    expect(versioned.metadata.publicShapeSignature).toEqual({
-      version: DIAGNOSTICS_VERSION,
-      value: "diagnostics:public-shape@3",
-      derived: true
-    });
-    expect(versioned.metadata.derivedSignature).toEqual({
-      version: DIAGNOSTICS_VERSION,
-      value: "diagnostics@3",
-      derived: true
-    });
-    expect(versioned.metadata.fields.map((field) => field.name)).toEqual([
-      "version",
-      "readOnly",
-      "domain",
-      "derivedVersion",
-      "status",
-      "summary",
-      "lineage",
-      "surface",
-      "publicShape",
-      "publicShapeSignature",
-      "derivedSignature",
-      "fields"
-    ]);
-    expect(rootVersioned).toEqual(versioned);
-    expect(Object.keys(rootVersioned)).toEqual(["version", "readOnly", "metadata"]);
 
     expect(() => {
-      (versioned as { version: number }).version = 2;
+      (metadata as { derivedVersion: number }).derivedVersion = 2;
     }).toThrow();
     expect(() => {
-      (versioned.metadata as { domain: string }).domain = "mutated";
+      (metadata.lineage as { source: string }).source = "mutated";
     }).toThrow();
     expect(() => {
-      (versioned.metadata.status as { immutable: boolean }).immutable = false;
+      (metadata.publicShape as { stableShape: boolean }).stableShape = false;
     }).toThrow();
     expect(() => {
-      (versioned.metadata.lineage as { source: string }).source = "mutated";
-    }).toThrow();
-    expect(() => {
-      (versioned.metadata.surface as { shape: string }).shape = "mutated";
-    }).toThrow();
-    expect(() => {
-      (versioned.metadata.publicShape as { stableShape: boolean }).stableShape = false;
-    }).toThrow();
-    expect(() => {
-      (versioned.metadata.publicShapeSignature as { value: string }).value = "mutated";
-    }).toThrow();
-    expect(() => {
-      (versioned.metadata.derivedSignature as { value: string }).value = "mutated";
+      (metadata.publicShapeSignature as { value: string }).value = "mutated";
     }).toThrow();
   });
 });

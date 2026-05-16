@@ -24,7 +24,7 @@ export type DiagnosticsMetadata = Readonly<{
   lineage: Readonly<{
     version: typeof DIAGNOSTICS_VERSION;
     source: "src/diagnostics.ts";
-    derivedFrom: ReadonlyArray<"version" | "readOnly" | "domain" | "derivedVersion" | "status" | "summary" | "derivedSignature" | "fields" | "surface" | "publicShape" | "publicShapeSignature">;
+    derivedFrom: ReadonlyArray<"version" | "readOnly" | "domain" | "derivedVersion" | "status" | "summary" | "lineage" | "derivedSignature" | "fields" | "surface" | "publicShape" | "publicShapeSignature">;
   }>;
   surface: Readonly<{
     version: typeof DIAGNOSTICS_VERSION;
@@ -56,43 +56,17 @@ const diagnosticsMetadata: DiagnosticsMetadata = Object.freeze({
   readOnly: true,
   domain: "diagnostics",
   derivedVersion: DIAGNOSTICS_VERSION,
-  status: Object.freeze({
-    version: DIAGNOSTICS_VERSION,
-    immutable: true,
-    derived: true
-  }),
-  summary: Object.freeze({
-    version: DIAGNOSTICS_VERSION,
-    label: "diagnostics",
-    stable: true
-  }),
+  status: Object.freeze({ version: DIAGNOSTICS_VERSION, immutable: true, derived: true }),
+  summary: Object.freeze({ version: DIAGNOSTICS_VERSION, label: "diagnostics", stable: true }),
   lineage: Object.freeze({
     version: DIAGNOSTICS_VERSION,
     source: "src/diagnostics.ts",
-    derivedFrom: Object.freeze(["version", "readOnly", "domain", "derivedVersion", "status", "summary", "derivedSignature", "fields", "surface", "publicShape", "publicShapeSignature"] as const)
+    derivedFrom: Object.freeze(["version", "readOnly", "domain", "derivedVersion", "status", "summary", "lineage", "derivedSignature", "fields", "surface", "publicShape", "publicShapeSignature"] as const)
   }),
-  surface: Object.freeze({
-    version: DIAGNOSTICS_VERSION,
-    shape: "versioned-readonly-derived-facade",
-    derived: true
-  }),
-  publicShape: Object.freeze({
-    version: DIAGNOSTICS_VERSION,
-    readOnly: true,
-    domain: "diagnostics",
-    derivedVersion: DIAGNOSTICS_VERSION,
-    stableShape: true
-  }),
-  publicShapeSignature: Object.freeze({
-    version: DIAGNOSTICS_VERSION,
-    value: "diagnostics:public-shape@3",
-    derived: true
-  }),
-  derivedSignature: Object.freeze({
-    version: DIAGNOSTICS_VERSION,
-    value: "diagnostics@3",
-    derived: true
-  }),
+  surface: Object.freeze({ version: DIAGNOSTICS_VERSION, shape: "versioned-readonly-derived-facade", derived: true }),
+  publicShape: Object.freeze({ version: DIAGNOSTICS_VERSION, readOnly: true, domain: "diagnostics", derivedVersion: DIAGNOSTICS_VERSION, stableShape: true }),
+  publicShapeSignature: Object.freeze({ version: DIAGNOSTICS_VERSION, value: "diagnostics:public-shape@3", derived: true }),
+  derivedSignature: Object.freeze({ version: DIAGNOSTICS_VERSION, value: "diagnostics@3", derived: true }),
   fields: Object.freeze([
     Object.freeze({ name: "version", type: "number", description: "Stable version tag for the diagnostics facade." }),
     Object.freeze({ name: "readOnly", type: "boolean", description: "Signals that the facade is immutable and side-effect free." }),
