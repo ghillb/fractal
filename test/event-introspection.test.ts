@@ -11,7 +11,7 @@ describe("event introspection metadata", () => {
     const metadata = getEventIntrospectionMetadata();
     const versioned = getVersionedEventIntrospectionMetadata();
 
-    expect(EVENT_INTROSPECTION_VERSION).toBe(3);
+    expect(EVENT_INTROSPECTION_VERSION).toBe(4);
     expect(metadata.version).toBe(EVENT_INTROSPECTION_VERSION);
     expect(metadata.readOnly).toBe(true);
     expect(metadata.derivedVersion).toBe(EVENT_INTROSPECTION_VERSION);
@@ -24,6 +24,7 @@ describe("event introspection metadata", () => {
     expect(Object.isFrozen(metadata.publicShape)).toBe(true);
     expect(Object.isFrozen(metadata.versionedPublicShape)).toBe(true);
     expect(Object.isFrozen(metadata.versionedPublicShape.publicShape)).toBe(true);
+    expect(Object.isFrozen(metadata.exportContract)).toBe(true);
     expect(metadata.versionedPublicShape).toEqual({
       version: EVENT_INTROSPECTION_VERSION,
       readOnly: true,
@@ -36,23 +37,17 @@ describe("event introspection metadata", () => {
         derivedVersion: EVENT_INTROSPECTION_VERSION
       }
     });
-    expect(metadata.publicShape).toEqual({
+    expect(metadata.exportContract).toEqual({
       version: EVENT_INTROSPECTION_VERSION,
       stable: true,
       derived: true,
       readOnly: true,
-      domain: "event-introspection",
       derivedVersion: EVENT_INTROSPECTION_VERSION
     });
-    expect(metadata.fields.at(-2)).toEqual({
-      name: "publicShape",
-      type: "readonly derived shape",
-      description: "Versioned derived summary of the public, stable metadata surface."
-    });
     expect(metadata.fields.at(-1)).toEqual({
-      name: "versionedPublicShape",
-      type: "readonly derived shape",
-      description: "Versioned wrapper that exposes the public shape as an immutable boundary object."
+      name: "exportContract",
+      type: "readonly contract object",
+      description: "Versioned derived contract for public exports and schema stability."
     });
     expect(() => {
       (metadata as { version: number }).version = 99;
@@ -62,6 +57,9 @@ describe("event introspection metadata", () => {
     }).toThrow();
     expect(() => {
       (metadata.versionedPublicShape as { readOnly: boolean }).readOnly = false;
+    }).toThrow();
+    expect(() => {
+      (metadata.exportContract as { stable: boolean }).stable = false;
     }).toThrow();
   });
 });
