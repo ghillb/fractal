@@ -23,6 +23,8 @@ describe("diagnostics metadata", () => {
     expect(metadata.publicShape.stableShape).toBe(true);
     expect(metadata.publicShapeSignature.value).toBe("diagnostics:public-shape@3");
     expect(metadata.derivedSignature.value).toBe("diagnostics@3");
+    expect(metadata.exportContract.value).toBe("diagnostics:export-contract@3");
+    expect(metadata.fields.map((field) => field.name)).toContain("exportContract");
     expect(Object.isFrozen(metadata)).toBe(true);
     expect(Object.isFrozen(metadata.status)).toBe(true);
     expect(Object.isFrozen(metadata.summary)).toBe(true);
@@ -31,6 +33,7 @@ describe("diagnostics metadata", () => {
     expect(Object.isFrozen(metadata.publicShape)).toBe(true);
     expect(Object.isFrozen(metadata.publicShapeSignature)).toBe(true);
     expect(Object.isFrozen(metadata.derivedSignature)).toBe(true);
+    expect(Object.isFrozen(metadata.exportContract)).toBe(true);
     expect(getDiagnosticsMetadata()).toBe(metadata);
     expect(exportDiagnosticsMetadataFromIndex()).toBe(metadata);
     expect(versioned.metadata).toBe(metadata);
@@ -48,6 +51,9 @@ describe("diagnostics metadata", () => {
     }).toThrow();
     expect(() => {
       (metadata.publicShapeSignature as { value: string }).value = "mutated";
+    }).toThrow();
+    expect(() => {
+      (metadata.exportContract as { value: string }).value = "mutated";
     }).toThrow();
   });
 });

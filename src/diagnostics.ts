@@ -48,6 +48,12 @@ export type DiagnosticsMetadata = Readonly<{
     value: string;
     derived: true;
   }>;
+  exportContract: Readonly<{
+    version: typeof DIAGNOSTICS_VERSION;
+    value: string;
+    stable: true;
+    derived: true;
+  }>;
   fields: ReadonlyArray<DiagnosticsField>;
 }>;
 
@@ -67,6 +73,7 @@ const diagnosticsMetadata: DiagnosticsMetadata = Object.freeze({
   publicShape: Object.freeze({ version: DIAGNOSTICS_VERSION, readOnly: true, domain: "diagnostics", derivedVersion: DIAGNOSTICS_VERSION, stableShape: true }),
   publicShapeSignature: Object.freeze({ version: DIAGNOSTICS_VERSION, value: "diagnostics:public-shape@3", derived: true }),
   derivedSignature: Object.freeze({ version: DIAGNOSTICS_VERSION, value: "diagnostics@3", derived: true }),
+  exportContract: Object.freeze({ version: DIAGNOSTICS_VERSION, value: "diagnostics:export-contract@3", stable: true, derived: true }),
   fields: Object.freeze([
     Object.freeze({ name: "version", type: "number", description: "Stable version tag for the diagnostics facade." }),
     Object.freeze({ name: "readOnly", type: "boolean", description: "Signals that the facade is immutable and side-effect free." }),
@@ -79,6 +86,7 @@ const diagnosticsMetadata: DiagnosticsMetadata = Object.freeze({
     Object.freeze({ name: "publicShape", type: "readonly public-shape summary", description: "Versioned derived public shape summary for stable consumer assertions." }),
     Object.freeze({ name: "publicShapeSignature", type: "readonly signature object", description: "Versioned derived signature for the public-shape summary." }),
     Object.freeze({ name: "derivedSignature", type: "readonly signature object", description: "Versioned derived signature for consumers that need a stable fingerprint." }),
+    Object.freeze({ name: "exportContract", type: "readonly contract object", description: "Versioned derived contract for public exports and schema stability." }),
     Object.freeze({ name: "fields", type: "readonly metadata[]", description: "Structured read-only descriptions of exported metadata fields." })
   ])
 });
