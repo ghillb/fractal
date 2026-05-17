@@ -38,6 +38,11 @@ export type DiagnosticsMetadata = Readonly<{
     derivedVersion: typeof DIAGNOSTICS_VERSION;
     stableShape: true;
   }>;
+  schema: Readonly<{
+    version: typeof DIAGNOSTICS_VERSION;
+    stable: true;
+    derived: true;
+  }>;
   publicShapeSignature: Readonly<{
     version: typeof DIAGNOSTICS_VERSION;
     value: string;
@@ -71,6 +76,7 @@ const diagnosticsMetadata: DiagnosticsMetadata = Object.freeze({
   }),
   surface: Object.freeze({ version: DIAGNOSTICS_VERSION, shape: "versioned-readonly-derived-facade", derived: true }),
   publicShape: Object.freeze({ version: DIAGNOSTICS_VERSION, readOnly: true, domain: "diagnostics", derivedVersion: DIAGNOSTICS_VERSION, stableShape: true }),
+  schema: Object.freeze({ version: DIAGNOSTICS_VERSION, stable: true, derived: true }),
   publicShapeSignature: Object.freeze({ version: DIAGNOSTICS_VERSION, value: "diagnostics:public-shape@3", derived: true }),
   derivedSignature: Object.freeze({ version: DIAGNOSTICS_VERSION, value: "diagnostics@3", derived: true }),
   exportContract: Object.freeze({ version: DIAGNOSTICS_VERSION, value: "diagnostics:export-contract@3", stable: true, derived: true }),
@@ -84,6 +90,7 @@ const diagnosticsMetadata: DiagnosticsMetadata = Object.freeze({
     Object.freeze({ name: "lineage", type: "readonly lineage object", description: "Versioned derived provenance for the diagnostics facade." }),
     Object.freeze({ name: "surface", type: "readonly surface object", description: "Versioned derived public shape summary for the diagnostics facade." }),
     Object.freeze({ name: "publicShape", type: "readonly public-shape summary", description: "Versioned derived public shape summary for stable consumer assertions." }),
+    Object.freeze({ name: "schema", type: "readonly schema object", description: "Versioned derived schema summary for public export stability checks." }),
     Object.freeze({ name: "publicShapeSignature", type: "readonly signature object", description: "Versioned derived signature for the public-shape summary." }),
     Object.freeze({ name: "derivedSignature", type: "readonly signature object", description: "Versioned derived signature for consumers that need a stable fingerprint." }),
     Object.freeze({ name: "exportContract", type: "readonly contract object", description: "Versioned derived contract for public exports and schema stability." }),
