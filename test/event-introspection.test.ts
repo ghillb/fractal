@@ -34,8 +34,18 @@ describe("event introspection metadata", () => {
         derived: true,
         readOnly: true,
         domain: "event-introspection",
-        derivedVersion: EVENT_INTROSPECTION_VERSION
+        derivedVersion: EVENT_INTROSPECTION_VERSION,
+        derivedFieldCount: 8
       }
+    });
+    expect(metadata.publicShape).toEqual({
+      version: EVENT_INTROSPECTION_VERSION,
+      stable: true,
+      derived: true,
+      readOnly: true,
+      domain: "event-introspection",
+      derivedVersion: EVENT_INTROSPECTION_VERSION,
+      derivedFieldCount: 8
     });
     expect(metadata.exportContract).toEqual({
       version: EVENT_INTROSPECTION_VERSION,
@@ -44,10 +54,10 @@ describe("event introspection metadata", () => {
       readOnly: true,
       derivedVersion: EVENT_INTROSPECTION_VERSION
     });
-    expect(metadata.fields.at(-1)).toEqual({
-      name: "exportContract",
-      type: "readonly contract object",
-      description: "Versioned derived contract for public exports and schema stability."
+    expect(metadata.fields).toContainEqual({
+      name: "derivedFieldCount",
+      type: "number",
+      description: "Derived count of fields exposed by the public metadata surface."
     });
     expect(() => {
       (metadata as { version: number }).version = 99;
