@@ -26,6 +26,11 @@ export type RepositoryCapabilitySurface = Readonly<{
     value: "versioned-readonly-derived-surface";
     derived: true;
   }>;
+  sourceFingerprint: Readonly<{
+    version: typeof REPOSITORY_CAPABILITY_SURFACE_VERSION;
+    value: "src/repository-capability-surface.ts@3";
+    derived: true;
+  }>;
   schemaSignature: Readonly<{
     version: typeof REPOSITORY_CAPABILITY_SURFACE_VERSION;
     value: "repository-capability-surface@2";
@@ -60,6 +65,11 @@ const repositoryCapabilitySurface: RepositoryCapabilitySurface = Object.freeze({
   publicShapeSignature: Object.freeze({
     version: REPOSITORY_CAPABILITY_SURFACE_VERSION,
     value: "versioned-readonly-derived-surface",
+    derived: true
+  }),
+  sourceFingerprint: Object.freeze({
+    version: REPOSITORY_CAPABILITY_SURFACE_VERSION,
+    value: "src/repository-capability-surface.ts@3",
     derived: true
   }),
   schemaSignature: Object.freeze({

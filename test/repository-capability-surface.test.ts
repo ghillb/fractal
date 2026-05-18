@@ -23,6 +23,7 @@ describe("repository capability surface", () => {
     expect(surface.schemaStability.stable).toBe(true);
     expect(surface.publicShape.shape).toBe("versioned-readonly-derived-surface");
     expect(surface.publicShapeSignature.value).toBe("versioned-readonly-derived-surface");
+    expect(surface.sourceFingerprint.value).toBe("src/repository-capability-surface.ts@3");
     expect(surface.schemaSignature.value).toBe("repository-capability-surface@2");
     expect(surface.schemaVersion.value).toBe(2);
     expect(Object.isFrozen(surface)).toBe(true);
@@ -30,6 +31,7 @@ describe("repository capability surface", () => {
     expect(Object.isFrozen(surface.schemaStability)).toBe(true);
     expect(Object.isFrozen(surface.publicShape)).toBe(true);
     expect(Object.isFrozen(surface.publicShapeSignature)).toBe(true);
+    expect(Object.isFrozen(surface.sourceFingerprint)).toBe(true);
     expect(Object.isFrozen(surface.schemaSignature)).toBe(true);
     expect(Object.isFrozen(surface.schemaVersion)).toBe(true);
     expect(getRepositoryCapabilitySurface()).toBe(surface);
@@ -53,6 +55,9 @@ describe("repository capability surface", () => {
     }).toThrow();
     expect(() => {
       (surface.publicShapeSignature as { value: string }).value = "mutated";
+    }).toThrow();
+    expect(() => {
+      (surface.sourceFingerprint as { value: string }).value = "mutated";
     }).toThrow();
     expect(() => {
       (surface.schemaSignature as { value: string }).value = "mutated";
