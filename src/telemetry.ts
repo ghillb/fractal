@@ -49,6 +49,11 @@ export type TelemetryMetadata = Readonly<{
     shape: "versioned-readonly-derived-facade";
     derived: true;
   }>;
+  telemetrySummary: Readonly<{
+    version: typeof TELEMETRY_VERSION;
+    fieldCount: number;
+    derived: true;
+  }>;
 }>;
 
 const telemetryMetadata: TelemetryMetadata = Object.freeze({
@@ -68,7 +73,8 @@ const telemetryMetadata: TelemetryMetadata = Object.freeze({
     Object.freeze({ name: "publicShape", type: "readonly public-shape summary", description: "Versioned derived public shape summary for stable consumer assertions." }),
     Object.freeze({ name: "exportVisibility", type: "readonly export-visibility summary", description: "Versioned derived visibility summary for public export checks." }),
     Object.freeze({ name: "sourceFingerprint", type: "readonly fingerprint object", description: "Versioned derived fingerprint for source-traceable telemetry exports." }),
-    Object.freeze({ name: "derivedSurface", type: "readonly derived surface object", description: "Versioned derived surface descriptor for stable export introspection." })
+    Object.freeze({ name: "derivedSurface", type: "readonly derived surface object", description: "Versioned derived surface descriptor for stable export introspection." }),
+    Object.freeze({ name: "telemetrySummary", type: "readonly summary object", description: "Versioned derived summary of exported telemetry fields." })
   ]),
   snapshot: Object.freeze({ version: TELEMETRY_VERSION, immutable: true, stableShape: true }),
   derivedVisibility: Object.freeze({ version: TELEMETRY_VERSION, label: "public-export-visible", derived: true }),
@@ -76,7 +82,8 @@ const telemetryMetadata: TelemetryMetadata = Object.freeze({
   publicShape: Object.freeze({ version: TELEMETRY_VERSION, readOnly: true, domain: "telemetry", derivedVersion: TELEMETRY_VERSION, stableShape: true }),
   exportVisibility: Object.freeze({ version: TELEMETRY_VERSION, visible: true, derived: true }),
   sourceFingerprint: Object.freeze({ version: TELEMETRY_VERSION, value: "src/telemetry.ts@4", derived: true }),
-  derivedSurface: Object.freeze({ version: TELEMETRY_VERSION, shape: "versioned-readonly-derived-facade", derived: true })
+  derivedSurface: Object.freeze({ version: TELEMETRY_VERSION, shape: "versioned-readonly-derived-facade", derived: true }),
+  telemetrySummary: Object.freeze({ version: TELEMETRY_VERSION, fieldCount: 13, derived: true })
 });
 
 export type VersionedTelemetryMetadata = Readonly<{
