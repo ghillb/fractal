@@ -31,6 +31,11 @@ export type RepositoryCapabilitySurface = Readonly<{
     value: "src/repository-capability-surface.ts@4";
     derived: true;
   }>;
+  schemaVersionTag: Readonly<{
+    version: typeof REPOSITORY_CAPABILITY_SURFACE_VERSION;
+    value: "repository-capability-surface/v3";
+    derived: true;
+  }>;
   schemaSignature: Readonly<{
     version: typeof REPOSITORY_CAPABILITY_SURFACE_VERSION;
     value: "repository-capability-surface@3";
@@ -75,6 +80,11 @@ const repositoryCapabilitySurface: RepositoryCapabilitySurface = Object.freeze({
   sourceFingerprint: Object.freeze({
     version: REPOSITORY_CAPABILITY_SURFACE_VERSION,
     value: "src/repository-capability-surface.ts@4",
+    derived: true
+  }),
+  schemaVersionTag: Object.freeze({
+    version: REPOSITORY_CAPABILITY_SURFACE_VERSION,
+    value: "repository-capability-surface/v3",
     derived: true
   }),
   schemaSignature: Object.freeze({

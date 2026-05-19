@@ -25,6 +25,7 @@ describe("repository capability surface", () => {
     expect(surface.publicShapeSignature.value).toBe("versioned-readonly-derived-surface");
     expect(surface.sourceFingerprint.value).toBe("src/repository-capability-surface.ts@4");
     expect(surface.schemaSignature.value).toBe("repository-capability-surface@3");
+    expect(surface.schemaVersionTag.value).toBe("repository-capability-surface/v3");
     expect(surface.schemaVersion.value).toBe(3);
     expect(surface.versionedReadOnly.value).toBe(true);
     expect(Object.isFrozen(surface)).toBe(true);
@@ -34,6 +35,7 @@ describe("repository capability surface", () => {
     expect(Object.isFrozen(surface.publicShapeSignature)).toBe(true);
     expect(Object.isFrozen(surface.sourceFingerprint)).toBe(true);
     expect(Object.isFrozen(surface.schemaSignature)).toBe(true);
+    expect(Object.isFrozen(surface.schemaVersionTag)).toBe(true);
     expect(Object.isFrozen(surface.schemaVersion)).toBe(true);
     expect(Object.isFrozen(surface.versionedReadOnly)).toBe(true);
     expect(getRepositoryCapabilitySurface()).toBe(surface);
@@ -63,6 +65,9 @@ describe("repository capability surface", () => {
     }).toThrow();
     expect(() => {
       (surface.schemaSignature as { value: string }).value = "mutated";
+    }).toThrow();
+    expect(() => {
+      (surface.schemaVersionTag as { value: string }).value = "mutated";
     }).toThrow();
     expect(() => {
       (surface.schemaVersion as { value: number }).value = 4;
