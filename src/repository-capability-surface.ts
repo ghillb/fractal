@@ -1,6 +1,6 @@
 import { capabilitySnapshot } from "./capability-snapshot.ts";
 
-export const REPOSITORY_CAPABILITY_SURFACE_VERSION = 2 as const;
+export const REPOSITORY_CAPABILITY_SURFACE_VERSION = 3 as const;
 
 export type RepositoryCapabilitySurface = Readonly<{
   version: typeof REPOSITORY_CAPABILITY_SURFACE_VERSION;
@@ -28,17 +28,22 @@ export type RepositoryCapabilitySurface = Readonly<{
   }>;
   sourceFingerprint: Readonly<{
     version: typeof REPOSITORY_CAPABILITY_SURFACE_VERSION;
-    value: "src/repository-capability-surface.ts@3";
+    value: "src/repository-capability-surface.ts@4";
     derived: true;
   }>;
   schemaSignature: Readonly<{
     version: typeof REPOSITORY_CAPABILITY_SURFACE_VERSION;
-    value: "repository-capability-surface@2";
+    value: "repository-capability-surface@3";
     derived: true;
   }>;
   schemaVersion: Readonly<{
     version: typeof REPOSITORY_CAPABILITY_SURFACE_VERSION;
-    value: 2;
+    value: 3;
+    derived: true;
+  }>;
+  versionedReadOnly: Readonly<{
+    version: typeof REPOSITORY_CAPABILITY_SURFACE_VERSION;
+    value: true;
     derived: true;
   }>;
 }>;
@@ -69,17 +74,22 @@ const repositoryCapabilitySurface: RepositoryCapabilitySurface = Object.freeze({
   }),
   sourceFingerprint: Object.freeze({
     version: REPOSITORY_CAPABILITY_SURFACE_VERSION,
-    value: "src/repository-capability-surface.ts@3",
+    value: "src/repository-capability-surface.ts@4",
     derived: true
   }),
   schemaSignature: Object.freeze({
     version: REPOSITORY_CAPABILITY_SURFACE_VERSION,
-    value: "repository-capability-surface@2",
+    value: "repository-capability-surface@3",
     derived: true
   }),
   schemaVersion: Object.freeze({
     version: REPOSITORY_CAPABILITY_SURFACE_VERSION,
-    value: 2,
+    value: 3,
+    derived: true
+  }),
+  versionedReadOnly: Object.freeze({
+    version: REPOSITORY_CAPABILITY_SURFACE_VERSION,
+    value: true,
     derived: true
   })
 });
