@@ -30,8 +30,11 @@ describe("telemetry metadata", () => {
     expect(telemetry.derivedSurface.version).toBe(TELEMETRY_VERSION);
     expect(telemetry.derivedSurface.shape).toBe("versioned-readonly-derived-facade");
     expect(telemetry.derivedSurface.derived).toBe(true);
+    expect(telemetry.schemaDigest.version).toBe(TELEMETRY_VERSION);
+    expect(telemetry.schemaDigest.value).toBe("telemetry@4:13");
+    expect(telemetry.schemaDigest.derived).toBe(true);
     expect(telemetry.telemetrySummary.version).toBe(TELEMETRY_VERSION);
-    expect(telemetry.telemetrySummary.fieldCount).toBe(13);
+    expect(telemetry.telemetrySummary.fieldCount).toBe(14);
     expect(telemetry.telemetrySummary.derived).toBe(true);
     expect(exportTelemetryMetadata()).toBe(telemetry);
     expect(getTelemetryMetadata()).toBe(telemetry);
@@ -47,6 +50,7 @@ describe("telemetry metadata", () => {
     expect(Object.isFrozen(telemetry.derivedVisibility)).toBe(true);
     expect(Object.isFrozen(telemetry.sourceFingerprint)).toBe(true);
     expect(Object.isFrozen(telemetry.derivedSurface)).toBe(true);
+    expect(Object.isFrozen(telemetry.schemaDigest)).toBe(true);
     expect(Object.isFrozen(telemetry.telemetrySummary)).toBe(true);
     expect(() => { (telemetry as { version: number }).version = 3; }).toThrow();
     expect(() => { (telemetry.exportVisibility as { visible: boolean }).visible = false; }).toThrow();
@@ -54,6 +58,7 @@ describe("telemetry metadata", () => {
     expect(() => { (telemetry.publicShape as { stableShape: boolean }).stableShape = false; }).toThrow();
     expect(() => { (telemetry.sourceFingerprint as { value: string }).value = "x"; }).toThrow();
     expect(() => { (telemetry.derivedSurface as { shape: string }).shape = "x"; }).toThrow();
+    expect(() => { (telemetry.schemaDigest as { value: string }).value = "x"; }).toThrow();
     expect(() => { (telemetry.telemetrySummary as { fieldCount: number }).fieldCount = 0; }).toThrow();
   });
 });
