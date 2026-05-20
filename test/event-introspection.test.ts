@@ -11,10 +11,11 @@ describe("event introspection metadata", () => {
     const metadata = getEventIntrospectionMetadata();
     const versioned = getVersionedEventIntrospectionMetadata();
 
-    expect(EVENT_INTROSPECTION_VERSION).toBe(4);
+    expect(EVENT_INTROSPECTION_VERSION).toBe(5);
     expect(metadata.version).toBe(EVENT_INTROSPECTION_VERSION);
     expect(metadata.readOnly).toBe(true);
     expect(metadata.derivedVersion).toBe(EVENT_INTROSPECTION_VERSION);
+    expect(metadata.schemaVersion).toBe(EVENT_INTROSPECTION_VERSION);
     expect(versioned.version).toBe(EVENT_INTROSPECTION_VERSION);
     expect(versioned.readOnly).toBe(true);
     expect(versioned.metadata).toBe(metadata);
@@ -35,7 +36,8 @@ describe("event introspection metadata", () => {
         readOnly: true,
         domain: "event-introspection",
         derivedVersion: EVENT_INTROSPECTION_VERSION,
-        derivedFieldCount: 8
+        schemaVersion: EVENT_INTROSPECTION_VERSION,
+        derivedFieldCount: 9
       }
     });
     expect(metadata.publicShape).toEqual({
@@ -45,19 +47,21 @@ describe("event introspection metadata", () => {
       readOnly: true,
       domain: "event-introspection",
       derivedVersion: EVENT_INTROSPECTION_VERSION,
-      derivedFieldCount: 8
+      schemaVersion: EVENT_INTROSPECTION_VERSION,
+      derivedFieldCount: 9
     });
     expect(metadata.exportContract).toEqual({
       version: EVENT_INTROSPECTION_VERSION,
       stable: true,
       derived: true,
       readOnly: true,
-      derivedVersion: EVENT_INTROSPECTION_VERSION
+      derivedVersion: EVENT_INTROSPECTION_VERSION,
+      schemaVersion: EVENT_INTROSPECTION_VERSION
     });
     expect(metadata.fields).toContainEqual({
-      name: "derivedFieldCount",
+      name: "schemaVersion",
       type: "number",
-      description: "Derived count of fields exposed by the public metadata surface."
+      description: "Derived schema version tag for stability checks."
     });
     expect(() => {
       (metadata as { version: number }).version = 99;

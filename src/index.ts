@@ -38,7 +38,7 @@ import {
   exportEventIntrospectionMetadata,
   getEventIntrospectionMetadata,
   getVersionedEventIntrospectionMetadata,
-  type EventIntrospectionMetadata
+  type EventIntrospectionMetadata,
 } from "./event-introspection.ts";
 import {
   TELEMETRY_VERSION,
