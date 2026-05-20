@@ -1,6 +1,6 @@
 import { capabilitySnapshot } from "./capability-snapshot.ts";
 
-export const REPOSITORY_CAPABILITY_SURFACE_VERSION = 3 as const;
+export const REPOSITORY_CAPABILITY_SURFACE_VERSION = 4 as const;
 
 export type RepositoryCapabilitySurface = Readonly<{
   version: typeof REPOSITORY_CAPABILITY_SURFACE_VERSION;
@@ -28,7 +28,12 @@ export type RepositoryCapabilitySurface = Readonly<{
   }>;
   sourceFingerprint: Readonly<{
     version: typeof REPOSITORY_CAPABILITY_SURFACE_VERSION;
-    value: "src/repository-capability-surface.ts@4";
+    value: "src/repository-capability-surface.ts@5";
+    derived: true;
+  }>;
+  introspectionTier: Readonly<{
+    version: typeof REPOSITORY_CAPABILITY_SURFACE_VERSION;
+    value: "telemetry-adjacent";
     derived: true;
   }>;
   schemaVersionTag: Readonly<{
@@ -79,7 +84,12 @@ const repositoryCapabilitySurface: RepositoryCapabilitySurface = Object.freeze({
   }),
   sourceFingerprint: Object.freeze({
     version: REPOSITORY_CAPABILITY_SURFACE_VERSION,
-    value: "src/repository-capability-surface.ts@4",
+    value: "src/repository-capability-surface.ts@5",
+    derived: true
+  }),
+  introspectionTier: Object.freeze({
+    version: REPOSITORY_CAPABILITY_SURFACE_VERSION,
+    value: "telemetry-adjacent",
     derived: true
   }),
   schemaVersionTag: Object.freeze({
