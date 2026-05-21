@@ -37,7 +37,8 @@ describe("event introspection metadata", () => {
         domain: "event-introspection",
         derivedVersion: EVENT_INTROSPECTION_VERSION,
         schemaVersion: EVENT_INTROSPECTION_VERSION,
-        derivedFieldCount: 9
+        derivedFieldCount: 10,
+        exportContractVersion: EVENT_INTROSPECTION_VERSION
       }
     });
     expect(metadata.publicShape).toEqual({
@@ -48,7 +49,8 @@ describe("event introspection metadata", () => {
       domain: "event-introspection",
       derivedVersion: EVENT_INTROSPECTION_VERSION,
       schemaVersion: EVENT_INTROSPECTION_VERSION,
-      derivedFieldCount: 9
+      derivedFieldCount: 10,
+      exportContractVersion: EVENT_INTROSPECTION_VERSION
     });
     expect(metadata.exportContract).toEqual({
       version: EVENT_INTROSPECTION_VERSION,
@@ -62,6 +64,11 @@ describe("event introspection metadata", () => {
       name: "schemaVersion",
       type: "number",
       description: "Derived schema version tag for stability checks."
+    });
+    expect(metadata.fields).toContainEqual({
+      name: "exportContractVersion",
+      type: "number",
+      description: "Derived export contract version for schema and export stability checks."
     });
     expect(() => {
       (metadata as { version: number }).version = 99;
