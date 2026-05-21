@@ -11,7 +11,7 @@ describe("event introspection metadata", () => {
     const metadata = getEventIntrospectionMetadata();
     const versioned = getVersionedEventIntrospectionMetadata();
 
-    expect(EVENT_INTROSPECTION_VERSION).toBe(5);
+    expect(EVENT_INTROSPECTION_VERSION).toBe(6);
     expect(metadata.version).toBe(EVENT_INTROSPECTION_VERSION);
     expect(metadata.readOnly).toBe(true);
     expect(metadata.derivedVersion).toBe(EVENT_INTROSPECTION_VERSION);
@@ -38,7 +38,8 @@ describe("event introspection metadata", () => {
         derivedVersion: EVENT_INTROSPECTION_VERSION,
         schemaVersion: EVENT_INTROSPECTION_VERSION,
         derivedFieldCount: 10,
-        exportContractVersion: EVENT_INTROSPECTION_VERSION
+        exportContractVersion: EVENT_INTROSPECTION_VERSION,
+        introspectionMode: "static-readonly"
       }
     });
     expect(metadata.publicShape).toEqual({
@@ -50,7 +51,8 @@ describe("event introspection metadata", () => {
       derivedVersion: EVENT_INTROSPECTION_VERSION,
       schemaVersion: EVENT_INTROSPECTION_VERSION,
       derivedFieldCount: 10,
-      exportContractVersion: EVENT_INTROSPECTION_VERSION
+      exportContractVersion: EVENT_INTROSPECTION_VERSION,
+      introspectionMode: "static-readonly"
     });
     expect(metadata.exportContract).toEqual({
       version: EVENT_INTROSPECTION_VERSION,
@@ -70,6 +72,11 @@ describe("event introspection metadata", () => {
       type: "number",
       description: "Derived export contract version for schema and export stability checks."
     });
+    expect(metadata.fields).toContainEqual({
+      name: "introspectionMode",
+      type: "string literal",
+      description: "Derived mode flag identifying the facade as a static read-only surface."
+    });
     expect(() => {
       (metadata as { version: number }).version = 99;
     }).toThrow();
@@ -82,5 +89,7 @@ describe("event introspection metadata", () => {
     expect(() => {
       (metadata.exportContract as { stable: boolean }).stable = false;
     }).toThrow();
+    expect(metadata.publicShape.introspectionMode).toBe("static-readonly");
+    expect(metadata.versionedPublicShape.publicShape.introspectionMode).toBe("static-readonly");
   });
 });
