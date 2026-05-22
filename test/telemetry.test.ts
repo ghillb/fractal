@@ -42,6 +42,10 @@ describe("telemetry metadata", () => {
     expect(telemetry.derivedContractLabel.version).toBe(TELEMETRY_VERSION);
     expect(telemetry.derivedContractLabel.label).toBe("telemetry-contract@4");
     expect(telemetry.derivedContractLabel.derived).toBe(true);
+    expect(telemetry.versionedSurface.version).toBe(TELEMETRY_VERSION);
+    expect(telemetry.versionedSurface.readOnly).toBe(true);
+    expect(telemetry.versionedSurface.derived).toBe(true);
+    expect(telemetry.versionedSurface.shape).toBe("telemetry-versioned-surface@4");
     expect(exportTelemetryMetadata()).toBe(telemetry);
     expect(getTelemetryMetadata()).toBe(telemetry);
     expect(exportTelemetryMetadataFromIndex()).toBe(telemetry);
@@ -60,6 +64,7 @@ describe("telemetry metadata", () => {
     expect(Object.isFrozen(telemetry.telemetrySummary)).toBe(true);
     expect(Object.isFrozen(telemetry.schemaVersionLabel)).toBe(true);
     expect(Object.isFrozen(telemetry.derivedContractLabel)).toBe(true);
+    expect(Object.isFrozen(telemetry.versionedSurface)).toBe(true);
     expect(() => { (telemetry as { version: number }).version = 3; }).toThrow();
     expect(() => { (telemetry.exportVisibility as { visible: boolean }).visible = false; }).toThrow();
     expect(() => { (telemetry.derivedVisibility as { label: string }).label = "x"; }).toThrow();
@@ -70,5 +75,6 @@ describe("telemetry metadata", () => {
     expect(() => { (telemetry.telemetrySummary as { fieldCount: number }).fieldCount = 0; }).toThrow();
     expect(() => { (telemetry.schemaVersionLabel as { value: string }).value = "x"; }).toThrow();
     expect(() => { (telemetry.derivedContractLabel as { label: string }).label = "x"; }).toThrow();
+    expect(() => { (telemetry.versionedSurface as { shape: string }).shape = "x"; }).toThrow();
   });
 });
