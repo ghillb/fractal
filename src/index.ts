@@ -46,7 +46,7 @@ import {
   getTelemetryMetadata,
   getVersionedTelemetryMetadata,
   type TelemetryMetadata,
-  type VersionedTelemetryMetadata
+  type VersionedTelemetryMetadata,
 } from "./telemetry.ts";
 import {
   exportRepositoryCapabilitySurface,
