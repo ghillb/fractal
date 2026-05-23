@@ -1,6 +1,6 @@
 import { capabilitySnapshot } from "./capability-snapshot.ts";
 
-export const REPOSITORY_CAPABILITY_SURFACE_VERSION = 4 as const;
+export const REPOSITORY_CAPABILITY_SURFACE_VERSION = 5 as const;
 
 export type RepositoryCapabilitySurface = Readonly<{
   version: typeof REPOSITORY_CAPABILITY_SURFACE_VERSION;
@@ -28,7 +28,7 @@ export type RepositoryCapabilitySurface = Readonly<{
   }>;
   sourceFingerprint: Readonly<{
     version: typeof REPOSITORY_CAPABILITY_SURFACE_VERSION;
-    value: "src/repository-capability-surface.ts@5";
+    value: "src/repository-capability-surface.ts@6";
     derived: true;
   }>;
   introspectionTier: Readonly<{
@@ -38,22 +38,27 @@ export type RepositoryCapabilitySurface = Readonly<{
   }>;
   schemaVersionTag: Readonly<{
     version: typeof REPOSITORY_CAPABILITY_SURFACE_VERSION;
-    value: "repository-capability-surface/v3";
+    value: "repository-capability-surface/v4";
     derived: true;
   }>;
   schemaSignature: Readonly<{
     version: typeof REPOSITORY_CAPABILITY_SURFACE_VERSION;
-    value: "repository-capability-surface@3";
+    value: "repository-capability-surface@4";
     derived: true;
   }>;
   schemaVersion: Readonly<{
     version: typeof REPOSITORY_CAPABILITY_SURFACE_VERSION;
-    value: 3;
+    value: 4;
     derived: true;
   }>;
   versionedReadOnly: Readonly<{
     version: typeof REPOSITORY_CAPABILITY_SURFACE_VERSION;
     value: true;
+    derived: true;
+  }>;
+  exportContractVersion: Readonly<{
+    version: typeof REPOSITORY_CAPABILITY_SURFACE_VERSION;
+    value: typeof REPOSITORY_CAPABILITY_SURFACE_VERSION;
     derived: true;
   }>;
 }>;
@@ -84,7 +89,7 @@ const repositoryCapabilitySurface: RepositoryCapabilitySurface = Object.freeze({
   }),
   sourceFingerprint: Object.freeze({
     version: REPOSITORY_CAPABILITY_SURFACE_VERSION,
-    value: "src/repository-capability-surface.ts@5",
+    value: "src/repository-capability-surface.ts@6",
     derived: true
   }),
   introspectionTier: Object.freeze({
@@ -94,22 +99,27 @@ const repositoryCapabilitySurface: RepositoryCapabilitySurface = Object.freeze({
   }),
   schemaVersionTag: Object.freeze({
     version: REPOSITORY_CAPABILITY_SURFACE_VERSION,
-    value: "repository-capability-surface/v3",
+    value: "repository-capability-surface/v4",
     derived: true
   }),
   schemaSignature: Object.freeze({
     version: REPOSITORY_CAPABILITY_SURFACE_VERSION,
-    value: "repository-capability-surface@3",
+    value: "repository-capability-surface@4",
     derived: true
   }),
   schemaVersion: Object.freeze({
     version: REPOSITORY_CAPABILITY_SURFACE_VERSION,
-    value: 3,
+    value: 4,
     derived: true
   }),
   versionedReadOnly: Object.freeze({
     version: REPOSITORY_CAPABILITY_SURFACE_VERSION,
     value: true,
+    derived: true
+  }),
+  exportContractVersion: Object.freeze({
+    version: REPOSITORY_CAPABILITY_SURFACE_VERSION,
+    value: REPOSITORY_CAPABILITY_SURFACE_VERSION,
     derived: true
   })
 });
