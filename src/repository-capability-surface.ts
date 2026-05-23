@@ -28,7 +28,7 @@ export type RepositoryCapabilitySurface = Readonly<{
   }>;
   sourceFingerprint: Readonly<{
     version: typeof REPOSITORY_CAPABILITY_SURFACE_VERSION;
-    value: "src/repository-capability-surface.ts@6";
+    value: "src/repository-capability-surface.ts@7";
     derived: true;
   }>;
   introspectionTier: Readonly<{
@@ -49,6 +49,11 @@ export type RepositoryCapabilitySurface = Readonly<{
   schemaVersion: Readonly<{
     version: typeof REPOSITORY_CAPABILITY_SURFACE_VERSION;
     value: 4;
+    derived: true;
+  }>;
+  schemaVersionLabel: Readonly<{
+    version: typeof REPOSITORY_CAPABILITY_SURFACE_VERSION;
+    value: "repository-capability-surface-schema@4";
     derived: true;
   }>;
   versionedReadOnly: Readonly<{
@@ -89,7 +94,7 @@ const repositoryCapabilitySurface: RepositoryCapabilitySurface = Object.freeze({
   }),
   sourceFingerprint: Object.freeze({
     version: REPOSITORY_CAPABILITY_SURFACE_VERSION,
-    value: "src/repository-capability-surface.ts@6",
+    value: "src/repository-capability-surface.ts@7",
     derived: true
   }),
   introspectionTier: Object.freeze({
@@ -110,6 +115,11 @@ const repositoryCapabilitySurface: RepositoryCapabilitySurface = Object.freeze({
   schemaVersion: Object.freeze({
     version: REPOSITORY_CAPABILITY_SURFACE_VERSION,
     value: 4,
+    derived: true
+  }),
+  schemaVersionLabel: Object.freeze({
+    version: REPOSITORY_CAPABILITY_SURFACE_VERSION,
+    value: "repository-capability-surface-schema@4",
     derived: true
   }),
   versionedReadOnly: Object.freeze({

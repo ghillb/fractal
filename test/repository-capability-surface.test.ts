@@ -23,11 +23,12 @@ describe("repository capability surface", () => {
     expect(surface.schemaStability.stable).toBe(true);
     expect(surface.publicShape.shape).toBe("versioned-readonly-derived-surface");
     expect(surface.publicShapeSignature.value).toBe("versioned-readonly-derived-surface");
-    expect(surface.sourceFingerprint.value).toBe("src/repository-capability-surface.ts@6");
+    expect(surface.sourceFingerprint.value).toBe("src/repository-capability-surface.ts@7");
     expect(surface.introspectionTier.value).toBe("telemetry-adjacent");
     expect(surface.schemaSignature.value).toBe("repository-capability-surface@4");
     expect(surface.schemaVersionTag.value).toBe("repository-capability-surface/v4");
     expect(surface.schemaVersion.value).toBe(4);
+    expect(surface.schemaVersionLabel.value).toBe("repository-capability-surface-schema@4");
     expect(surface.versionedReadOnly.value).toBe(true);
     expect(surface.exportContractVersion.value).toBe(REPOSITORY_CAPABILITY_SURFACE_VERSION);
     expect(Object.isFrozen(surface)).toBe(true);
@@ -40,6 +41,7 @@ describe("repository capability surface", () => {
     expect(Object.isFrozen(surface.schemaSignature)).toBe(true);
     expect(Object.isFrozen(surface.schemaVersionTag)).toBe(true);
     expect(Object.isFrozen(surface.schemaVersion)).toBe(true);
+    expect(Object.isFrozen(surface.schemaVersionLabel)).toBe(true);
     expect(Object.isFrozen(surface.versionedReadOnly)).toBe(true);
     expect(Object.isFrozen(surface.exportContractVersion)).toBe(true);
     expect(getRepositoryCapabilitySurface()).toBe(surface);
@@ -78,6 +80,9 @@ describe("repository capability surface", () => {
     }).toThrow();
     expect(() => {
       (surface.schemaVersion as { value: number }).value = 4;
+    }).toThrow();
+    expect(() => {
+      (surface.schemaVersionLabel as { value: string }).value = "mutated";
     }).toThrow();
     expect(() => {
       (surface.versionedReadOnly as { value: boolean }).value = false;
