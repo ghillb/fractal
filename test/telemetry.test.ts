@@ -34,7 +34,7 @@ describe("telemetry metadata", () => {
     expect(telemetry.schemaDigest.value).toBe("telemetry@4:13");
     expect(telemetry.schemaDigest.derived).toBe(true);
     expect(telemetry.telemetrySummary.version).toBe(TELEMETRY_VERSION);
-    expect(telemetry.telemetrySummary.fieldCount).toBe(15);
+    expect(telemetry.telemetrySummary.fieldCount).toBe(16);
     expect(telemetry.telemetrySummary.derived).toBe(true);
     expect(telemetry.schemaVersion.version).toBe(TELEMETRY_VERSION);
     expect(telemetry.schemaVersion.value).toBe(TELEMETRY_VERSION);
@@ -49,6 +49,9 @@ describe("telemetry metadata", () => {
     expect(telemetry.versionedSurface.readOnly).toBe(true);
     expect(telemetry.versionedSurface.derived).toBe(true);
     expect(telemetry.versionedSurface.shape).toBe("telemetry-versioned-surface@4");
+    expect(telemetry.schemaVersionField.version).toBe(TELEMETRY_VERSION);
+    expect(telemetry.schemaVersionField.label).toBe("schemaVersion");
+    expect(telemetry.schemaVersionField.derived).toBe(true);
     expect(exportTelemetryMetadata()).toBe(telemetry);
     expect(getTelemetryMetadata()).toBe(telemetry);
     expect(exportTelemetryMetadataFromIndex()).toBe(telemetry);
@@ -69,6 +72,7 @@ describe("telemetry metadata", () => {
     expect(Object.isFrozen(telemetry.schemaVersionLabel)).toBe(true);
     expect(Object.isFrozen(telemetry.derivedContractLabel)).toBe(true);
     expect(Object.isFrozen(telemetry.versionedSurface)).toBe(true);
+    expect(Object.isFrozen(telemetry.schemaVersionField)).toBe(true);
     expect(() => { (telemetry as { version: number }).version = 3; }).toThrow();
     expect(() => { (telemetry.exportVisibility as { visible: boolean }).visible = false; }).toThrow();
     expect(() => { (telemetry.derivedVisibility as { label: string }).label = "x"; }).toThrow();
@@ -81,5 +85,6 @@ describe("telemetry metadata", () => {
     expect(() => { (telemetry.schemaVersionLabel as { value: string }).value = "x"; }).toThrow();
     expect(() => { (telemetry.derivedContractLabel as { label: string }).label = "x"; }).toThrow();
     expect(() => { (telemetry.versionedSurface as { shape: string }).shape = "x"; }).toThrow();
+    expect(() => { (telemetry.schemaVersionField as { label: string }).label = "x"; }).toThrow();
   });
 });
