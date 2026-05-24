@@ -71,6 +71,11 @@ export type RepositoryCapabilitySurface = Readonly<{
     value: typeof REPOSITORY_CAPABILITY_SURFACE_VERSION;
     derived: true;
   }>;
+  versionedSchemaContract: Readonly<{
+    version: typeof REPOSITORY_CAPABILITY_SURFACE_VERSION;
+    value: `repository-capability-surface/v${typeof REPOSITORY_CAPABILITY_SURFACE_VERSION}`;
+    derived: true;
+  }>;
 }>;
 
 const repositoryCapabilitySurface: RepositoryCapabilitySurface = Object.freeze({
@@ -140,6 +145,11 @@ const repositoryCapabilitySurface: RepositoryCapabilitySurface = Object.freeze({
   exportContractVersion: Object.freeze({
     version: REPOSITORY_CAPABILITY_SURFACE_VERSION,
     value: REPOSITORY_CAPABILITY_SURFACE_VERSION,
+    derived: true
+  }),
+  versionedSchemaContract: Object.freeze({
+    version: REPOSITORY_CAPABILITY_SURFACE_VERSION,
+    value: `repository-capability-surface/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`,
     derived: true
   })
 });
