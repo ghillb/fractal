@@ -59,6 +59,13 @@ export type TelemetryMetadata = Readonly<{
     fieldCount: number;
     derived: true;
   }>;
+  versionedSchemaSummary: Readonly<{
+    version: typeof TELEMETRY_VERSION;
+    schemaVersion: typeof TELEMETRY_VERSION;
+    readOnly: true;
+    derived: true;
+    stableShape: true;
+  }>;
   schemaVersionField: Readonly<{
     version: typeof TELEMETRY_VERSION;
     label: "schemaVersion";
@@ -107,6 +114,7 @@ const telemetryMetadata: TelemetryMetadata = Object.freeze({
     Object.freeze({ name: "derivedSurface", type: "readonly derived surface object", description: "Versioned derived surface descriptor for stable export introspection." }),
     Object.freeze({ name: "schemaDigest", type: "readonly schema digest", description: "Versioned derived digest for schema and version stability checks." }),
     Object.freeze({ name: "telemetrySummary", type: "readonly summary object", description: "Versioned derived summary of exported telemetry fields." }),
+    Object.freeze({ name: "versionedSchemaSummary", type: "readonly schema summary object", description: "Versioned derived schema summary for version stability checks." }),
     Object.freeze({ name: "schemaVersion", type: "readonly version marker", description: "Versioned derived schema version marker for stability checks." }),
     Object.freeze({ name: "schemaVersionLabel", type: "readonly version label", description: "Versioned derived label for schema/version stability checks." }),
     Object.freeze({ name: "derivedContractLabel", type: "readonly contract label", description: "Versioned derived contract label for schema/version stability checks." }),
@@ -121,7 +129,8 @@ const telemetryMetadata: TelemetryMetadata = Object.freeze({
   sourceFingerprint: Object.freeze({ version: TELEMETRY_VERSION, value: "src/telemetry.ts@4", derived: true }),
   derivedSurface: Object.freeze({ version: TELEMETRY_VERSION, shape: "versioned-readonly-derived-facade", derived: true }),
   schemaDigest: Object.freeze({ version: TELEMETRY_VERSION, value: "telemetry@4:13", derived: true }),
-  telemetrySummary: Object.freeze({ version: TELEMETRY_VERSION, fieldCount: 16, derived: true }),
+  telemetrySummary: Object.freeze({ version: TELEMETRY_VERSION, fieldCount: 17, derived: true }),
+  versionedSchemaSummary: Object.freeze({ version: TELEMETRY_VERSION, schemaVersion: TELEMETRY_VERSION, readOnly: true, derived: true, stableShape: true }),
   schemaVersion: Object.freeze({ version: TELEMETRY_VERSION, value: TELEMETRY_VERSION, derived: true }),
   schemaVersionLabel: Object.freeze({ version: TELEMETRY_VERSION, value: "telemetry-schema@4", derived: true }),
   derivedContractLabel: Object.freeze({ version: TELEMETRY_VERSION, label: "telemetry-contract@4", derived: true }),
@@ -138,3 +147,4 @@ export type VersionedTelemetryMetadata = Readonly<{
 export function exportTelemetryMetadata(): TelemetryMetadata { return telemetryMetadata; }
 export function getTelemetryMetadata(): TelemetryMetadata { return telemetryMetadata; }
 export function getVersionedTelemetryMetadata(): VersionedTelemetryMetadata { return Object.freeze({ version: TELEMETRY_VERSION, readOnly: true, telemetry: telemetryMetadata }); }
+export const versionedSchemaSummary = telemetryMetadata.versionedSchemaSummary;

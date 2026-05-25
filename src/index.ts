@@ -45,6 +45,7 @@ import {
   exportTelemetryMetadata,
   getTelemetryMetadata,
   getVersionedTelemetryMetadata,
+  versionedSchemaSummary,
   type TelemetryMetadata,
   type VersionedTelemetryMetadata,
 } from "./telemetry.ts";
@@ -106,6 +107,7 @@ export {
   exportTelemetryMetadata,
   getTelemetryMetadata,
   getVersionedTelemetryMetadata,
+  versionedSchemaSummary,
   type TelemetryMetadata,
   type VersionedTelemetryMetadata,
   EVOLVE_CAPABILITY_DESCRIPTOR_VERSION,
