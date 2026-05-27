@@ -34,6 +34,7 @@ describe("repository capability surface", () => {
     expect(surface.exportContractVersion.value).toBe(REPOSITORY_CAPABILITY_SURFACE_VERSION);
     expect(surface.versionedSchemaContract.value).toBe(`repository-capability-surface/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`);
     expect(surface.schemaVersionedSurface.value).toBe(`repository-capability-surface-schema/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`);
+    expect(surface.schemaVersionContract.value).toBe(`repository-capability-surface-schema-contract/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`);
     expect(Object.isFrozen(surface)).toBe(true);
     expect(Object.isFrozen(surface.exportVisibility)).toBe(true);
     expect(Object.isFrozen(surface.schemaStability)).toBe(true);
@@ -50,6 +51,7 @@ describe("repository capability surface", () => {
     expect(Object.isFrozen(surface.exportContractVersion)).toBe(true);
     expect(Object.isFrozen(surface.versionedSchemaContract)).toBe(true);
     expect(Object.isFrozen(surface.schemaVersionedSurface)).toBe(true);
+    expect(Object.isFrozen(surface.schemaVersionContract)).toBe(true);
     expect(getRepositoryCapabilitySurface()).toBe(surface);
     expect(exportRepositoryCapabilitySurfaceFromIndex()).toBe(surface);
     expect(versioned.surface).toBe(surface);
@@ -104,6 +106,9 @@ describe("repository capability surface", () => {
     }).toThrow();
     expect(() => {
       (surface.schemaVersionedSurface as { value: string }).value = "mutated";
+    }).toThrow();
+    expect(() => {
+      (surface.schemaVersionContract as { value: string }).value = "mutated";
     }).toThrow();
   });
 });
