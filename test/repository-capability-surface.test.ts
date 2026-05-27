@@ -15,7 +15,7 @@ describe("repository capability surface", () => {
     const surface = exportRepositoryCapabilitySurface();
     const versioned = getVersionedRepositoryCapabilitySurface();
 
-    expect(REPOSITORY_CAPABILITY_SURFACE_VERSION).toBe(6);
+    expect(REPOSITORY_CAPABILITY_SURFACE_VERSION).toBe(7);
     expect(surface.version).toBe(REPOSITORY_CAPABILITY_SURFACE_VERSION);
     expect(surface.readOnly).toBe(true);
     expect(surface.derivedVersion).toBe(REPOSITORY_CAPABILITY_SURFACE_VERSION);
@@ -23,7 +23,8 @@ describe("repository capability surface", () => {
     expect(surface.schemaStability.stable).toBe(true);
     expect(surface.publicShape.shape).toBe("versioned-readonly-derived-surface");
     expect(surface.publicShapeSignature.value).toBe("versioned-readonly-derived-surface");
-    expect(surface.sourceFingerprint.value).toBe("src/repository-capability-surface.ts@7");
+    expect(surface.sourceFingerprint.value).toBe("src/repository-capability-surface.ts@8");
+    expect(surface.versionedSchemaDigest.value).toBe(`repository-capability-surface-schema@4#stable:v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`);
     expect(surface.introspectionTier.value).toBe("telemetry-adjacent");
     expect(surface.schemaSignature.value).toBe("repository-capability-surface@4");
     expect(surface.schemaVersionTag.value).toBe("repository-capability-surface/v4");
@@ -35,7 +36,7 @@ describe("repository capability surface", () => {
     expect(surface.versionedSchemaContract.value).toBe(`repository-capability-surface/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`);
     expect(surface.schemaVersionedSurface.value).toBe(`repository-capability-surface-schema/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`);
     expect(surface.schemaVersionContract.value).toBe(`repository-capability-surface-schema-contract/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`);
-    expect(surface.schemaVersionChecksum.value).toBe("repository-capability-surface-schema@4#stable:v6");
+    expect(surface.schemaVersionChecksum.value).toBe("repository-capability-surface-schema@4#stable:v7");
     expect(Object.isFrozen(surface)).toBe(true);
     expect(Object.isFrozen(surface.exportVisibility)).toBe(true);
     expect(Object.isFrozen(surface.schemaStability)).toBe(true);
@@ -53,6 +54,7 @@ describe("repository capability surface", () => {
     expect(Object.isFrozen(surface.versionedSchemaContract)).toBe(true);
     expect(Object.isFrozen(surface.schemaVersionedSurface)).toBe(true);
     expect(Object.isFrozen(surface.schemaVersionContract)).toBe(true);
+    expect(Object.isFrozen(surface.versionedSchemaDigest)).toBe(true);
     expect(Object.isFrozen(surface.schemaVersionChecksum)).toBe(true);
     expect(getRepositoryCapabilitySurface()).toBe(surface);
     expect(exportRepositoryCapabilitySurfaceFromIndex()).toBe(surface);
@@ -111,6 +113,9 @@ describe("repository capability surface", () => {
     }).toThrow();
     expect(() => {
       (surface.schemaVersionContract as { value: string }).value = "mutated";
+    }).toThrow();
+    expect(() => {
+      (surface.versionedSchemaDigest as { value: string }).value = "mutated";
     }).toThrow();
     expect(() => {
       (surface.schemaVersionChecksum as { value: string }).value = "mutated";

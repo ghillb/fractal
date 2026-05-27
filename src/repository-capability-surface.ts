@@ -1,6 +1,6 @@
 import { capabilitySnapshot } from "./capability-snapshot.ts";
 
-export const REPOSITORY_CAPABILITY_SURFACE_VERSION = 6 as const;
+export const REPOSITORY_CAPABILITY_SURFACE_VERSION = 7 as const;
 
 export type RepositoryCapabilitySurface = Readonly<{
   version: typeof REPOSITORY_CAPABILITY_SURFACE_VERSION;
@@ -28,7 +28,12 @@ export type RepositoryCapabilitySurface = Readonly<{
   }>;
   sourceFingerprint: Readonly<{
     version: typeof REPOSITORY_CAPABILITY_SURFACE_VERSION;
-    value: "src/repository-capability-surface.ts@7";
+    value: "src/repository-capability-surface.ts@8";
+    derived: true;
+  }>;
+  versionedSchemaDigest: Readonly<{
+    version: typeof REPOSITORY_CAPABILITY_SURFACE_VERSION;
+    value: `repository-capability-surface-schema@4#stable:v${typeof REPOSITORY_CAPABILITY_SURFACE_VERSION}`;
     derived: true;
   }>;
   introspectionTier: Readonly<{
@@ -88,7 +93,7 @@ export type RepositoryCapabilitySurface = Readonly<{
   }>;
   schemaVersionChecksum: Readonly<{
     version: typeof REPOSITORY_CAPABILITY_SURFACE_VERSION;
-    value: "repository-capability-surface-schema@4#stable:v6";
+    value: "repository-capability-surface-schema@4#stable:v7";
     derived: true;
   }>;
 }>;
@@ -119,7 +124,12 @@ const repositoryCapabilitySurface: RepositoryCapabilitySurface = Object.freeze({
   }),
   sourceFingerprint: Object.freeze({
     version: REPOSITORY_CAPABILITY_SURFACE_VERSION,
-    value: "src/repository-capability-surface.ts@7",
+    value: "src/repository-capability-surface.ts@8",
+    derived: true
+  }),
+  versionedSchemaDigest: Object.freeze({
+    version: REPOSITORY_CAPABILITY_SURFACE_VERSION,
+    value: `repository-capability-surface-schema@4#stable:v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`,
     derived: true
   }),
   introspectionTier: Object.freeze({
@@ -179,7 +189,7 @@ const repositoryCapabilitySurface: RepositoryCapabilitySurface = Object.freeze({
   }),
   schemaVersionChecksum: Object.freeze({
     version: REPOSITORY_CAPABILITY_SURFACE_VERSION,
-    value: "repository-capability-surface-schema@4#stable:v6",
+    value: "repository-capability-surface-schema@4#stable:v7",
     derived: true
   })
 });
