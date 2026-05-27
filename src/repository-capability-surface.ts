@@ -1,6 +1,6 @@
 import { capabilitySnapshot } from "./capability-snapshot.ts";
 
-export const REPOSITORY_CAPABILITY_SURFACE_VERSION = 5 as const;
+export const REPOSITORY_CAPABILITY_SURFACE_VERSION = 6 as const;
 
 export type RepositoryCapabilitySurface = Readonly<{
   version: typeof REPOSITORY_CAPABILITY_SURFACE_VERSION;
@@ -84,6 +84,11 @@ export type RepositoryCapabilitySurface = Readonly<{
   schemaVersionContract: Readonly<{
     version: typeof REPOSITORY_CAPABILITY_SURFACE_VERSION;
     value: `repository-capability-surface-schema-contract/v${typeof REPOSITORY_CAPABILITY_SURFACE_VERSION}`;
+    derived: true;
+  }>;
+  schemaVersionChecksum: Readonly<{
+    version: typeof REPOSITORY_CAPABILITY_SURFACE_VERSION;
+    value: "repository-capability-surface-schema@4#stable:v6";
     derived: true;
   }>;
 }>;
@@ -170,6 +175,11 @@ const repositoryCapabilitySurface: RepositoryCapabilitySurface = Object.freeze({
   schemaVersionContract: Object.freeze({
     version: REPOSITORY_CAPABILITY_SURFACE_VERSION,
     value: `repository-capability-surface-schema-contract/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`,
+    derived: true
+  }),
+  schemaVersionChecksum: Object.freeze({
+    version: REPOSITORY_CAPABILITY_SURFACE_VERSION,
+    value: "repository-capability-surface-schema@4#stable:v6",
     derived: true
   })
 });
