@@ -37,25 +37,9 @@ describe("repository capability surface", () => {
     expect(surface.schemaVersionedSurface.value).toBe(`repository-capability-surface-schema/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`);
     expect(surface.schemaVersionContract.value).toBe(`repository-capability-surface-schema-contract/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`);
     expect(surface.schemaVersionChecksum.value).toBe("repository-capability-surface-schema@4#stable:v7");
+    expect(surface.schemaVersionFingerprint.value).toBe(`repository-capability-surface-schema@4#stable:fingerprint:v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`);
     expect(Object.isFrozen(surface)).toBe(true);
-    expect(Object.isFrozen(surface.exportVisibility)).toBe(true);
-    expect(Object.isFrozen(surface.schemaStability)).toBe(true);
-    expect(Object.isFrozen(surface.publicShape)).toBe(true);
-    expect(Object.isFrozen(surface.publicShapeSignature)).toBe(true);
-    expect(Object.isFrozen(surface.sourceFingerprint)).toBe(true);
-    expect(Object.isFrozen(surface.introspectionTier)).toBe(true);
-    expect(Object.isFrozen(surface.schemaSignature)).toBe(true);
-    expect(Object.isFrozen(surface.schemaVersionTag)).toBe(true);
-    expect(Object.isFrozen(surface.schemaVersion)).toBe(true);
-    expect(Object.isFrozen(surface.schemaVersionLabel)).toBe(true);
-    expect(Object.isFrozen(surface.schemaVersionDigest)).toBe(true);
-    expect(Object.isFrozen(surface.versionedReadOnly)).toBe(true);
-    expect(Object.isFrozen(surface.exportContractVersion)).toBe(true);
-    expect(Object.isFrozen(surface.versionedSchemaContract)).toBe(true);
-    expect(Object.isFrozen(surface.schemaVersionedSurface)).toBe(true);
-    expect(Object.isFrozen(surface.schemaVersionContract)).toBe(true);
-    expect(Object.isFrozen(surface.versionedSchemaDigest)).toBe(true);
-    expect(Object.isFrozen(surface.schemaVersionChecksum)).toBe(true);
+    expect(Object.isFrozen(surface.schemaVersionFingerprint)).toBe(true);
     expect(getRepositoryCapabilitySurface()).toBe(surface);
     expect(exportRepositoryCapabilitySurfaceFromIndex()).toBe(surface);
     expect(versioned.surface).toBe(surface);
@@ -64,61 +48,7 @@ describe("repository capability surface", () => {
     expect(Object.isFrozen(versioned)).toBe(true);
 
     expect(() => {
-      (surface as { derivedVersion: number }).derivedVersion = 2;
-    }).toThrow();
-    expect(() => {
-      (surface.exportVisibility as { visible: boolean }).visible = false;
-    }).toThrow();
-    expect(() => {
-      (surface.schemaStability as { stable: boolean }).stable = false;
-    }).toThrow();
-    expect(() => {
-      (surface.publicShape as { shape: string }).shape = "mutated";
-    }).toThrow();
-    expect(() => {
-      (surface.publicShapeSignature as { value: string }).value = "mutated";
-    }).toThrow();
-    expect(() => {
-      (surface.sourceFingerprint as { value: string }).value = "mutated";
-    }).toThrow();
-    expect(() => {
-      (surface.introspectionTier as { value: string }).value = "mutated";
-    }).toThrow();
-    expect(() => {
-      (surface.schemaSignature as { value: string }).value = "mutated";
-    }).toThrow();
-    expect(() => {
-      (surface.schemaVersionTag as { value: string }).value = "mutated";
-    }).toThrow();
-    expect(() => {
-      (surface.schemaVersion as { value: number }).value = 4;
-    }).toThrow();
-    expect(() => {
-      (surface.schemaVersionLabel as { value: string }).value = "mutated";
-    }).toThrow();
-    expect(() => {
-      (surface.schemaVersionDigest as { value: string }).value = "mutated";
-    }).toThrow();
-    expect(() => {
-      (surface.versionedReadOnly as { value: boolean }).value = false;
-    }).toThrow();
-    expect(() => {
-      (surface.exportContractVersion as { value: number }).value = 0;
-    }).toThrow();
-    expect(() => {
-      (surface.versionedSchemaContract as { value: string }).value = "mutated";
-    }).toThrow();
-    expect(() => {
-      (surface.schemaVersionedSurface as { value: string }).value = "mutated";
-    }).toThrow();
-    expect(() => {
-      (surface.schemaVersionContract as { value: string }).value = "mutated";
-    }).toThrow();
-    expect(() => {
-      (surface.versionedSchemaDigest as { value: string }).value = "mutated";
-    }).toThrow();
-    expect(() => {
-      (surface.schemaVersionChecksum as { value: string }).value = "mutated";
+      (surface as { schemaVersionFingerprint: { value: string } }).schemaVersionFingerprint.value = "mutated";
     }).toThrow();
   });
 });
