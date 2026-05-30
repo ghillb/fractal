@@ -15,7 +15,7 @@ describe("repository capability surface", () => {
     const surface = exportRepositoryCapabilitySurface();
     const versioned = getVersionedRepositoryCapabilitySurface();
 
-    expect(REPOSITORY_CAPABILITY_SURFACE_VERSION).toBe(7);
+    expect(REPOSITORY_CAPABILITY_SURFACE_VERSION).toBe(8);
     expect(surface.version).toBe(REPOSITORY_CAPABILITY_SURFACE_VERSION);
     expect(surface.readOnly).toBe(true);
     expect(surface.derivedVersion).toBe(REPOSITORY_CAPABILITY_SURFACE_VERSION);
@@ -23,7 +23,7 @@ describe("repository capability surface", () => {
     expect(surface.schemaStability.stable).toBe(true);
     expect(surface.publicShape.shape).toBe("versioned-readonly-derived-surface");
     expect(surface.publicShapeSignature.value).toBe("versioned-readonly-derived-surface");
-    expect(surface.sourceFingerprint.value).toBe("src/repository-capability-surface.ts@8");
+    expect(surface.sourceFingerprint.value).toBe("src/repository-capability-surface.ts@9");
     expect(surface.versionedSchemaDigest.value).toBe(`repository-capability-surface-schema@4#stable:v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`);
     expect(surface.introspectionTier.value).toBe("telemetry-adjacent");
     expect(surface.schemaSignature.value).toBe("repository-capability-surface@4");
@@ -36,7 +36,7 @@ describe("repository capability surface", () => {
     expect(surface.versionedSchemaContract.value).toBe(`repository-capability-surface/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`);
     expect(surface.schemaVersionedSurface.value).toBe(`repository-capability-surface-schema/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`);
     expect(surface.schemaVersionContract.value).toBe(`repository-capability-surface-schema-contract/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`);
-    expect(surface.schemaVersionChecksum.value).toBe("repository-capability-surface-schema@4#stable:v7");
+    expect(surface.schemaVersionChecksum.value).toBe("repository-capability-surface-schema@4#stable:v8");
     expect(surface.schemaVersionFingerprint.value).toBe(`repository-capability-surface-schema@4#stable:fingerprint:v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`);
     expect(surface.schemaVersionAlias.value).toBe(`repository-capability-surface-schema-alias/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`);
     expect(Object.isFrozen(surface)).toBe(true);
