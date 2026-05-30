@@ -38,8 +38,10 @@ describe("repository capability surface", () => {
     expect(surface.schemaVersionContract.value).toBe(`repository-capability-surface-schema-contract/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`);
     expect(surface.schemaVersionChecksum.value).toBe("repository-capability-surface-schema@4#stable:v7");
     expect(surface.schemaVersionFingerprint.value).toBe(`repository-capability-surface-schema@4#stable:fingerprint:v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`);
+    expect(surface.schemaVersionAlias.value).toBe(`repository-capability-surface-schema-alias/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`);
     expect(Object.isFrozen(surface)).toBe(true);
     expect(Object.isFrozen(surface.schemaVersionFingerprint)).toBe(true);
+    expect(Object.isFrozen(surface.schemaVersionAlias)).toBe(true);
     expect(getRepositoryCapabilitySurface()).toBe(surface);
     expect(exportRepositoryCapabilitySurfaceFromIndex()).toBe(surface);
     expect(versioned.surface).toBe(surface);
@@ -48,7 +50,7 @@ describe("repository capability surface", () => {
     expect(Object.isFrozen(versioned)).toBe(true);
 
     expect(() => {
-      (surface as { schemaVersionFingerprint: { value: string } }).schemaVersionFingerprint.value = "mutated";
+      (surface as { schemaVersionAlias: { value: string } }).schemaVersionAlias.value = "mutated";
     }).toThrow();
   });
 });
