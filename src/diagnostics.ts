@@ -1,4 +1,4 @@
-export const DIAGNOSTICS_VERSION = 3 as const;
+export const DIAGNOSTICS_VERSION = 4 as const;
 
 export type DiagnosticsField = Readonly<{
   name: string;
@@ -24,7 +24,7 @@ export type DiagnosticsMetadata = Readonly<{
   lineage: Readonly<{
     version: typeof DIAGNOSTICS_VERSION;
     source: "src/diagnostics.ts";
-    derivedFrom: ReadonlyArray<"version" | "readOnly" | "domain" | "derivedVersion" | "status" | "summary" | "lineage" | "derivedSignature" | "fields" | "surface" | "publicShape" | "publicShapeSignature">;
+    derivedFrom: ReadonlyArray<"version" | "readOnly" | "domain" | "derivedVersion" | "status" | "summary" | "lineage" | "derivedSignature" | "fields" | "surface" | "publicShape" | "publicShapeSignature" | "schemaVersion" | "versionedSchemaVersion">;
   }>;
   surface: Readonly<{
     version: typeof DIAGNOSTICS_VERSION;
@@ -42,6 +42,18 @@ export type DiagnosticsMetadata = Readonly<{
     version: typeof DIAGNOSTICS_VERSION;
     stable: true;
     derived: true;
+  }>;
+  schemaVersion: Readonly<{
+    version: typeof DIAGNOSTICS_VERSION;
+    value: typeof DIAGNOSTICS_VERSION;
+    derived: true;
+  }>;
+  versionedSchemaVersion: Readonly<{
+    version: typeof DIAGNOSTICS_VERSION;
+    readOnly: true;
+    schemaVersion: typeof DIAGNOSTICS_VERSION;
+    derived: true;
+    stableShape: true;
   }>;
   publicShapeSignature: Readonly<{
     version: typeof DIAGNOSTICS_VERSION;
@@ -72,14 +84,16 @@ const diagnosticsMetadata: DiagnosticsMetadata = Object.freeze({
   lineage: Object.freeze({
     version: DIAGNOSTICS_VERSION,
     source: "src/diagnostics.ts",
-    derivedFrom: Object.freeze(["version", "readOnly", "domain", "derivedVersion", "status", "summary", "lineage", "derivedSignature", "fields", "surface", "publicShape", "publicShapeSignature"] as const)
+    derivedFrom: Object.freeze(["version", "readOnly", "domain", "derivedVersion", "status", "summary", "lineage", "derivedSignature", "fields", "surface", "publicShape", "publicShapeSignature", "schemaVersion", "versionedSchemaVersion"] as const)
   }),
   surface: Object.freeze({ version: DIAGNOSTICS_VERSION, shape: "versioned-readonly-derived-facade", derived: true }),
   publicShape: Object.freeze({ version: DIAGNOSTICS_VERSION, readOnly: true, domain: "diagnostics", derivedVersion: DIAGNOSTICS_VERSION, stableShape: true }),
   schema: Object.freeze({ version: DIAGNOSTICS_VERSION, stable: true, derived: true }),
-  publicShapeSignature: Object.freeze({ version: DIAGNOSTICS_VERSION, value: "diagnostics:public-shape@3", derived: true }),
-  derivedSignature: Object.freeze({ version: DIAGNOSTICS_VERSION, value: "diagnostics@3", derived: true }),
-  exportContract: Object.freeze({ version: DIAGNOSTICS_VERSION, value: "diagnostics:export-contract@3", stable: true, derived: true }),
+  schemaVersion: Object.freeze({ version: DIAGNOSTICS_VERSION, value: DIAGNOSTICS_VERSION, derived: true }),
+  versionedSchemaVersion: Object.freeze({ version: DIAGNOSTICS_VERSION, readOnly: true, schemaVersion: DIAGNOSTICS_VERSION, derived: true, stableShape: true }),
+  publicShapeSignature: Object.freeze({ version: DIAGNOSTICS_VERSION, value: "diagnostics:public-shape@4", derived: true }),
+  derivedSignature: Object.freeze({ version: DIAGNOSTICS_VERSION, value: "diagnostics@4", derived: true }),
+  exportContract: Object.freeze({ version: DIAGNOSTICS_VERSION, value: "diagnostics:export-contract@4", stable: true, derived: true }),
   fields: Object.freeze([
     Object.freeze({ name: "version", type: "number", description: "Stable version tag for the diagnostics facade." }),
     Object.freeze({ name: "readOnly", type: "boolean", description: "Signals that the facade is immutable and side-effect free." }),
@@ -91,6 +105,8 @@ const diagnosticsMetadata: DiagnosticsMetadata = Object.freeze({
     Object.freeze({ name: "surface", type: "readonly surface object", description: "Versioned derived public shape summary for the diagnostics facade." }),
     Object.freeze({ name: "publicShape", type: "readonly public-shape summary", description: "Versioned derived public shape summary for stable consumer assertions." }),
     Object.freeze({ name: "schema", type: "readonly schema object", description: "Versioned derived schema summary for public export stability checks." }),
+    Object.freeze({ name: "schemaVersion", type: "readonly version marker", description: "Versioned derived schema version marker for stability checks." }),
+    Object.freeze({ name: "versionedSchemaVersion", type: "readonly schema-version snapshot", description: "Versioned derived schema version snapshot for shallow immutability checks." }),
     Object.freeze({ name: "publicShapeSignature", type: "readonly signature object", description: "Versioned derived signature for the public-shape summary." }),
     Object.freeze({ name: "derivedSignature", type: "readonly signature object", description: "Versioned derived signature for consumers that need a stable fingerprint." }),
     Object.freeze({ name: "exportContract", type: "readonly contract object", description: "Versioned derived contract for public exports and schema stability." }),
