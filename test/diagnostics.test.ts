@@ -14,6 +14,7 @@ describe("diagnostics metadata facade", () => {
     expect(versioned.readOnly).toBe(true);
     expect(versioned.metadata).toBe(metadata);
     expect(metadata.schemaVersion.value).toBe(DIAGNOSTICS_VERSION);
+    expect(metadata.publicSchema.schemaVersion).toBe(DIAGNOSTICS_VERSION);
     expect(metadata.versionedSchemaVersion.schemaVersion).toBe(DIAGNOSTICS_VERSION);
     expect(Object.isFrozen(versioned)).toBe(true);
     expect(Object.isFrozen(versioned.metadata)).toBe(true);
@@ -25,6 +26,7 @@ describe("diagnostics metadata facade", () => {
       domain: "diagnostics",
       derivedVersion: DIAGNOSTICS_VERSION,
       schemaVersion: { version: DIAGNOSTICS_VERSION, value: DIAGNOSTICS_VERSION, derived: true },
+      publicSchema: { version: DIAGNOSTICS_VERSION, readOnly: true, domain: "diagnostics", derivedVersion: DIAGNOSTICS_VERSION, schemaVersion: DIAGNOSTICS_VERSION, stableShape: true },
       versionedSchemaVersion: { version: DIAGNOSTICS_VERSION, readOnly: true, schemaVersion: DIAGNOSTICS_VERSION, derived: true, stableShape: true }
     }));
     expect(() => {
@@ -32,6 +34,9 @@ describe("diagnostics metadata facade", () => {
     }).toThrow();
     expect(() => {
       (versioned.metadata.schemaVersion as { value: number }).value = 2;
+    }).toThrow();
+    expect(() => {
+      (versioned.metadata.publicSchema as { schemaVersion: number }).schemaVersion = 2;
     }).toThrow();
   });
 });
