@@ -16,10 +16,13 @@ describe("diagnostics metadata facade", () => {
     expect(metadata.schemaVersion.value).toBe(DIAGNOSTICS_VERSION);
     expect(metadata.publicSchema.schemaVersion).toBe(DIAGNOSTICS_VERSION);
     expect(metadata.versionedSchemaVersion.schemaVersion).toBe(DIAGNOSTICS_VERSION);
+    expect(metadata.schemaVersionDescriptor.schemaVersion).toBe(DIAGNOSTICS_VERSION);
+    expect(metadata.schemaVersionDescriptor.label).toBe("diagnostics@6");
     expect(Object.isFrozen(versioned)).toBe(true);
     expect(Object.isFrozen(versioned.metadata)).toBe(true);
     expect(Object.isFrozen(versioned.metadata.schemaVersion)).toBe(true);
     expect(Object.isFrozen(versioned.metadata.versionedSchemaVersion)).toBe(true);
+    expect(Object.isFrozen(versioned.metadata.schemaVersionDescriptor)).toBe(true);
     expect(versioned.metadata).toEqual(expect.objectContaining({
       version: DIAGNOSTICS_VERSION,
       readOnly: true,
@@ -27,7 +30,8 @@ describe("diagnostics metadata facade", () => {
       derivedVersion: DIAGNOSTICS_VERSION,
       schemaVersion: { version: DIAGNOSTICS_VERSION, value: DIAGNOSTICS_VERSION, derived: true },
       publicSchema: { version: DIAGNOSTICS_VERSION, readOnly: true, domain: "diagnostics", derivedVersion: DIAGNOSTICS_VERSION, schemaVersion: DIAGNOSTICS_VERSION, stableShape: true },
-      versionedSchemaVersion: { version: DIAGNOSTICS_VERSION, readOnly: true, schemaVersion: DIAGNOSTICS_VERSION, derived: true, stableShape: true }
+      versionedSchemaVersion: { version: DIAGNOSTICS_VERSION, readOnly: true, schemaVersion: DIAGNOSTICS_VERSION, derived: true, stableShape: true },
+      schemaVersionDescriptor: { version: DIAGNOSTICS_VERSION, readOnly: true, schemaVersion: DIAGNOSTICS_VERSION, label: "diagnostics@6", derived: true, stableShape: true }
     }));
     expect(() => {
       (versioned as { version: number }).version = 2;
@@ -37,6 +41,9 @@ describe("diagnostics metadata facade", () => {
     }).toThrow();
     expect(() => {
       (versioned.metadata.publicSchema as { schemaVersion: number }).schemaVersion = 2;
+    }).toThrow();
+    expect(() => {
+      (versioned.metadata.schemaVersionDescriptor as { label: string }).label = "x";
     }).toThrow();
   });
 });
