@@ -50,6 +50,7 @@ import {
   schemaVersionStamp,
   versionedSchemaSnapshot,
   versionedSchemaSummary,
+  telemetryContract,
   type TelemetryMetadata,
   type VersionedTelemetryMetadata,
 } from "./telemetry.ts";
@@ -116,6 +117,7 @@ export {
   schemaVersionStamp,
   versionedSchemaSnapshot,
   versionedSchemaSummary,
+  telemetryContract,
   type TelemetryMetadata,
   type VersionedTelemetryMetadata,
   EVOLVE_CAPABILITY_DESCRIPTOR_VERSION,

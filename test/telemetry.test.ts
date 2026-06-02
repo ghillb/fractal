@@ -7,6 +7,7 @@ import {
   schemaVersionContract,
   schemaVersionSnapshot,
   schemaVersionStamp,
+  telemetryContract,
   versionedSchemaSnapshot
 } from "../src/index.ts";
 
@@ -60,6 +61,7 @@ describe("telemetry metadata", () => {
     expect(Object.isFrozen(telemetry.schemaVersionField)).toBe(true);
     expect(Object.isFrozen(telemetry.schemaVersionSnapshot)).toBe(true);
     expect(Object.isFrozen(telemetry.versionedSchemaSummary)).toBe(true);
+    expect(Object.isFrozen(telemetry.telemetryContract)).toBe(true);
     expect(Object.isFrozen(telemetry.schemaVersionContract)).toBe(true);
     expect(Object.isFrozen(telemetry.schemaVersionStamp)).toBe(true);
     expect(Object.isFrozen(telemetry.versionedSchemaSnapshot)).toBe(true);
@@ -69,6 +71,7 @@ describe("telemetry metadata", () => {
     expect(() => { (telemetry.schemaVersionField as { label: string }).label = "x"; }).toThrow();
     expect(() => { (telemetry.schemaVersionSnapshot as { schemaVersion: number }).schemaVersion = 99; }).toThrow();
     expect(() => { (telemetry.versionedSchemaSummary as { schemaVersion: number }).schemaVersion = 99; }).toThrow();
+    expect(() => { (telemetry.telemetryContract as { label: string }).label = "bad"; }).toThrow();
     expect(() => { (telemetry.schemaVersionContract as { label: string }).label = "q"; }).toThrow();
     expect(() => { (telemetry.schemaVersionStamp as { stamp: string }).stamp = "q"; }).toThrow();
     expect(() => { (telemetry.versionedSchemaSnapshot as { schemaVersion: number }).schemaVersion = 99; }).toThrow();
