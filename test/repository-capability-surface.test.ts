@@ -23,6 +23,8 @@ describe("repository capability surface", () => {
     expect(surface.versionedSchemaDigest.value).toBe(`repository-capability-surface-schema@4#stable:v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`);
     expect(surface.schemaVersionChecksum.value).toBe("repository-capability-surface-schema@4#stable:v8");
     expect(surface.versionedSchemaVersion.schemaVersion).toBe(4);
+    expect(surface.schemaVersionStability.value).toBe("schema-version-stable");
+    expect(Object.isFrozen(surface.schemaVersionStability)).toBe(true);
     expect(Object.isFrozen(surface)).toBe(true);
     expect(Object.isFrozen(surface.versionedSchemaVersion)).toBe(true);
     expect(getRepositoryCapabilitySurface()).toBe(surface);
