@@ -58,6 +58,7 @@ import {
   exportRepositoryCapabilitySurface,
   getRepositoryCapabilitySurface,
   getVersionedRepositoryCapabilitySurface,
+  versionedSchemaAnchor,
   type RepositoryCapabilitySurface,
   type VersionedRepositoryCapabilitySurface
 } from "./repository-capability-surface.ts";
@@ -134,6 +135,7 @@ export {
   exportRepositoryCapabilitySurface,
   getRepositoryCapabilitySurface,
   getVersionedRepositoryCapabilitySurface,
+  versionedSchemaAnchor,
   type RepositoryCapabilitySurface,
   type VersionedRepositoryCapabilitySurface
 };

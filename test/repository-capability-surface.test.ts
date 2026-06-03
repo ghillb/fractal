@@ -3,7 +3,8 @@ import {
   REPOSITORY_CAPABILITY_SURFACE_VERSION,
   exportRepositoryCapabilitySurface,
   getRepositoryCapabilitySurface,
-  getVersionedRepositoryCapabilitySurface
+  getVersionedRepositoryCapabilitySurface,
+  versionedSchemaAnchor
 } from "../src/repository-capability-surface.ts";
 import {
   exportRepositoryCapabilitySurface as exportRepositoryCapabilitySurfaceFromIndex,
@@ -15,7 +16,7 @@ describe("repository capability surface", () => {
     const surface = exportRepositoryCapabilitySurface();
     const versioned = getVersionedRepositoryCapabilitySurface();
 
-    expect(REPOSITORY_CAPABILITY_SURFACE_VERSION).toBe(9);
+    expect(REPOSITORY_CAPABILITY_SURFACE_VERSION).toBe(10);
     expect(surface.version).toBe(REPOSITORY_CAPABILITY_SURFACE_VERSION);
     expect(surface.readOnly).toBe(true);
     expect(surface.derivedVersion).toBe(REPOSITORY_CAPABILITY_SURFACE_VERSION);
@@ -25,10 +26,13 @@ describe("repository capability surface", () => {
     expect(surface.versionedSchemaVersion.schemaVersion).toBe(4);
     expect(surface.schemaVersionStability.value).toBe("schema-version-stable");
     expect(surface.schemaVersionLock.value).toBe("schema-version-lock");
+    expect(surface.versionedSchemaAnchor.schemaVersion).toBe(4);
     expect(Object.isFrozen(surface.schemaVersionStability)).toBe(true);
     expect(Object.isFrozen(surface.schemaVersionLock)).toBe(true);
+    expect(Object.isFrozen(surface.versionedSchemaAnchor)).toBe(true);
     expect(Object.isFrozen(surface)).toBe(true);
     expect(() => { (surface as any).schemaVersionLock = null; }).toThrow();
+    expect(() => { (surface.versionedSchemaAnchor as any).schemaVersion = 5; }).toThrow();
     expect(Object.isFrozen(surface.versionedSchemaVersion)).toBe(true);
     expect(getRepositoryCapabilitySurface()).toBe(surface);
     expect(exportRepositoryCapabilitySurfaceFromIndex()).toBe(surface);
