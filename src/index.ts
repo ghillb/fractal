@@ -61,6 +61,7 @@ import {
   schemaVersionContractSignature,
   versionedSchemaAnchor,
   versionedSchemaStability,
+  schemaVersionSummary,
   type RepositoryCapabilitySurface,
   type VersionedRepositoryCapabilitySurface
 } from "./repository-capability-surface.ts";
@@ -140,6 +141,7 @@ export {
   schemaVersionContractSignature,
   versionedSchemaAnchor,
   versionedSchemaStability,
+  schemaVersionSummary,
   type RepositoryCapabilitySurface,
   type VersionedRepositoryCapabilitySurface
 };
