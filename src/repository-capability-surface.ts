@@ -130,6 +130,11 @@ export type RepositoryCapabilitySurface = Readonly<{
     value: "schema-version-lock";
     derived: true;
   }>;
+  schemaVersionContractSignature: Readonly<{
+    version: typeof REPOSITORY_CAPABILITY_SURFACE_VERSION;
+    value: `repository-capability-surface-schema-contract/v${typeof REPOSITORY_CAPABILITY_SURFACE_VERSION}`;
+    derived: true;
+  }>;
   versionedSchemaAnchor: Readonly<{
     version: typeof REPOSITORY_CAPABILITY_SURFACE_VERSION;
     schemaVersion: 4;
@@ -167,12 +172,14 @@ const repositoryCapabilitySurface: RepositoryCapabilitySurface = Object.freeze({
   schemaVersionStability: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, value: "schema-version-stable", derived: true }),
   versionedSchemaStability: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, schemaVersion: 4, readOnly: true, derived: true, stableShape: true }),
   schemaVersionLock: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, value: "schema-version-lock", derived: true }),
+  schemaVersionContractSignature: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, value: `repository-capability-surface-schema-contract/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`, derived: true }),
   versionedSchemaAnchor: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, schemaVersion: 4, readOnly: true, derived: true, stableShape: true })
 });
 
 export type VersionedRepositoryCapabilitySurface = Readonly<{ version: typeof REPOSITORY_CAPABILITY_SURFACE_VERSION; readOnly: true; surface: RepositoryCapabilitySurface }>;
 export const versionedSchemaAnchor = repositoryCapabilitySurface.versionedSchemaAnchor;
 export const versionedSchemaStability = repositoryCapabilitySurface.versionedSchemaStability;
+export const schemaVersionContractSignature = repositoryCapabilitySurface.schemaVersionContractSignature;
 export function exportRepositoryCapabilitySurface(): RepositoryCapabilitySurface { return repositoryCapabilitySurface; }
 export function getRepositoryCapabilitySurface(): RepositoryCapabilitySurface { return repositoryCapabilitySurface; }
 export function getVersionedRepositoryCapabilitySurface(): VersionedRepositoryCapabilitySurface { return Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, readOnly: true, surface: repositoryCapabilitySurface }); }
