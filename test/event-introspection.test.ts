@@ -40,7 +40,8 @@ describe("event introspection metadata", () => {
         derivedFieldCount: 10,
         exportContractVersion: EVENT_INTROSPECTION_VERSION,
         introspectionMode: "static-readonly",
-        schemaVersionLabel: `event-introspection:v${EVENT_INTROSPECTION_VERSION}`
+        schemaVersionLabel: `event-introspection:v${EVENT_INTROSPECTION_VERSION}`,
+        schemaVersionTag: `event-introspection-schema@v${EVENT_INTROSPECTION_VERSION}`
       }
     });
     expect(metadata.publicShape).toEqual({
@@ -54,7 +55,8 @@ describe("event introspection metadata", () => {
       derivedFieldCount: 10,
       exportContractVersion: EVENT_INTROSPECTION_VERSION,
       introspectionMode: "static-readonly",
-      schemaVersionLabel: `event-introspection:v${EVENT_INTROSPECTION_VERSION}`
+      schemaVersionLabel: `event-introspection:v${EVENT_INTROSPECTION_VERSION}`,
+      schemaVersionTag: `event-introspection-schema@v${EVENT_INTROSPECTION_VERSION}`
     });
     expect(metadata.exportContract).toEqual({
       version: EVENT_INTROSPECTION_VERSION,
@@ -84,6 +86,11 @@ describe("event introspection metadata", () => {
       type: "string literal",
       description: "Versioned derived label that combines the domain with the schema version for stability checks."
     });
+    expect(metadata.fields).toContainEqual({
+      name: "schemaVersionTag",
+      type: "string literal",
+      description: "Versioned derived tag that combines the domain schema with the version for shallow immutability and stability checks."
+    });
     expect(() => {
       (metadata as { version: number }).version = 99;
     }).toThrow();
@@ -98,7 +105,9 @@ describe("event introspection metadata", () => {
     }).toThrow();
     expect(metadata.publicShape.introspectionMode).toBe("static-readonly");
     expect(metadata.publicShape.schemaVersionLabel).toBe(`event-introspection:v${EVENT_INTROSPECTION_VERSION}`);
+    expect(metadata.publicShape.schemaVersionTag).toBe(`event-introspection-schema@v${EVENT_INTROSPECTION_VERSION}`);
     expect(metadata.versionedPublicShape.publicShape.introspectionMode).toBe("static-readonly");
     expect(metadata.versionedPublicShape.publicShape.schemaVersionLabel).toBe(`event-introspection:v${EVENT_INTROSPECTION_VERSION}`);
+    expect(metadata.versionedPublicShape.publicShape.schemaVersionTag).toBe(`event-introspection-schema@v${EVENT_INTROSPECTION_VERSION}`);
   });
 });

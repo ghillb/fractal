@@ -40,6 +40,7 @@ import {
   getVersionedEventIntrospectionMetadata,
   type EventIntrospectionMetadata,
   schemaVersionLabel,
+  schemaVersionTag,
 } from "./event-introspection.ts";
 import {
   TELEMETRY_VERSION,
@@ -114,6 +115,7 @@ export {
   getVersionedEventIntrospectionMetadata,
   type EventIntrospectionMetadata,
   schemaVersionLabel,
+  schemaVersionTag,
   TELEMETRY_VERSION,
   exportTelemetryMetadata,
   getTelemetryMetadata,
