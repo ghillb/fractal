@@ -39,7 +39,8 @@ describe("event introspection metadata", () => {
         schemaVersion: EVENT_INTROSPECTION_VERSION,
         derivedFieldCount: 10,
         exportContractVersion: EVENT_INTROSPECTION_VERSION,
-        introspectionMode: "static-readonly"
+        introspectionMode: "static-readonly",
+        schemaVersionLabel: `event-introspection:v${EVENT_INTROSPECTION_VERSION}`
       }
     });
     expect(metadata.publicShape).toEqual({
@@ -52,7 +53,8 @@ describe("event introspection metadata", () => {
       schemaVersion: EVENT_INTROSPECTION_VERSION,
       derivedFieldCount: 10,
       exportContractVersion: EVENT_INTROSPECTION_VERSION,
-      introspectionMode: "static-readonly"
+      introspectionMode: "static-readonly",
+      schemaVersionLabel: `event-introspection:v${EVENT_INTROSPECTION_VERSION}`
     });
     expect(metadata.exportContract).toEqual({
       version: EVENT_INTROSPECTION_VERSION,
@@ -77,6 +79,11 @@ describe("event introspection metadata", () => {
       type: "string literal",
       description: "Derived mode flag identifying the facade as a static read-only surface."
     });
+    expect(metadata.fields).toContainEqual({
+      name: "schemaVersionLabel",
+      type: "string literal",
+      description: "Versioned derived label that combines the domain with the schema version for stability checks."
+    });
     expect(() => {
       (metadata as { version: number }).version = 99;
     }).toThrow();
@@ -90,6 +97,8 @@ describe("event introspection metadata", () => {
       (metadata.exportContract as { stable: boolean }).stable = false;
     }).toThrow();
     expect(metadata.publicShape.introspectionMode).toBe("static-readonly");
+    expect(metadata.publicShape.schemaVersionLabel).toBe(`event-introspection:v${EVENT_INTROSPECTION_VERSION}`);
     expect(metadata.versionedPublicShape.publicShape.introspectionMode).toBe("static-readonly");
+    expect(metadata.versionedPublicShape.publicShape.schemaVersionLabel).toBe(`event-introspection:v${EVENT_INTROSPECTION_VERSION}`);
   });
 });
