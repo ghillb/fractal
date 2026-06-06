@@ -37,7 +37,8 @@ describe("event introspection metadata", () => {
         domain: "event-introspection",
         derivedVersion: EVENT_INTROSPECTION_VERSION,
         schemaVersion: EVENT_INTROSPECTION_VERSION,
-        derivedFieldCount: 10,
+        derivedFieldCount: 11,
+        schemaVersionDigest: `event-introspection#v${EVENT_INTROSPECTION_VERSION}`,
         exportContractVersion: EVENT_INTROSPECTION_VERSION,
         introspectionMode: "static-readonly",
         schemaVersionLabel: `event-introspection:v${EVENT_INTROSPECTION_VERSION}`,
@@ -52,7 +53,8 @@ describe("event introspection metadata", () => {
       domain: "event-introspection",
       derivedVersion: EVENT_INTROSPECTION_VERSION,
       schemaVersion: EVENT_INTROSPECTION_VERSION,
-      derivedFieldCount: 10,
+      derivedFieldCount: 11,
+      schemaVersionDigest: `event-introspection#v${EVENT_INTROSPECTION_VERSION}`,
       exportContractVersion: EVENT_INTROSPECTION_VERSION,
       introspectionMode: "static-readonly",
       schemaVersionLabel: `event-introspection:v${EVENT_INTROSPECTION_VERSION}`,
@@ -91,6 +93,11 @@ describe("event introspection metadata", () => {
       type: "string literal",
       description: "Versioned derived tag that combines the domain schema with the version for shallow immutability and stability checks."
     });
+    expect(metadata.fields).toContainEqual({
+      name: "schemaVersionDigest",
+      type: "string literal",
+      description: "Versioned derived digest for schema stability and shallow immutability checks."
+    });
     expect(() => {
       (metadata as { version: number }).version = 99;
     }).toThrow();
@@ -106,7 +113,9 @@ describe("event introspection metadata", () => {
     expect(metadata.publicShape.introspectionMode).toBe("static-readonly");
     expect(metadata.publicShape.schemaVersionLabel).toBe(`event-introspection:v${EVENT_INTROSPECTION_VERSION}`);
     expect(metadata.publicShape.schemaVersionTag).toBe(`event-introspection-schema@v${EVENT_INTROSPECTION_VERSION}`);
+    expect(metadata.publicShape.schemaVersionDigest).toBe(`event-introspection#v${EVENT_INTROSPECTION_VERSION}`);
     expect(metadata.versionedPublicShape.publicShape.introspectionMode).toBe("static-readonly");
+    expect(metadata.versionedPublicShape.publicShape.schemaVersionDigest).toBe(`event-introspection#v${EVENT_INTROSPECTION_VERSION}`);
     expect(metadata.versionedPublicShape.publicShape.schemaVersionLabel).toBe(`event-introspection:v${EVENT_INTROSPECTION_VERSION}`);
     expect(metadata.versionedPublicShape.publicShape.schemaVersionTag).toBe(`event-introspection-schema@v${EVENT_INTROSPECTION_VERSION}`);
   });
