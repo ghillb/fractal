@@ -135,6 +135,13 @@ export type TelemetryMetadata = Readonly<{
     derived: true;
     shape: "telemetry-versioned-surface@4";
   }>;
+  schemaVersionSurface: Readonly<{
+    version: typeof TELEMETRY_VERSION;
+    schemaVersion: typeof TELEMETRY_VERSION;
+    readOnly: true;
+    derived: true;
+    stableShape: true;
+  }>;
 }>;
 
 const telemetryMetadata: TelemetryMetadata = Object.freeze({
@@ -192,6 +199,7 @@ const telemetryMetadata: TelemetryMetadata = Object.freeze({
   schemaVersionDescriptor: Object.freeze({ version: TELEMETRY_VERSION, label: "telemetry-schema-version@4", schemaVersion: TELEMETRY_VERSION, derived: true }),
   derivedContractLabel: Object.freeze({ version: TELEMETRY_VERSION, label: "telemetry-contract@4", derived: true }),
   versionedSurface: Object.freeze({ version: TELEMETRY_VERSION, readOnly: true, derived: true, shape: "telemetry-versioned-surface@4" }),
+  schemaVersionSurface: Object.freeze({ version: TELEMETRY_VERSION, schemaVersion: TELEMETRY_VERSION, readOnly: true, derived: true, stableShape: true }),
   schemaVersionField: Object.freeze({ version: TELEMETRY_VERSION, label: "schemaVersion", derived: true })
 });
 
@@ -210,3 +218,4 @@ export const schemaVersionSnapshot = telemetryMetadata.schemaVersionSnapshot;
 export const versionedSchemaSnapshot = telemetryMetadata.versionedSchemaSnapshot;
 export const schemaVersionContract = telemetryMetadata.schemaVersionContract;
 export const schemaVersionStamp = telemetryMetadata.schemaVersionStamp;
+export const schemaVersionSurface = telemetryMetadata.schemaVersionSurface;
