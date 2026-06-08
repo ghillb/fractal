@@ -5,6 +5,7 @@ import {
   getRepositoryCapabilitySurface,
   getVersionedRepositoryCapabilitySurface,
   schemaVersionContractSignature,
+  schemaVersionManifest,
   schemaVersionSummary,
   versionedSchemaAnchor,
   versionedSchemaStability
@@ -33,6 +34,7 @@ describe("repository capability surface", () => {
     expect(surface.versionedSchemaAnchor.schemaVersion).toBe(4);
     expect(surface.versionedSchemaStability.schemaVersion).toBe(4);
     expect(surface.schemaVersionSummary.schemaVersion).toBe(4);
+    expect(surface.schemaVersionManifest.schemaVersion).toBe(4);
     expect(Object.isFrozen(surface.schemaVersionStability)).toBe(true);
     expect(Object.isFrozen(surface.versionedSchemaStability)).toBe(true);
     expect(Object.isFrozen(surface.schemaVersionLock)).toBe(true);
@@ -48,6 +50,7 @@ describe("repository capability surface", () => {
     expect(versioned.surface.versionedSchemaStability).toBe(surface.versionedSchemaStability);
     expect(versionedSchemaStability).toBe(surface.versionedSchemaStability);
     expect(schemaVersionSummary).toBe(surface.schemaVersionSummary);
+    expect(schemaVersionManifest).toBe(surface.schemaVersionManifest);
     expect(getRepositoryCapabilitySurface()).toBe(surface);
     expect(exportRepositoryCapabilitySurfaceFromIndex()).toBe(surface);
     expect(versioned.surface).toBe(surface);

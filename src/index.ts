@@ -69,6 +69,7 @@ import {
   versionedSchemaAnchor,
   versionedSchemaStability,
   schemaVersionSummary,
+  schemaVersionManifest,
   type RepositoryCapabilitySurface,
   type VersionedRepositoryCapabilitySurface
 } from "./repository-capability-surface.ts";
@@ -156,6 +157,7 @@ export {
   versionedSchemaAnchor,
   versionedSchemaStability,
   schemaVersionSummary,
+  schemaVersionManifest,
   type RepositoryCapabilitySurface,
   type VersionedRepositoryCapabilitySurface
 };
