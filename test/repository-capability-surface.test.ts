@@ -8,6 +8,7 @@ import {
   schemaVersionManifest,
   schemaVersionSummary,
   versionedSchemaAnchor,
+  versionedSchemaFingerprint,
   versionedSchemaStability
 } from "../src/repository-capability-surface.ts";
 import {
@@ -36,6 +37,7 @@ describe("repository capability surface", () => {
     expect(surface.versionedSchemaStability.schemaVersion).toBe(4);
     expect(surface.schemaVersionSummary.schemaVersion).toBe(4);
     expect(surface.schemaVersionManifest.schemaVersion).toBe(4);
+    expect(surface.versionedSchemaFingerprint.schemaVersion).toBe(4);
     expect(Object.isFrozen(surface.schemaVersionStability)).toBe(true);
     expect(Object.isFrozen(surface.versionedSchemaStability)).toBe(true);
     expect(Object.isFrozen(surface.schemaVersionLock)).toBe(true);
@@ -48,12 +50,14 @@ describe("repository capability surface", () => {
     expect(() => { (surface as any).schemaVersionContractSignature = null; }).toThrow();
     expect(() => { (surface.versionedSchemaAnchor as any).schemaVersion = 5; }).toThrow();
     expect(() => { (surface.schemaVersionSummary as any).schemaVersion = 5; }).toThrow();
+    expect(() => { (surface.versionedSchemaFingerprint as any).schemaVersion = 5; }).toThrow();
     expect(() => { (surface.capabilitySurfaceDescriptor as any).value = "mutated"; }).toThrow();
     expect(Object.isFrozen(surface.versionedSchemaVersion)).toBe(true);
     expect(versioned.surface.versionedSchemaStability).toBe(surface.versionedSchemaStability);
     expect(versionedSchemaStability).toBe(surface.versionedSchemaStability);
     expect(schemaVersionSummary).toBe(surface.schemaVersionSummary);
     expect(schemaVersionManifest).toBe(surface.schemaVersionManifest);
+    expect(versionedSchemaFingerprint).toBe(surface.versionedSchemaFingerprint);
     expect(getRepositoryCapabilitySurface()).toBe(surface);
     expect(exportRepositoryCapabilitySurfaceFromIndex()).toBe(surface);
     expect(versioned.surface).toBe(surface);

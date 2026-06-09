@@ -71,6 +71,7 @@ import {
   versionedSchemaStability,
   schemaVersionSummary,
   schemaVersionManifest,
+  versionedSchemaFingerprint,
   type RepositoryCapabilitySurface,
   type VersionedRepositoryCapabilitySurface
 } from "./repository-capability-surface.ts";
@@ -160,6 +161,7 @@ export {
   versionedSchemaStability,
   schemaVersionSummary,
   schemaVersionManifest,
+  versionedSchemaFingerprint,
   type RepositoryCapabilitySurface,
   type VersionedRepositoryCapabilitySurface
 };
