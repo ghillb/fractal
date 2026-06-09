@@ -25,6 +25,7 @@ describe("repository capability surface", () => {
     expect(surface.readOnly).toBe(true);
     expect(surface.derivedVersion).toBe(REPOSITORY_CAPABILITY_SURFACE_VERSION);
     expect(surface.sourceFingerprint.value).toBe("src/repository-capability-surface.ts@10");
+    expect(surface.capabilitySurfaceDescriptor.value).toBe("repository-capability-surface-descriptor@10");
     expect(surface.versionedSchemaDigest.value).toBe(`repository-capability-surface-schema@4#stable:v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`);
     expect(surface.schemaVersionChecksum.value).toBe("repository-capability-surface-schema@4#stable:v8");
     expect(surface.versionedSchemaVersion.schemaVersion).toBe(4);
@@ -41,11 +42,13 @@ describe("repository capability surface", () => {
     expect(Object.isFrozen(surface.schemaVersionContractSignature)).toBe(true);
     expect(Object.isFrozen(surface.versionedSchemaAnchor)).toBe(true);
     expect(Object.isFrozen(surface.schemaVersionSummary)).toBe(true);
+    expect(Object.isFrozen(surface.capabilitySurfaceDescriptor)).toBe(true);
     expect(Object.isFrozen(surface)).toBe(true);
     expect(() => { (surface as any).schemaVersionLock = null; }).toThrow();
     expect(() => { (surface as any).schemaVersionContractSignature = null; }).toThrow();
     expect(() => { (surface.versionedSchemaAnchor as any).schemaVersion = 5; }).toThrow();
     expect(() => { (surface.schemaVersionSummary as any).schemaVersion = 5; }).toThrow();
+    expect(() => { (surface.capabilitySurfaceDescriptor as any).value = "mutated"; }).toThrow();
     expect(Object.isFrozen(surface.versionedSchemaVersion)).toBe(true);
     expect(versioned.surface.versionedSchemaStability).toBe(surface.versionedSchemaStability);
     expect(versionedSchemaStability).toBe(surface.versionedSchemaStability);

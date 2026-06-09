@@ -31,6 +31,11 @@ export type RepositoryCapabilitySurface = Readonly<{
     value: "src/repository-capability-surface.ts@10";
     derived: true;
   }>;
+  capabilitySurfaceDescriptor: Readonly<{
+    version: typeof REPOSITORY_CAPABILITY_SURFACE_VERSION;
+    value: "repository-capability-surface-descriptor@10";
+    derived: true;
+  }>;
   versionedSchemaDigest: Readonly<{
     version: typeof REPOSITORY_CAPABILITY_SURFACE_VERSION;
     value: `repository-capability-surface-schema@4#stable:v${typeof REPOSITORY_CAPABILITY_SURFACE_VERSION}`;
@@ -167,6 +172,7 @@ const repositoryCapabilitySurface: RepositoryCapabilitySurface = Object.freeze({
   publicShape: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, shape: "versioned-readonly-derived-surface", derived: true }),
   publicShapeSignature: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, value: "versioned-readonly-derived-surface", derived: true }),
   sourceFingerprint: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, value: "src/repository-capability-surface.ts@10", derived: true }),
+  capabilitySurfaceDescriptor: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, value: "repository-capability-surface-descriptor@10", derived: true }),
   versionedSchemaDigest: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, value: `repository-capability-surface-schema@4#stable:v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`, derived: true }),
   introspectionTier: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, value: "telemetry-adjacent", derived: true }),
   schemaVersionTag: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, value: "repository-capability-surface/v4", derived: true }),
@@ -193,6 +199,7 @@ const repositoryCapabilitySurface: RepositoryCapabilitySurface = Object.freeze({
 });
 
 export type VersionedRepositoryCapabilitySurface = Readonly<{ version: typeof REPOSITORY_CAPABILITY_SURFACE_VERSION; readOnly: true; surface: RepositoryCapabilitySurface }>;
+export const capabilitySurfaceDescriptor = repositoryCapabilitySurface.capabilitySurfaceDescriptor;
 export const versionedSchemaAnchor = repositoryCapabilitySurface.versionedSchemaAnchor;
 export const versionedSchemaStability = repositoryCapabilitySurface.versionedSchemaStability;
 export const schemaVersionSummary = repositoryCapabilitySurface.schemaVersionSummary;
