@@ -4,30 +4,30 @@ import {
   exportRepositoryCapabilitySurface,
   getRepositoryCapabilitySurface,
   getVersionedRepositoryCapabilitySurface,
-  versionedSchemaFingerprint
+  schemaVersionInvariant
 } from "../src/index.ts";
 
 describe("repository capability surface", () => {
-  test("exposes a versioned read-only derived field with shallow immutability", () => {
+  test("exposes a stable derived schema version invariant", () => {
     const surface = getRepositoryCapabilitySurface();
     const versioned = getVersionedRepositoryCapabilitySurface();
 
     expect(surface.version).toBe(REPOSITORY_CAPABILITY_SURFACE_VERSION);
     expect(versioned.version).toBe(REPOSITORY_CAPABILITY_SURFACE_VERSION);
-    expect(versioned.readOnly).toBe(true);
-    expect(versioned.surface).toBe(surface);
-    expect(exportRepositoryCapabilitySurface()).toBe(surface);
-    expect(versionedSchemaFingerprint).toBe(surface.versionedSchemaFingerprint);
-    expect(versionedSchemaFingerprint.schemaVersion).toBe(4);
+    expect(surface.schemaVersionInvariant).toBe(schemaVersionInvariant);
+    expect(surface.schemaVersionInvariant.version).toBe(REPOSITORY_CAPABILITY_SURFACE_VERSION);
+    expect(surface.schemaVersionInvariant.value).toBe(
+      `repository-capability-surface-invariant/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`
+    );
     expect(Object.isFrozen(surface)).toBe(true);
+    expect(Object.isFrozen(surface.schemaVersionInvariant)).toBe(true);
     expect(Object.isFrozen(versioned)).toBe(true);
-    expect(Object.isFrozen(surface.schemaVersionSummary)).toBe(true);
-    expect(Object.isFrozen(surface.versionedSchemaFingerprint)).toBe(true);
+    expect(exportRepositoryCapabilitySurface()).toBe(surface);
     expect(() => {
-      (surface as { version: number }).version = 11;
+      (surface as { version: number }).version = 2;
     }).toThrow();
     expect(() => {
-      (surface.versionedSchemaFingerprint as { schemaVersion: number }).schemaVersion = 99;
+      (surface.schemaVersionInvariant as { value: string }).value = "mutated";
     }).toThrow();
   });
 });
