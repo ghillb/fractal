@@ -178,6 +178,11 @@ export type RepositoryCapabilitySurface = Readonly<{
     value: `repository-capability-surface-invariant/v${typeof REPOSITORY_CAPABILITY_SURFACE_VERSION}`;
     derived: true;
   }>;
+  derivedSchemaVersionTag: Readonly<{
+    version: typeof REPOSITORY_CAPABILITY_SURFACE_VERSION;
+    value: `repository-capability-surface-derived-tag/v${typeof REPOSITORY_CAPABILITY_SURFACE_VERSION}`;
+    derived: true;
+  }>;
 }>;
 
 const repositoryCapabilitySurface: RepositoryCapabilitySurface = Object.freeze({
@@ -215,7 +220,8 @@ const repositoryCapabilitySurface: RepositoryCapabilitySurface = Object.freeze({
   schemaVersionManifest: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, schemaVersion: 4, readOnly: true, derived: true, stableShape: true }),
   versionedSchemaFingerprint: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, schemaVersion: 4, readOnly: true, derived: true, stableShape: true }),
   derivedSchemaVersionStamp: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, value: `repository-capability-surface-derived-schema@${REPOSITORY_CAPABILITY_SURFACE_VERSION}`, derived: true }),
-  schemaVersionInvariant: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, value: `repository-capability-surface-invariant/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`, derived: true })
+  schemaVersionInvariant: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, value: `repository-capability-surface-invariant/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`, derived: true }),
+  derivedSchemaVersionTag: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, value: `repository-capability-surface-derived-tag/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`, derived: true })
 });
 
 export type VersionedRepositoryCapabilitySurface = Readonly<{ version: typeof REPOSITORY_CAPABILITY_SURFACE_VERSION; readOnly: true; surface: RepositoryCapabilitySurface }>;
@@ -227,6 +233,7 @@ export const schemaVersionManifest = repositoryCapabilitySurface.schemaVersionMa
 export const versionedSchemaFingerprint = repositoryCapabilitySurface.versionedSchemaFingerprint;
 export const schemaVersionContractSignature = repositoryCapabilitySurface.schemaVersionContractSignature;
 export const schemaVersionInvariant = repositoryCapabilitySurface.schemaVersionInvariant;
+export const derivedSchemaVersionTag = repositoryCapabilitySurface.derivedSchemaVersionTag;
 export function exportRepositoryCapabilitySurface(): RepositoryCapabilitySurface { return repositoryCapabilitySurface; }
 export function getRepositoryCapabilitySurface(): RepositoryCapabilitySurface { return repositoryCapabilitySurface; }
 export function getVersionedRepositoryCapabilitySurface(): VersionedRepositoryCapabilitySurface { return Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, readOnly: true, surface: repositoryCapabilitySurface }); }

@@ -4,6 +4,7 @@ import {
   exportRepositoryCapabilitySurface,
   getRepositoryCapabilitySurface,
   getVersionedRepositoryCapabilitySurface,
+  derivedSchemaVersionTag,
   schemaVersionInvariant
 } from "../src/index.ts";
 
@@ -15,12 +16,18 @@ describe("repository capability surface", () => {
     expect(surface.version).toBe(REPOSITORY_CAPABILITY_SURFACE_VERSION);
     expect(versioned.version).toBe(REPOSITORY_CAPABILITY_SURFACE_VERSION);
     expect(surface.schemaVersionInvariant).toBe(schemaVersionInvariant);
+    expect(surface.derivedSchemaVersionTag).toBe(derivedSchemaVersionTag);
     expect(surface.schemaVersionInvariant.version).toBe(REPOSITORY_CAPABILITY_SURFACE_VERSION);
+    expect(surface.derivedSchemaVersionTag.version).toBe(REPOSITORY_CAPABILITY_SURFACE_VERSION);
     expect(surface.schemaVersionInvariant.value).toBe(
       `repository-capability-surface-invariant/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`
     );
+    expect(surface.derivedSchemaVersionTag.value).toBe(
+      `repository-capability-surface-derived-tag/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`
+    );
     expect(Object.isFrozen(surface)).toBe(true);
     expect(Object.isFrozen(surface.schemaVersionInvariant)).toBe(true);
+    expect(Object.isFrozen(surface.derivedSchemaVersionTag)).toBe(true);
     expect(Object.isFrozen(versioned)).toBe(true);
     expect(exportRepositoryCapabilitySurface()).toBe(surface);
     expect(() => {
@@ -28,6 +35,9 @@ describe("repository capability surface", () => {
     }).toThrow();
     expect(() => {
       (surface.schemaVersionInvariant as { value: string }).value = "mutated";
+    }).toThrow();
+    expect(() => {
+      (surface.derivedSchemaVersionTag as { value: string }).value = "mutated";
     }).toThrow();
   });
 });
