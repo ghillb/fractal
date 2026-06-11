@@ -7,7 +7,7 @@ import {
   derivedSchemaVersionTag,
   schemaVersionInvariant,
   schemaVersionOrdinal,
-  derivedSchemaVersionFingerprint
+  derivedSchemaVersionFingerprint,
 } from "../src/index.ts";
 
 describe("repository capability surface", () => {
