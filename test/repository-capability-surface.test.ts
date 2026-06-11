@@ -5,7 +5,8 @@ import {
   getRepositoryCapabilitySurface,
   getVersionedRepositoryCapabilitySurface,
   derivedSchemaVersionTag,
-  schemaVersionInvariant
+  schemaVersionInvariant,
+  schemaVersionOrdinal
 } from "../src/index.ts";
 
 describe("repository capability surface", () => {
@@ -17,6 +18,7 @@ describe("repository capability surface", () => {
     expect(versioned.version).toBe(REPOSITORY_CAPABILITY_SURFACE_VERSION);
     expect(surface.schemaVersionInvariant).toBe(schemaVersionInvariant);
     expect(surface.derivedSchemaVersionTag).toBe(derivedSchemaVersionTag);
+    expect(surface.schemaVersionOrdinal).toBe(schemaVersionOrdinal);
     expect(surface.schemaVersionInvariant.version).toBe(REPOSITORY_CAPABILITY_SURFACE_VERSION);
     expect(surface.derivedSchemaVersionTag.version).toBe(REPOSITORY_CAPABILITY_SURFACE_VERSION);
     expect(surface.schemaVersionInvariant.value).toBe(
@@ -25,9 +27,14 @@ describe("repository capability surface", () => {
     expect(surface.derivedSchemaVersionTag.value).toBe(
       `repository-capability-surface-derived-tag/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`
     );
+    expect(surface.schemaVersionOrdinal.version).toBe(REPOSITORY_CAPABILITY_SURFACE_VERSION);
+    expect(surface.schemaVersionOrdinal.value).toBe(
+      `repository-capability-surface-schema-ordinal/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`
+    );
     expect(Object.isFrozen(surface)).toBe(true);
     expect(Object.isFrozen(surface.schemaVersionInvariant)).toBe(true);
     expect(Object.isFrozen(surface.derivedSchemaVersionTag)).toBe(true);
+    expect(Object.isFrozen(surface.schemaVersionOrdinal)).toBe(true);
     expect(Object.isFrozen(versioned)).toBe(true);
     expect(exportRepositoryCapabilitySurface()).toBe(surface);
     expect(() => {
@@ -38,6 +45,9 @@ describe("repository capability surface", () => {
     }).toThrow();
     expect(() => {
       (surface.derivedSchemaVersionTag as { value: string }).value = "mutated";
+    }).toThrow();
+    expect(() => {
+      (surface.schemaVersionOrdinal as { value: string }).value = "mutated";
     }).toThrow();
   });
 });
