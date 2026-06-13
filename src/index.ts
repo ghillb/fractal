@@ -41,6 +41,7 @@ import {
   type EventIntrospectionMetadata,
   schemaVersionLabel,
   schemaVersionTag,
+  schemaVersionFingerprint,
 } from "./event-introspection.ts";
 import {
   TELEMETRY_VERSION,
@@ -51,7 +52,6 @@ import {
   schemaVersionContract,
   schemaVersionStamp,
   schemaVersionSurface,
-  schemaVersionFingerprint,
   schemaVersionLock,
   schemaVersionEnvelope,
   schemaVersionAnchor,
@@ -132,6 +132,7 @@ export {
   type EventIntrospectionMetadata,
   schemaVersionLabel,
   schemaVersionTag,
+  schemaVersionFingerprint,
   TELEMETRY_VERSION,
   exportTelemetryMetadata,
   getTelemetryMetadata,
@@ -140,7 +141,6 @@ export {
   schemaVersionContract,
   schemaVersionStamp,
   schemaVersionSurface,
-  schemaVersionFingerprint,
   schemaVersionLock,
   schemaVersionEnvelope,
   schemaVersionAnchor,

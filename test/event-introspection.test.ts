@@ -3,7 +3,8 @@ import {
   EVENT_INTROSPECTION_VERSION,
   exportEventIntrospectionMetadata,
   getEventIntrospectionMetadata,
-  getVersionedEventIntrospectionMetadata
+  getVersionedEventIntrospectionMetadata,
+  schemaVersionFingerprint
 } from "../src/index.ts";
 
 describe("event introspection metadata", () => {
@@ -42,7 +43,8 @@ describe("event introspection metadata", () => {
         exportContractVersion: EVENT_INTROSPECTION_VERSION,
         introspectionMode: "static-readonly",
         schemaVersionLabel: `event-introspection:v${EVENT_INTROSPECTION_VERSION}`,
-        schemaVersionTag: `event-introspection-schema@v${EVENT_INTROSPECTION_VERSION}`
+        schemaVersionTag: `event-introspection-schema@v${EVENT_INTROSPECTION_VERSION}`,
+        schemaVersionFingerprint: `event-introspection-schema-fingerprint@v${EVENT_INTROSPECTION_VERSION}`
       }
     });
     expect(metadata.publicShape).toEqual({
@@ -58,7 +60,8 @@ describe("event introspection metadata", () => {
       exportContractVersion: EVENT_INTROSPECTION_VERSION,
       introspectionMode: "static-readonly",
       schemaVersionLabel: `event-introspection:v${EVENT_INTROSPECTION_VERSION}`,
-      schemaVersionTag: `event-introspection-schema@v${EVENT_INTROSPECTION_VERSION}`
+      schemaVersionTag: `event-introspection-schema@v${EVENT_INTROSPECTION_VERSION}`,
+      schemaVersionFingerprint: `event-introspection-schema-fingerprint@v${EVENT_INTROSPECTION_VERSION}`
     });
     expect(metadata.exportContract).toEqual({
       version: EVENT_INTROSPECTION_VERSION,
@@ -94,6 +97,11 @@ describe("event introspection metadata", () => {
       description: "Versioned derived tag that combines the domain schema with the version for shallow immutability and stability checks."
     });
     expect(metadata.fields).toContainEqual({
+      name: "schemaVersionFingerprint",
+      type: "string literal",
+      description: "Versioned derived fingerprint that locks the schema version to a shallowly immutable public digest."
+    });
+    expect(metadata.fields).toContainEqual({
       name: "schemaVersionDigest",
       type: "string literal",
       description: "Versioned derived digest for schema stability and shallow immutability checks."
@@ -113,6 +121,7 @@ describe("event introspection metadata", () => {
     expect(metadata.publicShape.introspectionMode).toBe("static-readonly");
     expect(metadata.publicShape.schemaVersionLabel).toBe(`event-introspection:v${EVENT_INTROSPECTION_VERSION}`);
     expect(metadata.publicShape.schemaVersionTag).toBe(`event-introspection-schema@v${EVENT_INTROSPECTION_VERSION}`);
+    expect(metadata.publicShape.schemaVersionFingerprint).toBe(`event-introspection-schema-fingerprint@v${EVENT_INTROSPECTION_VERSION}`);
     expect(metadata.publicShape.schemaVersionDigest).toBe(`event-introspection#v${EVENT_INTROSPECTION_VERSION}`);
     expect(metadata.versionedPublicShape.publicShape.introspectionMode).toBe("static-readonly");
     expect(metadata.versionedPublicShape.publicShape.schemaVersionDigest).toBe(`event-introspection#v${EVENT_INTROSPECTION_VERSION}`);
