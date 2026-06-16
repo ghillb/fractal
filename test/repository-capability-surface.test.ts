@@ -10,6 +10,7 @@ import {
   derivedSchemaVersionFingerprint,
   schemaVersionLineage,
   schemaVersionRelease,
+  schemaVersionChecksumLabel,
   schemaVersionEdition,
   schemaVersionBlueprint,
 } from "../src/index.ts";
@@ -27,6 +28,7 @@ describe("repository capability surface", () => {
     expect(surface.derivedSchemaVersionFingerprint).toBe(derivedSchemaVersionFingerprint);
     expect(surface.schemaVersionLineage).toBe(schemaVersionLineage);
     expect(surface.schemaVersionRelease).toBe(schemaVersionRelease);
+    expect(surface.schemaVersionChecksumLabel).toBe(schemaVersionChecksumLabel);
     expect(surface.schemaVersionEdition).toBe(schemaVersionEdition);
     expect(surface.schemaVersionBlueprint).toBe(schemaVersionBlueprint);
     expect(surface.schemaVersionInvariant.version).toBe(REPOSITORY_CAPABILITY_SURFACE_VERSION);
@@ -56,6 +58,7 @@ describe("repository capability surface", () => {
     expect(Object.isFrozen(surface.derivedSchemaVersionFingerprint)).toBe(true);
     expect(Object.isFrozen(surface.schemaVersionLineage)).toBe(true);
     expect(Object.isFrozen(surface.schemaVersionRelease)).toBe(true);
+    expect(Object.isFrozen(surface.schemaVersionChecksumLabel)).toBe(true);
     expect(Object.isFrozen(surface.schemaVersionEdition)).toBe(true);
     expect(Object.isFrozen(surface.schemaVersionBlueprint)).toBe(true);
     expect(Object.isFrozen(versioned)).toBe(true);
@@ -65,6 +68,9 @@ describe("repository capability surface", () => {
     }).toThrow();
     expect(() => {
       (surface.schemaVersionBlueprint as { value: string }).value = "mutated";
+    }).toThrow();
+    expect(() => {
+      (surface.schemaVersionChecksumLabel as { value: string }).value = "mutated";
     }).toThrow();
   });
 });
