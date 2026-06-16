@@ -4,7 +4,8 @@ import {
   exportEventIntrospectionMetadata,
   getEventIntrospectionMetadata,
   getVersionedEventIntrospectionMetadata,
-  schemaVersionFingerprint
+  schemaVersionFingerprint,
+  versionedSchemaVersion
 } from "../src/index.ts";
 
 describe("event introspection metadata", () => {
@@ -30,6 +31,7 @@ describe("event introspection metadata", () => {
     expect(Object.isFrozen(metadata.versionedPublicShape)).toBe(true);
     expect(Object.isFrozen(metadata.versionedPublicShape.publicShape)).toBe(true);
     expect(Object.isFrozen(metadata.readonlyFields)).toBe(true);
+    expect(Object.isFrozen(metadata.versionedSchemaVersion)).toBe(true);
     expect(Object.isFrozen(metadata.exportContract)).toBe(true);
     expect(metadata.schema).toEqual({
       version: EVENT_INTROSPECTION_VERSION,
@@ -63,12 +65,21 @@ describe("event introspection metadata", () => {
       schemaVersion: EVENT_INTROSPECTION_VERSION,
       derivedFieldCount: 13
     });
+    expect(metadata.versionedSchemaVersion).toEqual({
+      version: EVENT_INTROSPECTION_VERSION,
+      readOnly: true,
+      schemaVersion: EVENT_INTROSPECTION_VERSION,
+      schemaVersionLabel: `event-introspection:v${EVENT_INTROSPECTION_VERSION}`,
+      schemaVersionFingerprint: `event-introspection-schema-fingerprint@v${EVENT_INTROSPECTION_VERSION}`
+    });
+    expect(versionedSchemaVersion).toBe(metadata.versionedSchemaVersion);
     expect(metadata.fields).toContainEqual({ name: "readonlyFields", type: "readonly derived field summary", description: "Versioned derived shallowly immutable summary of read-only schema fields." });
     expect(() => { (metadata as { version: number }).version = 99; }).toThrow();
     expect(() => { (metadata.schema as { digest: string }).digest = "mutated"; }).toThrow();
     expect(() => { (metadata.publicShape as { stable: boolean }).stable = false; }).toThrow();
     expect(() => { (metadata.versionedPublicShape as { readOnly: boolean }).readOnly = false; }).toThrow();
     expect(() => { (metadata.readonlyFields as { derivedFieldCount: number }).derivedFieldCount = 1; }).toThrow();
+    expect(() => { (metadata.versionedSchemaVersion as { readOnly: boolean }).readOnly = false; }).toThrow();
     expect(() => { (metadata.exportContract as { stable: boolean }).stable = false; }).toThrow();
   });
 });
