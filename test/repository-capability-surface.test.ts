@@ -14,6 +14,7 @@ import {
   schemaVersionEdition,
   schemaVersionBlueprint,
   schemaVersionRegistry,
+  schemaVersionManifestLabel,
 } from "../src/index.ts";
 
 describe("repository capability surface", () => {
@@ -33,6 +34,7 @@ describe("repository capability surface", () => {
     expect(surface.schemaVersionEdition).toBe(schemaVersionEdition);
     expect(surface.schemaVersionBlueprint).toBe(schemaVersionBlueprint);
     expect(surface.schemaVersionRegistry).toBe(schemaVersionRegistry);
+    expect(surface.schemaVersionManifestLabel).toBe(schemaVersionManifestLabel);
     expect(surface.schemaVersionInvariant.version).toBe(REPOSITORY_CAPABILITY_SURFACE_VERSION);
     expect(surface.derivedSchemaVersionTag.version).toBe(REPOSITORY_CAPABILITY_SURFACE_VERSION);
     expect(surface.schemaVersionInvariant.value).toBe(
@@ -57,6 +59,10 @@ describe("repository capability surface", () => {
     expect(surface.schemaVersionRegistry.value).toBe(
       `repository-capability-surface-registry/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`
     );
+    expect(surface.schemaVersionManifestLabel.version).toBe(REPOSITORY_CAPABILITY_SURFACE_VERSION);
+    expect(surface.schemaVersionManifestLabel.value).toBe(
+      `repository-capability-surface-manifest-label/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`
+    );
     expect(Object.isFrozen(surface)).toBe(true);
     expect(Object.isFrozen(surface.schemaVersionInvariant)).toBe(true);
     expect(Object.isFrozen(surface.derivedSchemaVersionTag)).toBe(true);
@@ -68,6 +74,7 @@ describe("repository capability surface", () => {
     expect(Object.isFrozen(surface.schemaVersionEdition)).toBe(true);
     expect(Object.isFrozen(surface.schemaVersionBlueprint)).toBe(true);
     expect(Object.isFrozen(surface.schemaVersionRegistry)).toBe(true);
+    expect(Object.isFrozen(surface.schemaVersionManifestLabel)).toBe(true);
     expect(Object.isFrozen(versioned)).toBe(true);
     expect(exportRepositoryCapabilitySurface()).toBe(surface);
     expect(() => {
@@ -81,6 +88,9 @@ describe("repository capability surface", () => {
     }).toThrow();
     expect(() => {
       (surface.schemaVersionRegistry as { value: string }).value = "mutated";
+    }).toThrow();
+    expect(() => {
+      (surface.schemaVersionManifestLabel as { value: string }).value = "mutated";
     }).toThrow();
   });
 });
