@@ -57,7 +57,8 @@ describe("event introspection metadata", () => {
         introspectionMode: "static-readonly",
         schemaVersionLabel: `event-introspection:v${EVENT_INTROSPECTION_VERSION}`,
         schemaVersionTag: `event-introspection-schema@v${EVENT_INTROSPECTION_VERSION}`,
-        schemaVersionFingerprint: `event-introspection-schema-fingerprint@v${EVENT_INTROSPECTION_VERSION}`
+        schemaVersionFingerprint: `event-introspection-schema-fingerprint@v${EVENT_INTROSPECTION_VERSION}`,
+        versionedSchemaVersion: EVENT_INTROSPECTION_VERSION
       }
     });
     expect(metadata.readonlyFields).toEqual({
@@ -73,7 +74,7 @@ describe("event introspection metadata", () => {
       schemaVersionFingerprint: `event-introspection-schema-fingerprint@v${EVENT_INTROSPECTION_VERSION}`
     });
     expect(versionedSchemaVersion).toBe(metadata.versionedSchemaVersion);
-    expect(metadata.fields).toContainEqual({ name: "readonlyFields", type: "readonly derived field summary", description: "Versioned derived shallowly immutable summary of read-only schema fields." });
+    expect(metadata.fields).toContainEqual({ name: "versionedSchemaVersion", type: "number", description: "Versioned derived schema version marker that mirrors the facade version." });
     expect(() => { (metadata as { version: number }).version = 99; }).toThrow();
     expect(() => { (metadata.schema as { digest: string }).digest = "mutated"; }).toThrow();
     expect(() => { (metadata.publicShape as { stable: boolean }).stable = false; }).toThrow();
