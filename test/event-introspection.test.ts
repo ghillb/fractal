@@ -5,6 +5,7 @@ import {
   getEventIntrospectionMetadata,
   getVersionedEventIntrospectionMetadata,
   schemaVersionFingerprint,
+  schemaVersionHash,
   versionedSchemaVersion
 } from "../src/index.ts";
 
@@ -24,6 +25,7 @@ describe("event introspection metadata", () => {
     expect(versioned.metadata).toBe(metadata);
     expect(exportEventIntrospectionMetadata()).toBe(metadata);
     expect(schemaVersionFingerprint).toBe(`event-introspection-schema-fingerprint@v${EVENT_INTROSPECTION_VERSION}`);
+    expect(schemaVersionHash).toBe(`event-introspection-hash@v${EVENT_INTROSPECTION_VERSION}`);
     expect(Object.isFrozen(metadata)).toBe(true);
     expect(Object.isFrozen(metadata.fields)).toBe(true);
     expect(Object.isFrozen(metadata.schema)).toBe(true);
@@ -53,6 +55,7 @@ describe("event introspection metadata", () => {
         schemaVersion: EVENT_INTROSPECTION_VERSION,
         derivedFieldCount: 13,
         schemaVersionDigest: `event-introspection#v${EVENT_INTROSPECTION_VERSION}`,
+        schemaVersionHash: `event-introspection-hash@v${EVENT_INTROSPECTION_VERSION}`,
         exportContractVersion: EVENT_INTROSPECTION_VERSION,
         introspectionMode: "static-readonly",
         schemaVersionLabel: `event-introspection:v${EVENT_INTROSPECTION_VERSION}`,
@@ -75,6 +78,7 @@ describe("event introspection metadata", () => {
     });
     expect(versionedSchemaVersion).toBe(metadata.versionedSchemaVersion);
     expect(metadata.fields).toContainEqual({ name: "versionedSchemaVersion", type: "number", description: "Versioned derived schema version marker that mirrors the facade version." });
+    expect(metadata.fields).toContainEqual({ name: "schemaVersionHash", type: "string literal", description: "Versioned derived hash-like label that mirrors the schema digest for stability checks." });
     expect(() => { (metadata as { version: number }).version = 99; }).toThrow();
     expect(() => { (metadata.schema as { digest: string }).digest = "mutated"; }).toThrow();
     expect(() => { (metadata.publicShape as { stable: boolean }).stable = false; }).toThrow();
