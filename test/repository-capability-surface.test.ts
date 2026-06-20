@@ -17,6 +17,7 @@ import {
   schemaVersionManifestLabel,
   schemaVersionStabilityLabel,
   schemaVersionVersionLabel,
+  schemaVersionLockLabel,
 } from "../src/index.ts";
 
 describe("repository capability surface", () => {
@@ -27,13 +28,21 @@ describe("repository capability surface", () => {
     expect(surface.version).toBe(REPOSITORY_CAPABILITY_SURFACE_VERSION);
     expect(versioned.version).toBe(REPOSITORY_CAPABILITY_SURFACE_VERSION);
     expect(surface.schemaVersionVersionLabel).toBe(schemaVersionVersionLabel);
+    expect(surface.schemaVersionLockLabel).toBe(schemaVersionLockLabel);
     expect(surface.schemaVersionVersionLabel.version).toBe(REPOSITORY_CAPABILITY_SURFACE_VERSION);
     expect(surface.schemaVersionVersionLabel.value).toBe(
       `repository-capability-surface-version-label/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`
     );
+    expect(surface.schemaVersionLockLabel.value).toBe(
+      `repository-capability-surface-lock-label/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`
+    );
     expect(Object.isFrozen(surface.schemaVersionVersionLabel)).toBe(true);
+    expect(Object.isFrozen(surface.schemaVersionLockLabel)).toBe(true);
     expect(() => {
       (surface.schemaVersionVersionLabel as { value: string }).value = "mutated";
+    }).toThrow();
+    expect(() => {
+      (surface.schemaVersionLockLabel as { value: string }).value = "mutated";
     }).toThrow();
     expect(Object.isFrozen(surface)).toBe(true);
     expect(exportRepositoryCapabilitySurface()).toBe(surface);

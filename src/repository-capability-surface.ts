@@ -241,6 +241,11 @@ export type RepositoryCapabilitySurface = Readonly<{
     value: `repository-capability-surface-version-label/v${typeof REPOSITORY_CAPABILITY_SURFACE_VERSION}`;
     derived: true;
   }>;
+  schemaVersionLockLabel: Readonly<{
+    version: typeof REPOSITORY_CAPABILITY_SURFACE_VERSION;
+    value: `repository-capability-surface-lock-label/v${typeof REPOSITORY_CAPABILITY_SURFACE_VERSION}`;
+    derived: true;
+  }>;
 }>;
 
 const repositoryCapabilitySurface: RepositoryCapabilitySurface = Object.freeze({
@@ -290,7 +295,8 @@ const repositoryCapabilitySurface: RepositoryCapabilitySurface = Object.freeze({
   schemaVersionRegistry: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, value: `repository-capability-surface-registry/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`, derived: true }),
   schemaVersionManifestLabel: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, value: `repository-capability-surface-manifest-label/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`, derived: true }),
   schemaVersionStabilityLabel: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, value: `repository-capability-surface-stability-label/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`, derived: true }),
-  schemaVersionVersionLabel: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, value: `repository-capability-surface-version-label/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`, derived: true })
+  schemaVersionVersionLabel: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, value: `repository-capability-surface-version-label/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`, derived: true }),
+  schemaVersionLockLabel: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, value: `repository-capability-surface-lock-label/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`, derived: true })
 });
 
 export type VersionedRepositoryCapabilitySurface = Readonly<{ version: typeof REPOSITORY_CAPABILITY_SURFACE_VERSION; readOnly: true; surface: RepositoryCapabilitySurface }>;
@@ -318,3 +324,4 @@ export const schemaVersionRegistry = repositoryCapabilitySurface.schemaVersionRe
 export const schemaVersionManifestLabel = repositoryCapabilitySurface.schemaVersionManifestLabel;
 export const schemaVersionStabilityLabel = repositoryCapabilitySurface.schemaVersionStabilityLabel;
 export const schemaVersionVersionLabel = repositoryCapabilitySurface.schemaVersionVersionLabel;
+export const schemaVersionLockLabel = repositoryCapabilitySurface.schemaVersionLockLabel;
