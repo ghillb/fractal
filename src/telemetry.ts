@@ -175,6 +175,13 @@ export type TelemetryMetadata = Readonly<{
     derived: true;
     stableShape: true;
   }>;
+  schemaVersionSignature: Readonly<{
+    version: typeof TELEMETRY_VERSION;
+    label: "telemetry-schema-signature@4";
+    schemaVersion: typeof TELEMETRY_VERSION;
+    readOnly: true;
+    derived: true;
+  }>;
 }>;
 
 const telemetryMetadata: TelemetryMetadata = Object.freeze({
@@ -240,6 +247,7 @@ const telemetryMetadata: TelemetryMetadata = Object.freeze({
   schemaVersionEnvelope: Object.freeze({ version: TELEMETRY_VERSION, schemaVersion: TELEMETRY_VERSION, readOnly: true, derived: true, stableShape: true }),
   schemaVersionAnchor: Object.freeze({ version: TELEMETRY_VERSION, schemaVersion: TELEMETRY_VERSION, readOnly: true, derived: true, stableShape: true }),
   schemaVersionBeacon: Object.freeze({ version: TELEMETRY_VERSION, schemaVersion: TELEMETRY_VERSION, readOnly: true, derived: true, stableShape: true }),
+  schemaVersionSignature: Object.freeze({ version: TELEMETRY_VERSION, label: "telemetry-schema-signature@4", schemaVersion: TELEMETRY_VERSION, readOnly: true, derived: true }),
   schemaVersionField: Object.freeze({ version: TELEMETRY_VERSION, label: "schemaVersion", derived: true })
 });
 
@@ -264,3 +272,4 @@ export const schemaVersionLock = telemetryMetadata.schemaVersionLock;
 export const schemaVersionEnvelope = telemetryMetadata.schemaVersionEnvelope;
 export const schemaVersionAnchor = telemetryMetadata.schemaVersionAnchor;
 export const schemaVersionBeacon = telemetryMetadata.schemaVersionBeacon;
+export const schemaVersionSignature = telemetryMetadata.schemaVersionSignature;
