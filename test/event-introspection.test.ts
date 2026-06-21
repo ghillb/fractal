@@ -53,7 +53,7 @@ describe("event introspection metadata", () => {
         domain: "event-introspection",
         derivedVersion: EVENT_INTROSPECTION_VERSION,
         schemaVersion: EVENT_INTROSPECTION_VERSION,
-        derivedFieldCount: 13,
+        derivedFieldCount: 14,
         schemaVersionDigest: `event-introspection#v${EVENT_INTROSPECTION_VERSION}`,
         schemaVersionHash: `event-introspection-hash@v${EVENT_INTROSPECTION_VERSION}`,
         exportContractVersion: EVENT_INTROSPECTION_VERSION,
@@ -67,7 +67,7 @@ describe("event introspection metadata", () => {
     expect(metadata.readonlyFields).toEqual({
       version: EVENT_INTROSPECTION_VERSION,
       schemaVersion: EVENT_INTROSPECTION_VERSION,
-      derivedFieldCount: 13
+      derivedFieldCount: 14
     });
     expect(metadata.versionedSchemaVersion).toEqual({
       version: EVENT_INTROSPECTION_VERSION,
@@ -79,6 +79,7 @@ describe("event introspection metadata", () => {
     expect(versionedSchemaVersion).toBe(metadata.versionedSchemaVersion);
     expect(metadata.fields).toContainEqual({ name: "versionedSchemaVersion", type: "number", description: "Versioned derived schema version marker that mirrors the facade version." });
     expect(metadata.fields).toContainEqual({ name: "schemaVersionHash", type: "string literal", description: "Versioned derived hash-like label that mirrors the schema digest for stability checks." });
+    expect(metadata.fields).toContainEqual({ name: "exportContractVersionLabel", type: "string literal", description: "Versioned derived export-contract label that locks the facade version for shallow immutability checks." });
     expect(() => { (metadata as { version: number }).version = 99; }).toThrow();
     expect(() => { (metadata.schema as { digest: string }).digest = "mutated"; }).toThrow();
     expect(() => { (metadata.publicShape as { stable: boolean }).stable = false; }).toThrow();

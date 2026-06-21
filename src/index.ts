@@ -42,6 +42,7 @@ import {
   schemaVersionLabel,
   schemaVersionTag,
   versionedSchemaVersion,
+  exportContractVersionLabel,
   schemaVersionFingerprint,
   schemaVersionHash,
 } from "./event-introspection.ts";
@@ -142,6 +143,7 @@ export {
   schemaVersionLabel,
   schemaVersionTag,
   versionedSchemaVersion,
+  exportContractVersionLabel,
   schemaVersionFingerprint,
   schemaVersionHash,
   TELEMETRY_VERSION,
