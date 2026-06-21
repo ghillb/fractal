@@ -168,6 +168,13 @@ export type TelemetryMetadata = Readonly<{
     derived: true;
     stableShape: true;
   }>;
+  schemaVersionBeacon: Readonly<{
+    version: typeof TELEMETRY_VERSION;
+    schemaVersion: typeof TELEMETRY_VERSION;
+    readOnly: true;
+    derived: true;
+    stableShape: true;
+  }>;
 }>;
 
 const telemetryMetadata: TelemetryMetadata = Object.freeze({
@@ -232,6 +239,7 @@ const telemetryMetadata: TelemetryMetadata = Object.freeze({
   schemaVersionLock: Object.freeze({ version: TELEMETRY_VERSION, label: "telemetry-schema-lock@4", readOnly: true, derived: true }),
   schemaVersionEnvelope: Object.freeze({ version: TELEMETRY_VERSION, schemaVersion: TELEMETRY_VERSION, readOnly: true, derived: true, stableShape: true }),
   schemaVersionAnchor: Object.freeze({ version: TELEMETRY_VERSION, schemaVersion: TELEMETRY_VERSION, readOnly: true, derived: true, stableShape: true }),
+  schemaVersionBeacon: Object.freeze({ version: TELEMETRY_VERSION, schemaVersion: TELEMETRY_VERSION, readOnly: true, derived: true, stableShape: true }),
   schemaVersionField: Object.freeze({ version: TELEMETRY_VERSION, label: "schemaVersion", derived: true })
 });
 
@@ -255,3 +263,4 @@ export const schemaVersionFingerprint = telemetryMetadata.schemaVersionFingerpri
 export const schemaVersionLock = telemetryMetadata.schemaVersionLock;
 export const schemaVersionEnvelope = telemetryMetadata.schemaVersionEnvelope;
 export const schemaVersionAnchor = telemetryMetadata.schemaVersionAnchor;
+export const schemaVersionBeacon = telemetryMetadata.schemaVersionBeacon;
