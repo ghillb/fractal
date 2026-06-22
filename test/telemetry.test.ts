@@ -10,6 +10,7 @@ import {
   schemaVersionSurface,
   schemaVersionFingerprint,
   schemaVersionLock,
+  derivedSchemaFingerprint,
   schemaVersionEnvelope,
   schemaVersionAnchor,
   schemaVersionBeacon,
@@ -58,6 +59,10 @@ describe("telemetry metadata", () => {
     expect(telemetry.schemaVersionLock.label).toBe("telemetry-schema-lock@4");
     expect(telemetry.schemaVersionLock.readOnly).toBe(true);
     expect(telemetry.schemaVersionLock.derived).toBe(true);
+    expect(telemetry.derivedSchemaFingerprint.version).toBe(TELEMETRY_VERSION);
+    expect(telemetry.derivedSchemaFingerprint.fingerprint).toBe("telemetry-derived-schema-fingerprint@4");
+    expect(telemetry.derivedSchemaFingerprint.readOnly).toBe(true);
+    expect(telemetry.derivedSchemaFingerprint.derived).toBe(true);
     expect(telemetry.schemaVersionEnvelope.version).toBe(TELEMETRY_VERSION);
     expect(telemetry.schemaVersionEnvelope.schemaVersion).toBe(TELEMETRY_VERSION);
     expect(telemetry.schemaVersionEnvelope.readOnly).toBe(true);
@@ -107,6 +112,7 @@ describe("telemetry metadata", () => {
     expect(Object.isFrozen(telemetry.schemaVersionSurface)).toBe(true);
     expect(Object.isFrozen(telemetry.schemaVersionFingerprint)).toBe(true);
     expect(Object.isFrozen(telemetry.schemaVersionLock)).toBe(true);
+    expect(Object.isFrozen(telemetry.derivedSchemaFingerprint)).toBe(true);
     expect(Object.isFrozen(telemetry.schemaVersionEnvelope)).toBe(true);
     expect(Object.isFrozen(telemetry.schemaVersionAnchor)).toBe(true);
     expect(Object.isFrozen(telemetry.schemaVersionBeacon)).toBe(true);
@@ -124,6 +130,7 @@ describe("telemetry metadata", () => {
     expect(() => { (telemetry.schemaVersionSurface as { schemaVersion: number }).schemaVersion = 99; }).toThrow();
     expect(() => { (telemetry.schemaVersionFingerprint as { fingerprint: string }).fingerprint = "q"; }).toThrow();
     expect(() => { (telemetry.schemaVersionLock as { label: string }).label = "q"; }).toThrow();
+    expect(() => { (telemetry.derivedSchemaFingerprint as { fingerprint: string }).fingerprint = "q"; }).toThrow();
     expect(() => { (telemetry.schemaVersionEnvelope as { schemaVersion: number }).schemaVersion = 99; }).toThrow();
     expect(() => { (telemetry.schemaVersionAnchor as { schemaVersion: number }).schemaVersion = 99; }).toThrow();
     expect(() => { (telemetry.schemaVersionBeacon as { schemaVersion: number }).schemaVersion = 99; }).toThrow();
