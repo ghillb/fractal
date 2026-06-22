@@ -32,6 +32,7 @@ export type EventIntrospectionMetadata = Readonly<{
     schemaVersionDigest: `event-introspection#v${typeof EVENT_INTROSPECTION_VERSION}`;
     schemaVersionHash: `event-introspection-hash@v${typeof EVENT_INTROSPECTION_VERSION}`;
     exportContractVersion: typeof EVENT_INTROSPECTION_VERSION;
+    exportContractVersionLabel: `event-introspection-export@v${typeof EVENT_INTROSPECTION_VERSION}`;
     introspectionMode: "static-readonly";
     schemaVersionLabel: `event-introspection:v${typeof EVENT_INTROSPECTION_VERSION}`;
     schemaVersionTag: `event-introspection-schema@v${typeof EVENT_INTROSPECTION_VERSION}`;
@@ -53,6 +54,7 @@ export type EventIntrospectionMetadata = Readonly<{
       schemaVersionDigest: `event-introspection#v${typeof EVENT_INTROSPECTION_VERSION}`;
       schemaVersionHash: `event-introspection-hash@v${typeof EVENT_INTROSPECTION_VERSION}`;
       exportContractVersion: typeof EVENT_INTROSPECTION_VERSION;
+      exportContractVersionLabel: `event-introspection-export@v${typeof EVENT_INTROSPECTION_VERSION}`;
       introspectionMode: "static-readonly";
       schemaVersionLabel: `event-introspection:v${typeof EVENT_INTROSPECTION_VERSION}`;
       schemaVersionTag: `event-introspection-schema@v${typeof EVENT_INTROSPECTION_VERSION}`;
@@ -103,6 +105,7 @@ const eventIntrospectionMetadata: EventIntrospectionMetadata = Object.freeze({
     Object.freeze({ name: "schemaVersionHash", type: "string literal", description: "Versioned derived hash-like label that mirrors the schema digest for stability checks." }),
     Object.freeze({ name: "versionedPublicShape", type: "readonly derived shape", description: "Versioned wrapper that exposes the public shape as an immutable boundary object." }),
     Object.freeze({ name: "exportContractVersion", type: "number", description: "Derived export contract version for schema and export stability checks." }),
+    Object.freeze({ name: "exportContractVersionLabel", type: "string literal", description: "Versioned derived export-contract label that locks the facade version for shallow immutability checks." }),
     Object.freeze({ name: "exportContract", type: "readonly contract object", description: "Versioned derived contract for public exports and schema stability." }),
     Object.freeze({ name: "readonlyFields", type: "readonly derived field summary", description: "Versioned derived shallowly immutable summary of read-only schema fields." }),
     Object.freeze({ name: "versionedSchemaVersion", type: "readonly schema version object", description: "Versioned derived schema-version wrapper for stability and shallow immutability checks." }),
@@ -132,6 +135,7 @@ const eventIntrospectionMetadata: EventIntrospectionMetadata = Object.freeze({
     schemaVersionDigest: `event-introspection#v${EVENT_INTROSPECTION_VERSION}`,
     schemaVersionHash: `event-introspection-hash@v${EVENT_INTROSPECTION_VERSION}`,
     exportContractVersion: EVENT_INTROSPECTION_VERSION,
+    exportContractVersionLabel: `event-introspection-export@v${EVENT_INTROSPECTION_VERSION}`,
     introspectionMode: "static-readonly",
     schemaVersionLabel: `event-introspection:v${EVENT_INTROSPECTION_VERSION}`,
     schemaVersionTag: `event-introspection-schema@v${EVENT_INTROSPECTION_VERSION}`,
@@ -153,6 +157,7 @@ const eventIntrospectionMetadata: EventIntrospectionMetadata = Object.freeze({
       schemaVersionDigest: `event-introspection#v${EVENT_INTROSPECTION_VERSION}`,
       schemaVersionHash: `event-introspection-hash@v${EVENT_INTROSPECTION_VERSION}`,
       exportContractVersion: EVENT_INTROSPECTION_VERSION,
+      exportContractVersionLabel: `event-introspection-export@v${EVENT_INTROSPECTION_VERSION}`,
       introspectionMode: "static-readonly",
       schemaVersionLabel: `event-introspection:v${EVENT_INTROSPECTION_VERSION}`,
       schemaVersionTag: `event-introspection-schema@v${EVENT_INTROSPECTION_VERSION}`,

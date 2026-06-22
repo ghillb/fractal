@@ -57,6 +57,7 @@ describe("event introspection metadata", () => {
         schemaVersionDigest: `event-introspection#v${EVENT_INTROSPECTION_VERSION}`,
         schemaVersionHash: `event-introspection-hash@v${EVENT_INTROSPECTION_VERSION}`,
         exportContractVersion: EVENT_INTROSPECTION_VERSION,
+        exportContractVersionLabel: `event-introspection-export@v${EVENT_INTROSPECTION_VERSION}`,
         introspectionMode: "static-readonly",
         schemaVersionLabel: `event-introspection:v${EVENT_INTROSPECTION_VERSION}`,
         schemaVersionTag: `event-introspection-schema@v${EVENT_INTROSPECTION_VERSION}`,
