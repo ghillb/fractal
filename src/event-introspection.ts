@@ -197,5 +197,6 @@ export const schemaVersionFingerprint = `event-introspection-schema-fingerprint@
 export const versionedSchemaVersion = eventIntrospectionMetadata.versionedSchemaVersion;
 
 export const schemaVersionHash = `event-introspection-hash@v${EVENT_INTROSPECTION_VERSION}` as const;
+export const schemaVersionStable = true as const;
 
 export const exportContractVersionLabel = `event-introspection-export@v${EVENT_INTROSPECTION_VERSION}` as const;
