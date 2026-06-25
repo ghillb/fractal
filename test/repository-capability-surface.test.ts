@@ -11,6 +11,7 @@ import {
   schemaVersionLineage,
   schemaVersionRelease,
   schemaVersionChecksumLabel,
+  schemaVersionDerivedCapabilitySignal,
   schemaVersionEdition,
   schemaVersionBlueprint,
   schemaVersionRegistry,
@@ -39,9 +40,13 @@ describe("repository capability surface", () => {
       `repository-capability-surface-lock-label/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`
     );
     expect(surface.schemaVersionReadOnlyDerivedField).toBe(schemaVersionReadOnlyDerivedField);
+    expect(surface.schemaVersionDerivedCapabilitySignal).toBe(schemaVersionDerivedCapabilitySignal);
     expect(surface.schemaVersionSurfaceVersion).toBe(schemaVersionSurfaceVersion);
     expect(surface.schemaVersionReadOnlyDerivedField.value).toBe(
       `repository-capability-surface-read-only-derived-field/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`
+    );
+    expect(surface.schemaVersionDerivedCapabilitySignal.value).toBe(
+      `repository-capability-surface-derived-capability-signal/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`
     );
     expect(surface.schemaVersionSurfaceVersion.value).toBe(
       `repository-capability-surface-surface-version/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`
@@ -56,6 +61,9 @@ describe("repository capability surface", () => {
     }).toThrow();
     expect(() => {
       (surface.schemaVersionReadOnlyDerivedField as { value: string }).value = "mutated";
+    }).toThrow();
+    expect(() => {
+      (surface.schemaVersionDerivedCapabilitySignal as { value: string }).value = "mutated";
     }).toThrow();
     expect(() => {
       (surface.schemaVersionSurfaceVersion as { value: string }).value = "mutated";
