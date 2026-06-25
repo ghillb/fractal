@@ -10,6 +10,7 @@ import {
   schemaVersionSurface,
   schemaVersionFingerprint,
   schemaVersionLock,
+  schemaVersionReadOnlyDerivedField,
   derivedSchemaFingerprint,
   schemaVersionEnvelope,
   schemaVersionAnchor,
@@ -59,6 +60,10 @@ describe("telemetry metadata", () => {
     expect(telemetry.schemaVersionLock.label).toBe("telemetry-schema-lock@4");
     expect(telemetry.schemaVersionLock.readOnly).toBe(true);
     expect(telemetry.schemaVersionLock.derived).toBe(true);
+    expect(telemetry.schemaVersionReadOnlyDerivedField.version).toBe(TELEMETRY_VERSION);
+    expect(telemetry.schemaVersionReadOnlyDerivedField.label).toBe("telemetry-schema-read-only-derived-field@4");
+    expect(telemetry.schemaVersionReadOnlyDerivedField.readOnly).toBe(true);
+    expect(telemetry.schemaVersionReadOnlyDerivedField.derived).toBe(true);
     expect(telemetry.derivedSchemaFingerprint.version).toBe(TELEMETRY_VERSION);
     expect(telemetry.derivedSchemaFingerprint.fingerprint).toBe("telemetry-derived-schema-fingerprint@4");
     expect(telemetry.derivedSchemaFingerprint.readOnly).toBe(true);
@@ -112,6 +117,7 @@ describe("telemetry metadata", () => {
     expect(Object.isFrozen(telemetry.schemaVersionSurface)).toBe(true);
     expect(Object.isFrozen(telemetry.schemaVersionFingerprint)).toBe(true);
     expect(Object.isFrozen(telemetry.schemaVersionLock)).toBe(true);
+    expect(Object.isFrozen(telemetry.schemaVersionReadOnlyDerivedField)).toBe(true);
     expect(Object.isFrozen(telemetry.derivedSchemaFingerprint)).toBe(true);
     expect(Object.isFrozen(telemetry.schemaVersionEnvelope)).toBe(true);
     expect(Object.isFrozen(telemetry.schemaVersionAnchor)).toBe(true);
@@ -130,6 +136,7 @@ describe("telemetry metadata", () => {
     expect(() => { (telemetry.schemaVersionSurface as { schemaVersion: number }).schemaVersion = 99; }).toThrow();
     expect(() => { (telemetry.schemaVersionFingerprint as { fingerprint: string }).fingerprint = "q"; }).toThrow();
     expect(() => { (telemetry.schemaVersionLock as { label: string }).label = "q"; }).toThrow();
+    expect(() => { (telemetry.schemaVersionReadOnlyDerivedField as { label: string }).label = "q"; }).toThrow();
     expect(() => { (telemetry.derivedSchemaFingerprint as { fingerprint: string }).fingerprint = "q"; }).toThrow();
     expect(() => { (telemetry.schemaVersionEnvelope as { schemaVersion: number }).schemaVersion = 99; }).toThrow();
     expect(() => { (telemetry.schemaVersionAnchor as { schemaVersion: number }).schemaVersion = 99; }).toThrow();

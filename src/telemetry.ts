@@ -160,6 +160,12 @@ export type TelemetryMetadata = Readonly<{
     readOnly: true;
     derived: true;
   }>;
+  schemaVersionReadOnlyDerivedField: Readonly<{
+    version: typeof TELEMETRY_VERSION;
+    label: "telemetry-schema-read-only-derived-field@4";
+    readOnly: true;
+    derived: true;
+  }>;
   schemaVersionEnvelope: Readonly<{
     version: typeof TELEMETRY_VERSION;
     schemaVersion: typeof TELEMETRY_VERSION;
@@ -225,7 +231,8 @@ const telemetryMetadata: TelemetryMetadata = Object.freeze({
     Object.freeze({ name: "schemaVersionField", type: "readonly schema-version marker", description: "Versioned derived field that exposes the schema version label for downstream tooling." }),
     Object.freeze({ name: "schemaVersionDescriptor", type: "readonly schema-version descriptor", description: "Versioned derived field that pairs the schema label with the numeric schema version for stability checks." }),
     Object.freeze({ name: "schemaVersionFingerprint", type: "readonly schema fingerprint", description: "Versioned derived field that provides a shallowly immutable fingerprint for schema/version stability checks." }),
-    Object.freeze({ name: "schemaVersionLock", type: "readonly schema lock", description: "Versioned derived field that locks the telemetry schema contract to the current version." })
+    Object.freeze({ name: "schemaVersionLock", type: "readonly schema lock", description: "Versioned derived field that locks the telemetry schema contract to the current version." }),
+    Object.freeze({ name: "schemaVersionReadOnlyDerivedField", type: "readonly schema lock", description: "Versioned derived field that adds a read-only derived stability marker without changing runtime behavior." })
   ]),
   snapshot: Object.freeze({ version: TELEMETRY_VERSION, immutable: true, stableShape: true }),
   derivedVisibility: Object.freeze({ version: TELEMETRY_VERSION, label: "public-export-visible", derived: true }),
@@ -252,6 +259,7 @@ const telemetryMetadata: TelemetryMetadata = Object.freeze({
   schemaVersionSurface: Object.freeze({ version: TELEMETRY_VERSION, schemaVersion: TELEMETRY_VERSION, readOnly: true, derived: true, stableShape: true }),
   schemaVersionFingerprint: Object.freeze({ version: TELEMETRY_VERSION, fingerprint: "telemetry-schema-fingerprint@4", readOnly: true, derived: true }),
   schemaVersionLock: Object.freeze({ version: TELEMETRY_VERSION, label: "telemetry-schema-lock@4", readOnly: true, derived: true }),
+  schemaVersionReadOnlyDerivedField: Object.freeze({ version: TELEMETRY_VERSION, label: "telemetry-schema-read-only-derived-field@4", readOnly: true, derived: true }),
   schemaVersionEnvelope: Object.freeze({ version: TELEMETRY_VERSION, schemaVersion: TELEMETRY_VERSION, readOnly: true, derived: true, stableShape: true }),
   schemaVersionAnchor: Object.freeze({ version: TELEMETRY_VERSION, schemaVersion: TELEMETRY_VERSION, readOnly: true, derived: true, stableShape: true }),
   schemaVersionBeacon: Object.freeze({ version: TELEMETRY_VERSION, schemaVersion: TELEMETRY_VERSION, readOnly: true, derived: true, stableShape: true }),
@@ -278,6 +286,7 @@ export const schemaVersionStamp = telemetryMetadata.schemaVersionStamp;
 export const schemaVersionSurface = telemetryMetadata.schemaVersionSurface;
 export const schemaVersionFingerprint = telemetryMetadata.schemaVersionFingerprint;
 export const schemaVersionLock = telemetryMetadata.schemaVersionLock;
+export const schemaVersionReadOnlyDerivedField = telemetryMetadata.schemaVersionReadOnlyDerivedField;
 export const schemaVersionEnvelope = telemetryMetadata.schemaVersionEnvelope;
 export const schemaVersionAnchor = telemetryMetadata.schemaVersionAnchor;
 export const schemaVersionBeacon = telemetryMetadata.schemaVersionBeacon;
