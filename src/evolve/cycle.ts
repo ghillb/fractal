@@ -4,12 +4,22 @@ import { JsonLogger } from "../core/logger.ts";
 import { exec } from "../core/shell.ts";
 import { runAgent } from "../agent/runner.ts";
 import { extractOutputText, openAiResponses } from "../agent/openai.ts";
-import { spriteEphemeralWorkflow } from "../tools/sprites.ts";
 import { gatherObservations } from "./observe.ts";
 import { appendJournal, type JournalEntry, type JournalOutcome } from "./journal.ts";
 import { deriveCycleStatus } from "./journal-validator.ts";
 import { CYCLE_STATUS_INSPECTION_CAPABILITY, type CapabilityMarker, type JournalMachineReadablePayload } from "./journal-schema.ts";
 import { buildWorkflowRoutingAudit, selectEvolveWorkflow } from "./workflows.ts";
+import {
+  artifactRootForCycle,
+  buildRepairPrompt,
+  compactValidationResult,
+  commitEvolution,
+  runValidationSuite,
+  validateDecisionPreflight,
+  writeCandidatePatch,
+  writeValidationArtifacts,
+  type ValidationSuiteResult
+} from "./reliability.ts";
 import type { EvolutionDecision, ObserveData } from "./types.ts";
 
 export const EVOLVE_CAPABILITY_DESCRIPTOR_VERSION = 1 as const;
@@ -43,10 +53,10 @@ export function discoverEvolveCapabilityDescriptor(
   });
 }
 
-const DEFAULT_MISSION =
-  "Become an entity that is ever more capable while improving safely.";
+const DEFAULT_MISSION = "Become an entity that is ever more capable while improving safely.";
 const EVOLVE_AGENT_MAX_STEPS = 50;
 const HOT_FILE_AVOIDANCE_PROBABILITY = 0.85;
+const MAX_REPAIR_ATTEMPTS = 2;
 
 function extractJsonObject(text: string): string {
   const start = text.indexOf("{");
@@ -172,7 +182,6 @@ async function generateDecision(goal: string, observations: ObserveData): Promis
   const applyHotFilePressure =
     observations.recentHotFiles.length > 0 && shouldApplyHotFilePressure(Math.random());
   const workflowSelection = selectEvolveWorkflow(observations);
-  const workflowAudit = buildWorkflowRoutingAudit(observations, workflowSelection.kind);
 
   const prompt = [
     "You are selecting exactly one high-impact and bounded codebase improvement.",
@@ -223,59 +232,6 @@ function openIssueForUncertainty(change: string, rationale: string): void {
   exec(
     `gh issue create --title ${JSON.stringify(title)} --body ${JSON.stringify(body)} >/dev/null 2>&1 || true`
   );
-}
-
-function runTypecheck(): boolean {
-  const typecheck = exec("bun run typecheck");
-  return typecheck.code === 0;
-}
-
-function runLocalChecks(): { lint: boolean; test: boolean } {
-  const lint = exec("bun run lint");
-  const test = exec("bun test");
-  return { lint: lint.code === 0, test: test.code === 0 };
-}
-
-async function runSpriteChecks(): Promise<{ lint: boolean; test: boolean }> {
-  const cfg = readConfig();
-  if (!cfg.spritesEnabled) {
-    throw new Error("Compile-heavy evolve change requires Sprites. Set SPRITES_ENABLED=true.");
-  }
-
-  const outcome = await spriteEphemeralWorkflow(
-    {
-      name: cfg.spritesDefaultName,
-      command: "bun run lint && bun test",
-      checkpoint: true
-    },
-    {
-      enabled: cfg.spritesEnabled,
-      defaultName: cfg.spritesDefaultName,
-      retries: 2,
-      timeoutSeconds: 240
-    }
-  );
-
-  const run = outcome.run as { code?: number } | undefined;
-  return { lint: run?.code === 0, test: run?.code === 0 };
-}
-
-function commitEvolution(change: string): void {
-  if (gitChangedFiles().length === 0) {
-    throw new Error("no file changes produced by evolve action");
-  }
-
-  exec("git add -A");
-  const subject = change.replaceAll("\n", " ").slice(0, 72) || "automated improvement";
-  const authorName = process.env.FRACTAL_GIT_AUTHOR_NAME ?? "fractal[bot]";
-  const authorEmail = process.env.FRACTAL_GIT_AUTHOR_EMAIL ?? "fractal-bot@users.noreply.github.com";
-  const result = exec(
-    `git -c user.name=${JSON.stringify(authorName)} -c user.email=${JSON.stringify(authorEmail)} commit -m ${JSON.stringify(`evolve(agent): ${subject}`)}`
-  );
-  if (result.code !== 0) {
-    const details = [result.stdout.trim(), result.stderr.trim()].filter(Boolean).join(" | ");
-    throw new Error(`commit failed: ${details}`);
-  }
 }
 
 export async function runEvolveCycle(options: { dryRun?: boolean; goal?: string }): Promise<void> {
@@ -372,8 +328,17 @@ export async function runEvolveCycle(options: { dryRun?: boolean; goal?: string 
   let lintPass = false;
   let testPass = false;
   let typecheckPass = false;
+  let repairAttempts = 0;
+  let lastValidation: ValidationSuiteResult | undefined;
+  const artifactRoot = artifactRootForCycle(runId);
 
   try {
+    const preflight = validateDecisionPreflight(decision, observations);
+    logger.info("decision_preflight", preflight as unknown as Record<string, unknown>);
+    if (!preflight.ok) {
+      throw new Error(preflight.reason);
+    }
+
     const prompt = [
       "Implement exactly one bounded change in this repository.",
       `Chosen change: ${decision.chosenChange}`,
@@ -386,6 +351,7 @@ export async function runEvolveCycle(options: { dryRun?: boolean; goal?: string 
       "Do not exit successfully without a real repository diff. If blocked, leave clear evidence in tool output so the cycle can fail loudly instead of silently no-oping.",
       "Do not modify secrets or .git internals.",
       "Keep edits minimal and production-readable.",
+      "Before final response, run bun run typecheck, bun run lint, and bun test unless a compile-heavy path explicitly uses Sprites for lint/test.",
       "Run commands via tools when needed and summarize outcomes."
     ].join("\n");
 
@@ -405,26 +371,54 @@ export async function runEvolveCycle(options: { dryRun?: boolean; goal?: string 
       agentLogPath
     });
 
-    typecheckPass = runTypecheck();
-    if (!typecheckPass) {
-      throw new Error("Validation failed (typecheck). Reverting cycle changes.");
-    }
-
     const compileHeavy = decision.compileHeavy || isCompileHeavyTask(decision.chosenChange);
-    if (compileHeavy) {
-      const checks = await runSpriteChecks();
-      lintPass = checks.lint;
-      testPass = checks.test;
-    } else {
-      const checks = runLocalChecks();
-      lintPass = checks.lint;
-      testPass = checks.test;
+    lastValidation = await runValidationSuite(compileHeavy);
+    writeValidationArtifacts(artifactRoot, 0, lastValidation);
+    logger.info("validation_result", compactValidationResult(lastValidation));
+
+    while (!lastValidation.passed && repairAttempts < MAX_REPAIR_ATTEMPTS) {
+      repairAttempts += 1;
+      writeCandidatePatch(artifactRoot, `candidate-repair-attempt-${repairAttempts}.patch`);
+      const repairResult = await runAgent({
+        task: buildRepairPrompt(
+          decision,
+          lastValidation,
+          gitChangedFiles(),
+          exec("git diff --binary -- . ':(exclude).fractal'").stdout,
+          repairAttempts,
+          MAX_REPAIR_ATTEMPTS
+        ),
+        mode: "evolve",
+        evolveMission: goal,
+        maxSteps: Math.max(config.maxSteps, EVOLVE_AGENT_MAX_STEPS),
+        maxToolCalls: config.maxToolCalls,
+        logFile: agentLogFile
+      });
+
+      logger.info("repair_agent_output", {
+        attempt: repairAttempts,
+        output: repairResult.output,
+        steps: repairResult.steps,
+        toolCalls: repairResult.toolCalls,
+        agentLogPath
+      });
+
+      lastValidation = await runValidationSuite(compileHeavy);
+      writeValidationArtifacts(artifactRoot, repairAttempts, lastValidation);
+      logger.info("validation_result", {
+        attempt: repairAttempts,
+        ...compactValidationResult(lastValidation)
+      });
     }
 
     const changedFiles = gitChangedFiles();
 
-    if (!lintPass || !testPass) {
-      throw new Error("Validation failed (lint or tests). Reverting cycle changes.");
+    typecheckPass = lastValidation.commandResults.find((result) => result.stage === "typecheck")?.code === 0;
+    lintPass = lastValidation.commandResults.find((result) => result.stage === "lint" || result.stage === "sprite")?.code === 0;
+    testPass = lastValidation.commandResults.find((result) => result.stage === "test" || result.stage === "sprite")?.code === 0;
+
+    if (!lastValidation.passed) {
+      throw new Error(`Validation failed (${lastValidation.failedStage ?? "unknown"}). Reverting cycle changes.`);
     }
 
     commitEvolution(decision.chosenChange);
@@ -436,6 +430,7 @@ export async function runEvolveCycle(options: { dryRun?: boolean; goal?: string 
       typecheckPass,
       lintPass,
       testPass,
+      repairAttempts,
       cycleLogPath,
       agentLogPath
     });
@@ -453,11 +448,18 @@ export async function runEvolveCycle(options: { dryRun?: boolean; goal?: string 
       testOutcome: testPass ? "pass" : "fail",
       followUps: decision.followUps,
       nextCyclePlan: decision.nextCyclePlan,
-      blockingReason: decision.blockingReason
+      blockingReason: decision.blockingReason,
+      failureNote: repairAttempts > 0
+        ? `Committed after ${repairAttempts} repair attempt(s); validation artifacts: ${artifactRoot}`
+        : undefined
     });
 
     console.log("Evolve cycle complete: committed.");
   } catch (error) {
+    if (lastValidation) {
+      writeValidationArtifacts(artifactRoot, repairAttempts, lastValidation);
+    }
+    const candidatePatchPath = writeCandidatePatch(artifactRoot);
     revertWorkingTree();
 
     const message = error instanceof Error ? error.message : String(error);
@@ -467,6 +469,9 @@ export async function runEvolveCycle(options: { dryRun?: boolean; goal?: string 
       typecheckPass,
       lintPass,
       testPass,
+      repairAttempts,
+      candidatePatchPath,
+      validation: lastValidation ? compactValidationResult(lastValidation) : undefined,
       cycleLogPath,
       agentLogPath
     });
@@ -484,7 +489,7 @@ export async function runEvolveCycle(options: { dryRun?: boolean; goal?: string 
       followUps: decision.followUps,
       nextCyclePlan: decision.nextCyclePlan,
       blockingReason: decision.blockingReason,
-      failureNote: `${message} | Logs: ${cycleLogPath}, ${agentLogPath} | Next attempt: reduce scope and retry one-file change.`
+      failureNote: `${message} | Repairs: ${repairAttempts} | Artifacts: ${artifactRoot} | Logs: ${cycleLogPath}, ${agentLogPath} | Next attempt: reduce scope and retry one-file change.`
     });
     console.log(`Evolve cycle log: ${cycleLogPath}`);
     console.log(`Agent execution log: ${agentLogPath}`);

@@ -7,6 +7,7 @@ import {
   type JournalReadDiagnostics
 } from "./journal.ts";
 import { readRecentEvolveJournalSummary } from "./read-evolve-journal-summary.ts";
+import { buildRecentFailedTargetSignatures } from "./reliability.ts";
 import type {
   ObserveData,
   ObserveHnSignalEntry,
@@ -18,6 +19,7 @@ import type {
 } from "./types.ts";
 
 const PLANNER_RECENT_CYCLE_SUMMARY_LIMIT = 3;
+const PLANNER_RECENT_FAILURE_MEMORY_LIMIT = 5;
 const PLANNER_HN_SIGNAL_LIMIT = 3;
 const PLANNER_LATEST_CYCLE_TARGET_FILES_LIMIT = 5;
 const PLANNER_ACTIVITY_LOOKBACK_LIMIT = 8;
@@ -241,15 +243,17 @@ export async function gatherObservations(): Promise<ObserveData> {
 
   let repositoryActivity: ObserveRepositoryActivitySignal = { active: false, distinctFilesTouched: 0, recentChangeStreak: 0, freshnessScore: 0, freshnessLabel: "idle", activityHint: "idle", freshEnoughForPlanning: false };
   let recentCycleSummary: ObserveData["recentCycleSummary"] = [];
+  let recentFailedTargetSignatures: ObserveData["recentFailedTargetSignatures"] = [];
   let latestCycleOutcome: ObserveData["latestCycleOutcome"];
   let latestCycleTargetFiles: ObserveData["latestCycleTargetFiles"] = [];
   let latestCycleFinished: ObserveData["latestCycleFinished"];
   let latestCycleUnfinished: ObserveData["latestCycleUnfinished"];
   let latestCycleCompletionSummary: ObserveData["latestCycleCompletionSummary"];
   try {
-    const recentEntries = await readRecentEvolveJournalSummary();
+    const recentEntries = await readRecentEvolveJournalSummary(PLANNER_RECENT_FAILURE_MEMORY_LIMIT);
     repositoryActivity = buildRepositoryActivitySignal(recentEntries);
     recentCycleSummary = buildPlannerRecentCycleSummary(recentEntries);
+    recentFailedTargetSignatures = buildRecentFailedTargetSignatures(recentEntries);
     const latestCycle = buildPlannerLatestCycleHandoff(recentEntries);
     latestCycleOutcome = latestCycle?.outcome;
     latestCycleTargetFiles = latestCycle?.targetFiles ?? [];
@@ -259,6 +263,7 @@ export async function gatherObservations(): Promise<ObserveData> {
   } catch {
     repositoryActivity = { active: false, distinctFilesTouched: 0, recentChangeStreak: 0, freshnessScore: 0, freshnessLabel: "idle", activityHint: "idle", freshEnoughForPlanning: false };
     recentCycleSummary = [];
+    recentFailedTargetSignatures = [];
     latestCycleOutcome = undefined;
     latestCycleTargetFiles = [];
     latestCycleFinished = undefined;
@@ -287,6 +292,7 @@ export async function gatherObservations(): Promise<ObserveData> {
     repositoryActivity,
     recentCycleSummary,
     recentHotFiles,
+    recentFailedTargetSignatures,
     hnSignal
   };
 }

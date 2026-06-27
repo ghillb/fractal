@@ -76,6 +76,7 @@ export type ObserveData = {
   repositoryActivity: ObserveRepositoryActivitySignal;
   recentCycleSummary: ObserveRecentCycleSummaryEntry[];
   recentHotFiles: string[];
+  recentFailedTargetSignatures?: string[];
   hnSignal: ObserveHnSignalEntry[];
 };
 
