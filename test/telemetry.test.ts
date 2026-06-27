@@ -18,6 +18,7 @@ import {
   schemaVersionBeacon,
   schemaVersionSignature,
   schemaVersionDerivedSummary,
+  schemaVersionStability,
   telemetryContract,
   versionedSchemaSnapshot
 } from "../src/index.ts";
@@ -101,6 +102,11 @@ describe("telemetry metadata", () => {
     expect(telemetry.schemaVersionDerivedSummary.readOnly).toBe(true);
     expect(telemetry.schemaVersionDerivedSummary.derived).toBe(true);
     expect(telemetry.schemaVersionDerivedSummary.stableShape).toBe(true);
+    expect(telemetry.schemaVersionStability.version).toBe(TELEMETRY_VERSION);
+    expect(telemetry.schemaVersionStability.schemaVersion).toBe(TELEMETRY_VERSION);
+    expect(telemetry.schemaVersionStability.readOnly).toBe(true);
+    expect(telemetry.schemaVersionStability.derived).toBe(true);
+    expect(telemetry.schemaVersionStability.stableShape).toBe(true);
     expect(telemetry.versionedSchemaSummary.schemaVersion).toBe(TELEMETRY_VERSION);
     expect(telemetry.versionedSchemaSummary.readOnly).toBe(true);
     expect(telemetry.versionedSchemaSummary.derived).toBe(true);
@@ -138,6 +144,7 @@ describe("telemetry metadata", () => {
     expect(Object.isFrozen(telemetry.schemaVersionBeacon)).toBe(true);
     expect(Object.isFrozen(telemetry.schemaVersionSignature)).toBe(true);
     expect(Object.isFrozen(telemetry.schemaVersionDerivedSummary)).toBe(true);
+    expect(Object.isFrozen(telemetry.schemaVersionStability)).toBe(true);
     expect(Object.isFrozen(telemetry.versionedSchemaSnapshot)).toBe(true);
     expect(Object.isFrozen(telemetry.schemaVersionDescriptor)).toBe(true);
     expect(Object.isFrozen(telemetry.derivedSchemaVersion)).toBe(true);
@@ -159,6 +166,7 @@ describe("telemetry metadata", () => {
     expect(() => { (telemetry.schemaVersionBeacon as { schemaVersion: number }).schemaVersion = 99; }).toThrow();
     expect(() => { (telemetry.schemaVersionSignature as { label: string }).label = "q"; }).toThrow();
     expect(() => { (telemetry.schemaVersionDerivedSummary as { label: string }).label = "q"; }).toThrow();
+    expect(() => { (telemetry.schemaVersionStability as { schemaVersion: number }).schemaVersion = 99; }).toThrow();
     expect(() => { (telemetry.versionedSchemaSnapshot as { schemaVersion: number }).schemaVersion = 99; }).toThrow();
     expect(() => { (telemetry.schemaVersionDescriptor as { label: string }).label = "y"; }).toThrow();
     expect(() => { (telemetry.derivedSchemaVersion as { label: string }).label = "z"; }).toThrow();
