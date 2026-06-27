@@ -152,7 +152,7 @@ function runTypecheckValidation(executor: CommandExecutor = exec): ValidationSui
   };
 }
 
-async function runSpriteChecks(): Promise<boolean> {
+async function runSpriteChecks(): Promise<ExecResult> {
   const cfg = readConfig();
   if (!cfg.spritesEnabled) {
     throw new Error("Compile-heavy evolve change requires Sprites. Set SPRITES_ENABLED=true.");
@@ -172,27 +172,24 @@ async function runSpriteChecks(): Promise<boolean> {
     }
   );
 
-  const run = outcome.run as { code?: number } | undefined;
-  return run?.code === 0;
+  const run = outcome.run as Partial<ExecResult> | undefined;
+  return {
+    code: Number(run?.code ?? 1),
+    stdout: String(run?.stdout ?? ""),
+    stderr: String(run?.stderr ?? "")
+  };
 }
 
-function appendSpriteValidationResult(
+export function buildSpriteValidationResult(
   typecheck: ValidationSuiteResult,
-  spritePassed: boolean
+  spriteRun: ExecResult
 ): ValidationSuiteResult {
   if (!typecheck.passed) {
     return typecheck;
   }
 
-  const spriteResult: ValidationCommandResult = {
-    stage: "sprite",
-    command: "bun run lint && bun test",
-    code: spritePassed ? 0 : 1,
-    stdout: "",
-    stderr: "",
-    stdoutTail: "",
-    stderrTail: ""
-  };
+  const spriteResult = withDiagnostics("sprite", "bun run lint && bun test", spriteRun);
+  const spritePassed = spriteResult.code === 0;
 
   return {
     passed: spritePassed,
@@ -211,7 +208,7 @@ export async function runValidationSuite(compileHeavy: boolean): Promise<Validat
     return typecheck;
   }
 
-  return appendSpriteValidationResult(typecheck, await runSpriteChecks());
+  return buildSpriteValidationResult(typecheck, await runSpriteChecks());
 }
 
 export function compactValidationResult(result: ValidationSuiteResult): Record<string, unknown> {
@@ -314,7 +311,7 @@ export function writeCandidatePatch(
 ): string {
   mkdirSync(artifactRoot, { recursive: true });
   executor("git add -N -- . ':(exclude).fractal' >/dev/null 2>&1 || true");
-  const diff = executor("git diff --binary -- . ':(exclude).fractal'");
+  const diff = executor("git diff --binary HEAD -- . ':(exclude).fractal'");
   const patchPath = join(artifactRoot, filename);
   writeFileSync(patchPath, diff.stdout, "utf8");
   return patchPath;

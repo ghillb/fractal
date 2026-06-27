@@ -1,10 +1,15 @@
 import { describe, expect, test } from "bun:test";
+import { mkdtemp, readFile, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import {
   buildRecentFailedTargetSignatures,
   buildRepairPrompt,
+  buildSpriteValidationResult,
   buildTargetSignature,
   runLocalValidationSuite,
-  validateDecisionPreflight
+  validateDecisionPreflight,
+  writeCandidatePatch
 } from "../src/evolve/reliability.ts";
 
 describe("evolve reliability controls", () => {
@@ -105,5 +110,54 @@ describe("evolve reliability controls", () => {
     expect(prompt).toContain("Repair attempt: 1/2");
     expect(prompt).toContain("Failed stage: lint");
     expect(prompt).toContain("lint failed");
+  });
+
+  test("sprite validation preserves remote stdout and stderr diagnostics", () => {
+    const result = buildSpriteValidationResult(
+      {
+        passed: true,
+        commandResults: [
+          {
+            stage: "typecheck",
+            command: "bun run typecheck",
+            code: 0,
+            stdout: "",
+            stderr: "",
+            stdoutTail: "",
+            stderrTail: ""
+          }
+        ]
+      },
+      {
+        code: 1,
+        stdout: "remote lint stdout",
+        stderr: "remote test stderr"
+      }
+    );
+
+    expect(result.passed).toBe(false);
+    expect(result.failedStage).toBe("sprite");
+    expect(result.commandResults.at(-1)?.stdoutTail).toBe("remote lint stdout");
+    expect(result.commandResults.at(-1)?.stderrTail).toBe("remote test stderr");
+  });
+
+  test("candidate patch captures staged and unstaged changes against HEAD", async () => {
+    const artifactRoot = await mkdtemp(join(tmpdir(), "fractal-candidate-"));
+    const commands: string[] = [];
+    try {
+      const patchPath = writeCandidatePatch(artifactRoot, "candidate.patch", (cmd) => {
+        commands.push(cmd);
+        return {
+          code: 0,
+          stdout: cmd.startsWith("git diff") ? "diff --git a/staged.ts b/staged.ts\n" : "",
+          stderr: ""
+        };
+      });
+
+      expect(commands).toContain("git diff --binary HEAD -- . ':(exclude).fractal'");
+      expect(await readFile(patchPath, "utf8")).toContain("staged.ts");
+    } finally {
+      await rm(artifactRoot, { recursive: true, force: true });
+    }
   });
 });
