@@ -11,6 +11,11 @@ export type RepositoryCapabilitySurface = Readonly<{
     visible: true;
     derived: true;
   }>;
+  immutableDerivedSnapshot: Readonly<{
+    version: typeof REPOSITORY_CAPABILITY_SURFACE_VERSION;
+    value: "frozen-shallow-readonly";
+    derived: true;
+  }>;
   schemaStability: Readonly<{
     version: typeof REPOSITORY_CAPABILITY_SURFACE_VERSION;
     stable: true;
@@ -273,6 +278,7 @@ const repositoryCapabilitySurface: RepositoryCapabilitySurface = Object.freeze({
   readOnly: true,
   derivedVersion: REPOSITORY_CAPABILITY_SURFACE_VERSION,
   exportVisibility: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, visible: true, derived: true }),
+  immutableDerivedSnapshot: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, value: "frozen-shallow-readonly", derived: true }),
   schemaStability: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, stable: true, derived: true }),
   publicShape: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, shape: "versioned-readonly-derived-surface", derived: true }),
   publicShapeSignature: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, value: "versioned-readonly-derived-surface", derived: true }),
@@ -353,3 +359,4 @@ export const schemaVersionLockLabel = repositoryCapabilitySurface.schemaVersionL
 export const schemaVersionReadOnlyDerivedField = repositoryCapabilitySurface.schemaVersionReadOnlyDerivedField;
 export const schemaVersionDerivedInspectionSurface = repositoryCapabilitySurface.schemaVersionDerivedInspectionSurface;
 export const schemaVersionSurfaceVersion = repositoryCapabilitySurface.schemaVersionSurfaceVersion;
+export const immutableDerivedSnapshot = repositoryCapabilitySurface.immutableDerivedSnapshot;

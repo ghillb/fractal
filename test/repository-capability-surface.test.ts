@@ -22,6 +22,7 @@ import {
   schemaVersionReadOnlyDerivedField,
   schemaVersionDerivedInspectionSurface,
   schemaVersionSurfaceVersion,
+  immutableDerivedSnapshot,
 } from "../src/index.ts";
 
 describe("repository capability surface", () => {
@@ -56,6 +57,12 @@ describe("repository capability surface", () => {
     expect(surface.schemaVersionDerivedInspectionSurface.value).toBe(
       `repository-capability-surface-derived-inspection-surface/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`
     );
+    expect(surface.immutableDerivedSnapshot).toBe(immutableDerivedSnapshot);
+    expect(surface.immutableDerivedSnapshot.value).toBe("frozen-shallow-readonly");
+    expect(Object.isFrozen(surface.immutableDerivedSnapshot)).toBe(true);
+    expect(() => {
+      (surface.immutableDerivedSnapshot as { value: string }).value = "mutated";
+    }).toThrow();
     expect(Object.isFrozen(surface.schemaVersionVersionLabel)).toBe(true);
     expect(Object.isFrozen(surface.schemaVersionLockLabel)).toBe(true);
     expect(() => {
