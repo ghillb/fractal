@@ -116,6 +116,13 @@ export type TelemetryMetadata = Readonly<{
     label: "schemaVersion";
     derived: true;
   }>;
+  shallowImmutabilityWitness: Readonly<{
+    version: typeof TELEMETRY_VERSION;
+    schemaVersion: typeof TELEMETRY_VERSION;
+    readOnly: true;
+    derived: true;
+    stableShape: true;
+  }>;
   schemaVersion: Readonly<{
     version: typeof TELEMETRY_VERSION;
     value: typeof TELEMETRY_VERSION;
@@ -309,7 +316,8 @@ const telemetryMetadata: TelemetryMetadata = Object.freeze({
   schemaVersionStability: Object.freeze({ version: TELEMETRY_VERSION, schemaVersion: TELEMETRY_VERSION, readOnly: true, derived: true, stableShape: true }),
   schemaVersionVersionedField: Object.freeze({ version: TELEMETRY_VERSION, schemaVersion: TELEMETRY_VERSION, readOnly: true, derived: true, stableShape: true }),
   schemaVersionVersionedSurface: Object.freeze({ version: TELEMETRY_VERSION, schemaVersion: TELEMETRY_VERSION, readOnly: true, derived: true, stableShape: true }),
-  schemaVersionField: Object.freeze({ version: TELEMETRY_VERSION, label: "schemaVersion", derived: true })
+  schemaVersionField: Object.freeze({ version: TELEMETRY_VERSION, label: "schemaVersion", derived: true }),
+  shallowImmutabilityWitness: Object.freeze({ version: TELEMETRY_VERSION, schemaVersion: TELEMETRY_VERSION, readOnly: true, derived: true, stableShape: true })
 });
 
 export type VersionedTelemetryMetadata = Readonly<{
@@ -341,3 +349,4 @@ export const schemaVersionDerivedSummary = telemetryMetadata.schemaVersionDerive
 export const schemaVersionStability = telemetryMetadata.schemaVersionStability;
 export const schemaVersionVersionedField = telemetryMetadata.schemaVersionVersionedField;
 export const schemaVersionVersionedSurface = telemetryMetadata.schemaVersionVersionedSurface;
+export const shallowImmutabilityWitness = telemetryMetadata.shallowImmutabilityWitness;

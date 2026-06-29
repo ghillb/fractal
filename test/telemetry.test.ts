@@ -21,6 +21,7 @@ import {
   schemaVersionStability,
   schemaVersionVersionedField,
   schemaVersionVersionedSurface,
+  shallowImmutabilityWitness,
   telemetryContract,
   versionedSchemaSnapshot
 } from "../src/index.ts";
@@ -119,6 +120,11 @@ describe("telemetry metadata", () => {
     expect(telemetry.schemaVersionVersionedSurface.readOnly).toBe(true);
     expect(telemetry.schemaVersionVersionedSurface.derived).toBe(true);
     expect(telemetry.schemaVersionVersionedSurface.stableShape).toBe(true);
+    expect(telemetry.shallowImmutabilityWitness.version).toBe(TELEMETRY_VERSION);
+    expect(telemetry.shallowImmutabilityWitness.schemaVersion).toBe(TELEMETRY_VERSION);
+    expect(telemetry.shallowImmutabilityWitness.readOnly).toBe(true);
+    expect(telemetry.shallowImmutabilityWitness.derived).toBe(true);
+    expect(telemetry.shallowImmutabilityWitness.stableShape).toBe(true);
     expect(telemetry.versionedSchemaSummary.schemaVersion).toBe(TELEMETRY_VERSION);
     expect(telemetry.versionedSchemaSummary.readOnly).toBe(true);
     expect(telemetry.versionedSchemaSummary.derived).toBe(true);
@@ -159,6 +165,7 @@ describe("telemetry metadata", () => {
     expect(Object.isFrozen(telemetry.schemaVersionStability)).toBe(true);
     expect(Object.isFrozen(telemetry.schemaVersionVersionedField)).toBe(true);
     expect(Object.isFrozen(telemetry.schemaVersionVersionedSurface)).toBe(true);
+    expect(Object.isFrozen(telemetry.shallowImmutabilityWitness)).toBe(true);
     expect(Object.isFrozen(telemetry.versionedSchemaSnapshot)).toBe(true);
     expect(Object.isFrozen(telemetry.schemaVersionDescriptor)).toBe(true);
     expect(Object.isFrozen(telemetry.derivedSchemaVersion)).toBe(true);
@@ -183,6 +190,7 @@ describe("telemetry metadata", () => {
     expect(() => { (telemetry.schemaVersionStability as { schemaVersion: number }).schemaVersion = 99; }).toThrow();
     expect(() => { (telemetry.schemaVersionVersionedField as { schemaVersion: number }).schemaVersion = 99; }).toThrow();
     expect(() => { (telemetry.schemaVersionVersionedSurface as { schemaVersion: number }).schemaVersion = 99; }).toThrow();
+    expect(() => { (telemetry.shallowImmutabilityWitness as { schemaVersion: number }).schemaVersion = 99; }).toThrow();
     expect(() => { (telemetry.versionedSchemaSnapshot as { schemaVersion: number }).schemaVersion = 99; }).toThrow();
     expect(() => { (telemetry.schemaVersionDescriptor as { label: string }).label = "y"; }).toThrow();
     expect(() => { (telemetry.derivedSchemaVersion as { label: string }).label = "z"; }).toThrow();
