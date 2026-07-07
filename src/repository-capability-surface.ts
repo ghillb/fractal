@@ -11,6 +11,11 @@ export type RepositoryCapabilitySurface = Readonly<{
     visible: true;
     derived: true;
   }>;
+  schemaVersionSurfaceFingerprint: Readonly<{
+    version: typeof REPOSITORY_CAPABILITY_SURFACE_VERSION;
+    value: `repository-capability-surface-surface-fingerprint/v${typeof REPOSITORY_CAPABILITY_SURFACE_VERSION}`;
+    derived: true;
+  }>;
   immutableDerivedSnapshot: Readonly<{
     version: typeof REPOSITORY_CAPABILITY_SURFACE_VERSION;
     value: "frozen-shallow-readonly";
@@ -293,6 +298,7 @@ const repositoryCapabilitySurface: RepositoryCapabilitySurface = Object.freeze({
   readOnly: true,
   derivedVersion: REPOSITORY_CAPABILITY_SURFACE_VERSION,
   exportVisibility: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, visible: true, derived: true }),
+  schemaVersionSurfaceFingerprint: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, value: `repository-capability-surface-surface-fingerprint/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`, derived: true }),
   immutableDerivedSnapshot: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, value: "frozen-shallow-readonly", derived: true }),
   schemaStability: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, stable: true, derived: true }),
   publicShape: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, shape: "versioned-readonly-derived-surface", derived: true }),
@@ -381,3 +387,4 @@ export const shallowImmutabilityWitness = repositoryCapabilitySurface.shallowImm
 export const immutableDerivedSnapshot = repositoryCapabilitySurface.immutableDerivedSnapshot;
 export const schemaVersionSchemaStabilityWitness = repositoryCapabilitySurface.schemaVersionSchemaStabilityWitness;
 export const schemaVersionBoundaryExport = repositoryCapabilitySurface.schemaVersionBoundaryExport;
+export const schemaVersionSurfaceFingerprint = repositoryCapabilitySurface.schemaVersionSurfaceFingerprint;
