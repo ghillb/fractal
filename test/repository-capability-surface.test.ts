@@ -20,6 +20,7 @@ import {
   schemaVersionVersionLabel,
   schemaVersionLockLabel,
   schemaVersionReadOnlyDerivedField,
+  versionedSchemaSchemaVersion,
   schemaVersionDerivedInspectionSurface,
   schemaVersionSurfaceVersion,
   shallowImmutabilityWitness,
@@ -104,6 +105,14 @@ describe("repository capability surface", () => {
     expect(Object.isFrozen(surface.immutableDerivedSnapshot)).toBe(true);
     expect(() => {
       (surface.immutableDerivedSnapshot as { value: string }).value = "mutated";
+    }).toThrow();
+    expect(surface.versionedSchemaSchemaVersion).toBe(versionedSchemaSchemaVersion);
+    expect(surface.versionedSchemaSchemaVersion.schemaVersion).toBe(4);
+    expect(surface.versionedSchemaSchemaVersion.readOnly).toBe(true);
+    expect(surface.versionedSchemaSchemaVersion.stableShape).toBe(true);
+    expect(Object.isFrozen(surface.versionedSchemaSchemaVersion)).toBe(true);
+    expect(() => {
+      (surface.versionedSchemaSchemaVersion as { schemaVersion: number }).schemaVersion = 5;
     }).toThrow();
     expect(Object.isFrozen(surface.schemaVersionVersionLabel)).toBe(true);
     expect(Object.isFrozen(surface.schemaVersionLockLabel)).toBe(true);
