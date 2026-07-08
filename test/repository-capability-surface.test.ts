@@ -28,6 +28,7 @@ import {
   schemaVersionBoundaryExport,
   schemaVersionSurfaceFingerprint,
   schemaVersionSurfaceLedger,
+  schemaVersionSchemaStabilityFingerprint,
 } from "../src/index.ts";
 
 describe("repository capability surface", () => {
@@ -75,6 +76,7 @@ describe("repository capability surface", () => {
       `repository-capability-surface-boundary-export/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`
     );
     expect(surface.schemaVersionSurfaceLedger).toBe(schemaVersionSurfaceLedger);
+    expect(surface.schemaVersionSchemaStabilityFingerprint).toBe(schemaVersionSchemaStabilityFingerprint);
     expect(surface.schemaVersionSurfaceLedger.schemaVersion).toBe(4);
     expect(surface.schemaVersionSurfaceLedger.readOnly).toBe(true);
     expect(surface.schemaVersionSurfaceLedger.stableShape).toBe(true);
@@ -87,6 +89,13 @@ describe("repository capability surface", () => {
       `repository-capability-surface-surface-fingerprint/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`
     );
     expect(Object.isFrozen(surface.schemaVersionSurfaceFingerprint)).toBe(true);
+    expect(surface.schemaVersionSchemaStabilityFingerprint.value).toBe(
+      `repository-capability-surface-schema-stability-fingerprint/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`
+    );
+    expect(Object.isFrozen(surface.schemaVersionSchemaStabilityFingerprint)).toBe(true);
+    expect(() => {
+      (surface.schemaVersionSchemaStabilityFingerprint as { value: string }).value = "mutated";
+    }).toThrow();
     expect(() => {
       (surface.schemaVersionSurfaceFingerprint as { value: string }).value = "mutated";
     }).toThrow();
