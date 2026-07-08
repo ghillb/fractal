@@ -27,6 +27,7 @@ import {
   schemaVersionSchemaStabilityWitness,
   schemaVersionBoundaryExport,
   schemaVersionSurfaceFingerprint,
+  schemaVersionSurfaceLedger,
 } from "../src/index.ts";
 
 describe("repository capability surface", () => {
@@ -73,6 +74,14 @@ describe("repository capability surface", () => {
     expect(surface.schemaVersionBoundaryExport.value).toBe(
       `repository-capability-surface-boundary-export/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`
     );
+    expect(surface.schemaVersionSurfaceLedger).toBe(schemaVersionSurfaceLedger);
+    expect(surface.schemaVersionSurfaceLedger.schemaVersion).toBe(4);
+    expect(surface.schemaVersionSurfaceLedger.readOnly).toBe(true);
+    expect(surface.schemaVersionSurfaceLedger.stableShape).toBe(true);
+    expect(Object.isFrozen(surface.schemaVersionSurfaceLedger)).toBe(true);
+    expect(() => {
+      (surface.schemaVersionSurfaceLedger as { schemaVersion: number }).schemaVersion = 5;
+    }).toThrow();
     expect(surface.schemaVersionSurfaceFingerprint).toBe(schemaVersionSurfaceFingerprint);
     expect(surface.schemaVersionSurfaceFingerprint.value).toBe(
       `repository-capability-surface-surface-fingerprint/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`
