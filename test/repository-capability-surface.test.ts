@@ -27,6 +27,7 @@ import {
   immutableDerivedSnapshot,
   schemaVersionSchemaStabilityWitness,
   schemaVersionBoundaryExport,
+  schemaVersionBoundaryVersion,
   schemaVersionSchemaFingerprint,
   schemaVersionSurfaceFingerprint,
   schemaVersionSurfaceStability,
@@ -80,6 +81,14 @@ describe("repository capability surface", () => {
     expect(surface.schemaVersionBoundaryExport.value).toBe(
       `repository-capability-surface-boundary-export/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`
     );
+    expect(surface.schemaVersionBoundaryVersion).toBe(schemaVersionBoundaryVersion);
+    expect(surface.schemaVersionBoundaryVersion.value).toBe(
+      `repository-capability-surface-boundary-version/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`
+    );
+    expect(Object.isFrozen(surface.schemaVersionBoundaryVersion)).toBe(true);
+    expect(() => {
+      (surface.schemaVersionBoundaryVersion as { value: string }).value = "mutated";
+    }).toThrow();
     expect(surface.schemaVersionSchemaFingerprint).toBe(schemaVersionSchemaFingerprint);
     expect(surface.schemaVersionSchemaFingerprint.value).toBe(
       `repository-capability-surface-schema-fingerprint/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`
