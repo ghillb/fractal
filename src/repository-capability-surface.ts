@@ -330,6 +330,11 @@ export type RepositoryCapabilitySurface = Readonly<{
     derived: true;
     stableShape: true;
   }>;
+  schemaVersionSurfaceSchemaFingerprint: Readonly<{
+    version: typeof REPOSITORY_CAPABILITY_SURFACE_VERSION;
+    value: `repository-capability-surface-surface-schema-fingerprint/v${typeof REPOSITORY_CAPABILITY_SURFACE_VERSION}`;
+    derived: true;
+  }>;
   schemaVersionSchemaStabilityFingerprint: Readonly<{
     version: typeof REPOSITORY_CAPABILITY_SURFACE_VERSION;
     value: `repository-capability-surface-schema-stability-fingerprint/v${typeof REPOSITORY_CAPABILITY_SURFACE_VERSION}`;
@@ -414,6 +419,7 @@ const repositoryCapabilitySurface: RepositoryCapabilitySurface = Object.freeze({
   schemaVersionBoundaryStability: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, value: `repository-capability-surface-boundary-stability/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`, derived: true }),
   schemaVersionSchemaFingerprint: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, value: `repository-capability-surface-schema-fingerprint/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`, derived: true }),
   schemaVersionSurfaceLedger: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, schemaVersion: 4, readOnly: true, derived: true, stableShape: true }),
+  schemaVersionSurfaceSchemaFingerprint: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, value: `repository-capability-surface-surface-schema-fingerprint/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`, derived: true }),
   schemaVersionSchemaStabilityFingerprint: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, value: `repository-capability-surface-schema-stability-fingerprint/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`, derived: true }),
   schemaVersionSchemaStabilityChecksum: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, value: `repository-capability-surface-schema-stability-checksum/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`, derived: true }),
   versionedSchemaFingerprintLabel: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, schemaVersion: 4, readOnly: true, derived: true, stableShape: true }),
@@ -456,6 +462,7 @@ export const schemaVersionSchemaStabilityWitness = repositoryCapabilitySurface.s
 export const schemaVersionBoundaryExport = repositoryCapabilitySurface.schemaVersionBoundaryExport;
 export const schemaVersionSchemaFingerprint = repositoryCapabilitySurface.schemaVersionSchemaFingerprint;
 export const schemaVersionSurfaceLedger = repositoryCapabilitySurface.schemaVersionSurfaceLedger;
+export const schemaVersionSurfaceSchemaFingerprint = repositoryCapabilitySurface.schemaVersionSurfaceSchemaFingerprint;
 export const schemaVersionSurfaceFingerprint = repositoryCapabilitySurface.schemaVersionSurfaceFingerprint;
 export const schemaVersionSurfaceStability = repositoryCapabilitySurface.schemaVersionSurfaceStability;
 export const schemaVersionSurfaceImmutability = repositoryCapabilitySurface.schemaVersionSurfaceImmutability;

@@ -34,6 +34,7 @@ import {
   schemaVersionSurfaceStability,
   schemaVersionSurfaceImmutability,
   schemaVersionSurfaceLedger,
+  schemaVersionSurfaceSchemaFingerprint,
   schemaVersionSchemaStabilityFingerprint,
   schemaVersionSchemaStabilityChecksum,
   versionedSchemaFingerprintLabel,
@@ -115,6 +116,14 @@ describe("repository capability surface", () => {
     expect(surface.schemaVersionSurfaceFingerprint.value).toBe(
       `repository-capability-surface-surface-fingerprint/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`
     );
+    expect(surface.schemaVersionSurfaceSchemaFingerprint).toBe(schemaVersionSurfaceSchemaFingerprint);
+    expect(surface.schemaVersionSurfaceSchemaFingerprint.value).toBe(
+      `repository-capability-surface-surface-schema-fingerprint/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`
+    );
+    expect(Object.isFrozen(surface.schemaVersionSurfaceSchemaFingerprint)).toBe(true);
+    expect(() => {
+      (surface.schemaVersionSurfaceSchemaFingerprint as { value: string }).value = "mutated";
+    }).toThrow();
     expect(surface.schemaVersionSurfaceStability).toBe(schemaVersionSurfaceStability);
     expect(surface.schemaVersionSurfaceStability.value).toBe(
       `repository-capability-surface-surface-stability/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`
