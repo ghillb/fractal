@@ -28,6 +28,7 @@ import {
   schemaVersionSchemaStabilityWitness,
   schemaVersionBoundaryExport,
   schemaVersionBoundaryVersion,
+  schemaVersionBoundaryStability,
   schemaVersionSchemaFingerprint,
   schemaVersionSurfaceFingerprint,
   schemaVersionSurfaceStability,
@@ -86,9 +87,16 @@ describe("repository capability surface", () => {
     expect(surface.schemaVersionBoundaryVersion.value).toBe(
       `repository-capability-surface-boundary-version/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`
     );
+    expect(surface.schemaVersionBoundaryStability).toBe(schemaVersionBoundaryStability);
+    expect(surface.schemaVersionBoundaryStability.value).toBe(
+      `repository-capability-surface-boundary-stability/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`
+    );
     expect(Object.isFrozen(surface.schemaVersionBoundaryVersion)).toBe(true);
     expect(() => {
       (surface.schemaVersionBoundaryVersion as { value: string }).value = "mutated";
+    }).toThrow();
+    expect(() => {
+      (surface.schemaVersionBoundaryStability as { value: string }).value = "mutated";
     }).toThrow();
     expect(surface.schemaVersionSchemaFingerprint).toBe(schemaVersionSchemaFingerprint);
     expect(surface.schemaVersionSchemaFingerprint.value).toBe(
