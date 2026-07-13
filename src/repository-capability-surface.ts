@@ -1,6 +1,6 @@
 import { capabilitySnapshot } from "./capability-snapshot.ts";
 
-export const REPOSITORY_CAPABILITY_SURFACE_VERSION = 18 as const;
+export const REPOSITORY_CAPABILITY_SURFACE_VERSION = 19 as const;
 
 export type RepositoryCapabilitySurface = Readonly<{
   version: typeof REPOSITORY_CAPABILITY_SURFACE_VERSION;
@@ -220,11 +220,8 @@ export type RepositoryCapabilitySurface = Readonly<{
   }>;
   schemaVersionLineage: Readonly<{
     version: typeof REPOSITORY_CAPABILITY_SURFACE_VERSION;
-    schemaVersion: 4;
     value: `repository-capability-surface-schema-lineage/v${typeof REPOSITORY_CAPABILITY_SURFACE_VERSION}`;
-    readOnly: true;
     derived: true;
-    stableShape: true;
   }>;
   schemaVersionRelease: Readonly<{
     version: typeof REPOSITORY_CAPABILITY_SURFACE_VERSION;
@@ -367,6 +364,7 @@ const repositoryCapabilitySurface: RepositoryCapabilitySurface = Object.freeze({
   publicShape: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, shape: "versioned-readonly-derived-surface", derived: true }),
   publicShapeSignature: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, value: "versioned-readonly-derived-surface", derived: true }),
   sourceFingerprint: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, value: "src/repository-capability-surface.ts@13", derived: true }),
+  schemaVersionLineage: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, value: `repository-capability-surface-schema-lineage/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`, derived: true }),
   schemaVersionDerivedInspectionSurface: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, value: `repository-capability-surface-derived-inspection-surface/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`, derived: true }),
   capabilitySurfaceDescriptor: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, value: "repository-capability-surface-descriptor@10", derived: true }),
   versionedSchemaDigest: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, value: `repository-capability-surface-schema@4#stable:v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`, derived: true }),
@@ -398,7 +396,6 @@ const repositoryCapabilitySurface: RepositoryCapabilitySurface = Object.freeze({
   derivedSchemaVersionTag: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, value: `repository-capability-surface-derived-tag/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`, derived: true }),
   schemaVersionOrdinal: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, value: `repository-capability-surface-schema-ordinal/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`, derived: true }),
   derivedSchemaVersionFingerprint: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, value: `repository-capability-surface-derived-fingerprint/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`, derived: true }),
-  schemaVersionLineage: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, schemaVersion: 4, value: `repository-capability-surface-schema-lineage/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`, readOnly: true, derived: true, stableShape: true }),
   schemaVersionRelease: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, value: `repository-capability-surface-release/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`, derived: true }),
   schemaVersionChecksumLabel: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, value: `repository-capability-surface-checksum-label/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`, derived: true }),
   schemaVersionEdition: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, value: `repository-capability-surface-edition/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`, derived: true }),
