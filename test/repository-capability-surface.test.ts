@@ -19,6 +19,7 @@ import {
   schemaVersionSurfaceStability,
   schemaVersionSurfaceImmutability,
   schemaVersionSurfaceLedger,
+  schemaVersionSurfaceShapeDescriptor,
   schemaVersionSurfaceSchemaFingerprint,
   schemaVersionSchemaStabilityFingerprint,
   schemaVersionSchemaStabilityChecksum,
@@ -49,6 +50,7 @@ describe("repository capability surface", () => {
     expect(surface.schemaVersionSurfaceStability).toBe(schemaVersionSurfaceStability);
     expect(surface.schemaVersionSurfaceImmutability).toBe(schemaVersionSurfaceImmutability);
     expect(surface.schemaVersionSurfaceLedger).toBe(schemaVersionSurfaceLedger);
+    expect(surface.schemaVersionSurfaceShapeDescriptor).toBe(schemaVersionSurfaceShapeDescriptor);
     expect(surface.schemaVersionSurfaceSchemaFingerprint).toBe(schemaVersionSurfaceSchemaFingerprint);
     expect(surface.schemaVersionSchemaStabilityFingerprint).toBe(schemaVersionSchemaStabilityFingerprint);
     expect(surface.schemaVersionSchemaStabilityChecksum).toBe(schemaVersionSchemaStabilityChecksum);
