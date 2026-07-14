@@ -1,4 +1,4 @@
-export const REPOSITORY_CAPABILITY_SURFACE_VERSION = 19 as const;
+export const REPOSITORY_CAPABILITY_SURFACE_VERSION = 20 as const;
 
 export type RepositoryCapabilitySurface = Readonly<{
   version: typeof REPOSITORY_CAPABILITY_SURFACE_VERSION;
@@ -352,6 +352,12 @@ export type RepositoryCapabilitySurface = Readonly<{
     derived: true;
     stableShape: true;
   }>;
+
+  repositoryCapabilitySurfaceVersion: Readonly<{
+    version: typeof REPOSITORY_CAPABILITY_SURFACE_VERSION;
+    value: `repository-capability-surface-version/v${typeof REPOSITORY_CAPABILITY_SURFACE_VERSION}`;
+    derived: true;
+  }>;
   schemaVersionReadOnlyBoundary: Readonly<{
     version: typeof REPOSITORY_CAPABILITY_SURFACE_VERSION;
     value: `repository-capability-surface-read-only-boundary/v${typeof REPOSITORY_CAPABILITY_SURFACE_VERSION}`;
@@ -429,6 +435,7 @@ const repositoryCapabilitySurface: RepositoryCapabilitySurface = Object.freeze({
   schemaVersionSchemaStabilityFingerprint: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, value: `repository-capability-surface-schema-stability-fingerprint/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`, derived: true }),
   schemaVersionSchemaStabilityChecksum: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, value: `repository-capability-surface-schema-stability-checksum/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`, derived: true }),
   versionedSchemaFingerprintLabel: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, schemaVersion: 4, readOnly: true, derived: true, stableShape: true }),
+  repositoryCapabilitySurfaceVersion: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, value: `repository-capability-surface-version/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`, derived: true }),
   schemaVersionReadOnlyBoundary: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, value: `repository-capability-surface-read-only-boundary/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`, derived: true }),
 });
 
@@ -460,6 +467,7 @@ export const schemaVersionStabilityLabel = repositoryCapabilitySurface.schemaVer
 export const schemaVersionVersionLabel = repositoryCapabilitySurface.schemaVersionVersionLabel;
 export const schemaVersionLockLabel = repositoryCapabilitySurface.schemaVersionLockLabel;
 export const schemaVersionReadOnlyDerivedField = repositoryCapabilitySurface.schemaVersionReadOnlyDerivedField;
+export const repositoryCapabilitySurfaceVersion = repositoryCapabilitySurface.repositoryCapabilitySurfaceVersion;
 export const schemaVersionReadOnlyBoundary = repositoryCapabilitySurface.schemaVersionReadOnlyBoundary;
 export const versionedSchemaSchemaVersion = repositoryCapabilitySurface.versionedSchemaSchemaVersion;
 export const schemaVersionDerivedInspectionSurface = repositoryCapabilitySurface.schemaVersionDerivedInspectionSurface;
