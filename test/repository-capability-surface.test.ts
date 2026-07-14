@@ -7,6 +7,7 @@ import {
   schemaVersionVersionLabel,
   schemaVersionLockLabel,
   schemaVersionReadOnlyDerivedField,
+  schemaVersionReadOnlyBoundary,
   schemaVersionDerivedCapabilitySignal,
   schemaVersionSurfaceVersion,
   shallowImmutabilityWitness,
@@ -38,6 +39,7 @@ describe("repository capability surface", () => {
     expect(surface.schemaVersionVersionLabel).toBe(schemaVersionVersionLabel);
     expect(surface.schemaVersionLockLabel).toBe(schemaVersionLockLabel);
     expect(surface.schemaVersionReadOnlyDerivedField).toBe(schemaVersionReadOnlyDerivedField);
+    expect(surface.schemaVersionReadOnlyBoundary).toBe(schemaVersionReadOnlyBoundary);
     expect(surface.schemaVersionDerivedCapabilitySignal).toBe(schemaVersionDerivedCapabilitySignal);
     expect(surface.schemaVersionSurfaceVersion).toBe(schemaVersionSurfaceVersion);
     expect(surface.shallowImmutabilityWitness).toBe(shallowImmutabilityWitness);
@@ -65,6 +67,9 @@ describe("repository capability surface", () => {
     }).toThrow();
     expect(() => {
       (surface.immutableDerivedSnapshot as { value: string }).value = "mutated";
+    }).toThrow();
+    expect(() => {
+      (surface.schemaVersionReadOnlyBoundary as { value: string }).value = "mutated";
     }).toThrow();
     expect(exportRepositoryCapabilitySurface()).toBe(surface);
   });
