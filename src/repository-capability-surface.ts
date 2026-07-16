@@ -266,6 +266,11 @@ export type RepositoryCapabilitySurface = Readonly<{
     value: `repository-capability-surface-version-label/v${typeof REPOSITORY_CAPABILITY_SURFACE_VERSION}`;
     derived: true;
   }>;
+  schemaVersionVisibilityGuard: Readonly<{
+    version: typeof REPOSITORY_CAPABILITY_SURFACE_VERSION;
+    value: `repository-capability-surface-visibility-guard/v${typeof REPOSITORY_CAPABILITY_SURFACE_VERSION}`;
+    derived: true;
+  }>;
   schemaVersionLockLabel: Readonly<{
     version: typeof REPOSITORY_CAPABILITY_SURFACE_VERSION;
     value: `repository-capability-surface-lock-label/v${typeof REPOSITORY_CAPABILITY_SURFACE_VERSION}`;
@@ -431,6 +436,7 @@ const repositoryCapabilitySurface: RepositoryCapabilitySurface = Object.freeze({
   schemaVersionManifestLabel: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, value: `repository-capability-surface-manifest-label/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`, derived: true }),
   schemaVersionStabilityLabel: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, value: `repository-capability-surface-stability-label/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`, derived: true }),
   schemaVersionVersionLabel: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, value: `repository-capability-surface-version-label/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`, derived: true }),
+  schemaVersionVisibilityGuard: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, value: `repository-capability-surface-visibility-guard/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`, derived: true }),
   schemaVersionLockLabel: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, value: `repository-capability-surface-lock-label/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`, derived: true }),
   schemaVersionReadOnlyDerivedField: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, value: `repository-capability-surface-read-only-derived-field/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`, derived: true }),
   versionedSchemaSchemaVersion: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, schemaVersion: 4, readOnly: true, derived: true, stableShape: true }),
@@ -479,6 +485,7 @@ export const schemaVersionRegistry = repositoryCapabilitySurface.schemaVersionRe
 export const schemaVersionManifestLabel = repositoryCapabilitySurface.schemaVersionManifestLabel;
 export const schemaVersionStabilityLabel = repositoryCapabilitySurface.schemaVersionStabilityLabel;
 export const schemaVersionVersionLabel = repositoryCapabilitySurface.schemaVersionVersionLabel;
+export const schemaVersionVisibilityGuard = repositoryCapabilitySurface.schemaVersionVisibilityGuard;
 export const schemaVersionLockLabel = repositoryCapabilitySurface.schemaVersionLockLabel;
 export const schemaVersionReadOnlyDerivedField = repositoryCapabilitySurface.schemaVersionReadOnlyDerivedField;
 export const repositoryCapabilitySurfaceVersion = repositoryCapabilitySurface.repositoryCapabilitySurfaceVersion;
