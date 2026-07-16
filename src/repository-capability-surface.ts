@@ -281,6 +281,11 @@ export type RepositoryCapabilitySurface = Readonly<{
     value: `repository-capability-surface-read-only-derived-field/v${typeof REPOSITORY_CAPABILITY_SURFACE_VERSION}`;
     derived: true;
   }>;
+  schemaVersionReadOnlyDerivedFieldSignature: Readonly<{
+    version: typeof REPOSITORY_CAPABILITY_SURFACE_VERSION;
+    value: `repository-capability-surface-read-only-derived-field-signature/v${typeof REPOSITORY_CAPABILITY_SURFACE_VERSION}`;
+    derived: true;
+  }>;
   versionedSchemaSchemaVersion: Readonly<{
     version: typeof REPOSITORY_CAPABILITY_SURFACE_VERSION;
     schemaVersion: 4;
@@ -439,6 +444,7 @@ const repositoryCapabilitySurface: RepositoryCapabilitySurface = Object.freeze({
   schemaVersionVisibilityGuard: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, value: `repository-capability-surface-visibility-guard/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`, derived: true }),
   schemaVersionLockLabel: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, value: `repository-capability-surface-lock-label/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`, derived: true }),
   schemaVersionReadOnlyDerivedField: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, value: `repository-capability-surface-read-only-derived-field/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`, derived: true }),
+  schemaVersionReadOnlyDerivedFieldSignature: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, value: `repository-capability-surface-read-only-derived-field-signature/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`, derived: true }),
   versionedSchemaSchemaVersion: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, schemaVersion: 4, readOnly: true, derived: true, stableShape: true }),
   schemaVersionDerivedCapabilitySignal: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, value: `repository-capability-surface-derived-capability-signal/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`, derived: true }),
   schemaVersionSurfaceVersion: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, value: `repository-capability-surface-surface-version/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`, derived: true }),
@@ -488,6 +494,7 @@ export const schemaVersionVersionLabel = repositoryCapabilitySurface.schemaVersi
 export const schemaVersionVisibilityGuard = repositoryCapabilitySurface.schemaVersionVisibilityGuard;
 export const schemaVersionLockLabel = repositoryCapabilitySurface.schemaVersionLockLabel;
 export const schemaVersionReadOnlyDerivedField = repositoryCapabilitySurface.schemaVersionReadOnlyDerivedField;
+export const schemaVersionReadOnlyDerivedFieldSignature = repositoryCapabilitySurface.schemaVersionReadOnlyDerivedFieldSignature;
 export const repositoryCapabilitySurfaceVersion = repositoryCapabilitySurface.repositoryCapabilitySurfaceVersion;
 export const schemaVersionReadOnlyBoundary = repositoryCapabilitySurface.schemaVersionReadOnlyBoundary;
 export const schemaVersionSchemaVersionMarker = repositoryCapabilitySurface.schemaVersionSchemaVersionMarker;
