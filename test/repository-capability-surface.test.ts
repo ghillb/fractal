@@ -20,6 +20,7 @@ import {
   schemaVersionBoundaryVersion,
   schemaVersionBoundaryStability,
   schemaVersionSurfaceVersionLabel,
+  schemaVersionSurfaceImmutabilityFingerprint,
   schemaVersionSchemaFingerprint,
   schemaVersionSurfaceFingerprint,
   schemaVersionSurfaceStability,
@@ -58,6 +59,7 @@ describe("repository capability surface", () => {
     expect(surface.schemaVersionBoundaryVersion).toBe(schemaVersionBoundaryVersion);
     expect(surface.schemaVersionBoundaryStability).toBe(schemaVersionBoundaryStability);
     expect(surface.schemaVersionSurfaceVersionLabel).toBe(schemaVersionSurfaceVersionLabel);
+    expect(surface.schemaVersionSurfaceImmutabilityFingerprint).toBe(schemaVersionSurfaceImmutabilityFingerprint);
     expect(surface.schemaVersionSchemaFingerprint).toBe(schemaVersionSchemaFingerprint);
     expect(surface.schemaVersionSurfaceFingerprint).toBe(schemaVersionSurfaceFingerprint);
     expect(surface.schemaVersionSurfaceStability).toBe(schemaVersionSurfaceStability);
@@ -97,6 +99,9 @@ describe("repository capability surface", () => {
     }).toThrow();
     expect(() => {
       (surface.schemaVersionSurfaceVersionLabel as { value: string }).value = "mutated";
+    }).toThrow();
+    expect(() => {
+      (surface.schemaVersionSurfaceImmutabilityFingerprint as { value: string }).value = "mutated";
     }).toThrow();
     expect(exportRepositoryCapabilitySurface()).toBe(surface);
   });
