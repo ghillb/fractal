@@ -1,4 +1,4 @@
-export const REPOSITORY_CAPABILITY_SURFACE_VERSION = 21 as const;
+export const REPOSITORY_CAPABILITY_SURFACE_VERSION = 22 as const;
 
 export type RepositoryCapabilitySurface = Readonly<{
   version: typeof REPOSITORY_CAPABILITY_SURFACE_VERSION;
@@ -308,6 +308,11 @@ export type RepositoryCapabilitySurface = Readonly<{
     value: `repository-capability-surface-surface-version/v${typeof REPOSITORY_CAPABILITY_SURFACE_VERSION}`;
     derived: true;
   }>;
+  schemaVersionSurfaceVersionLabelDerived: Readonly<{
+    version: typeof REPOSITORY_CAPABILITY_SURFACE_VERSION;
+    value: `repository-capability-surface-surface-version-label-derived/v${typeof REPOSITORY_CAPABILITY_SURFACE_VERSION}`;
+    derived: true;
+  }>;
   shallowImmutabilityWitness: Readonly<{
     version: typeof REPOSITORY_CAPABILITY_SURFACE_VERSION;
     value: `repository-capability-surface-shallow-immutability-witness/v${typeof REPOSITORY_CAPABILITY_SURFACE_VERSION}`;
@@ -469,6 +474,7 @@ const repositoryCapabilitySurface: RepositoryCapabilitySurface = Object.freeze({
   versionedSchemaSchemaVersion: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, schemaVersion: 4, readOnly: true, derived: true, stableShape: true }),
   schemaVersionDerivedCapabilitySignal: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, value: `repository-capability-surface-derived-capability-signal/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`, derived: true }),
   schemaVersionSurfaceVersion: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, value: `repository-capability-surface-surface-version/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`, derived: true }),
+  schemaVersionSurfaceVersionLabelDerived: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, value: `repository-capability-surface-surface-version-label-derived/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`, derived: true }),
   shallowImmutabilityWitness: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, value: `repository-capability-surface-shallow-immutability-witness/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`, derived: true }),
   schemaVersionSchemaStabilityWitness: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, value: `repository-capability-surface-schema-stability-witness/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`, derived: true }),
   schemaVersionBoundaryExport: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, value: `repository-capability-surface-boundary-export/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`, derived: true }),
@@ -525,6 +531,7 @@ export const schemaVersionSchemaVersionMarker = repositoryCapabilitySurface.sche
 export const versionedSchemaSchemaVersion = repositoryCapabilitySurface.versionedSchemaSchemaVersion;
 export const schemaVersionDerivedInspectionSurface = repositoryCapabilitySurface.schemaVersionDerivedInspectionSurface;
 export const schemaVersionSurfaceVersion = repositoryCapabilitySurface.schemaVersionSurfaceVersion;
+export const schemaVersionSurfaceVersionLabelDerived = repositoryCapabilitySurface.schemaVersionSurfaceVersionLabelDerived;
 export const shallowImmutabilityWitness = repositoryCapabilitySurface.shallowImmutabilityWitness;
 export const immutableDerivedSnapshot = repositoryCapabilitySurface.immutableDerivedSnapshot;
 export const schemaVersionSchemaStabilityWitness = repositoryCapabilitySurface.schemaVersionSchemaStabilityWitness;
