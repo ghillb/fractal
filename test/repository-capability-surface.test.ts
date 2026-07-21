@@ -17,6 +17,7 @@ import {
   schemaVersionSurfaceVersionLabelDerived,
   schemaVersionSurfaceVersionLabelDerivedSummary,
   shallowImmutabilityWitness,
+  schemaVersionShallowImmutabilityCheck,
   schemaVersionSchemaStabilityWitness,
   schemaVersionBoundaryExport,
   schemaVersionBoundaryVersion,
@@ -61,6 +62,7 @@ describe("repository capability surface", () => {
     expect(surface.schemaVersionSurfaceVersionLabelDerived).toBe(schemaVersionSurfaceVersionLabelDerived);
     expect(surface.schemaVersionSurfaceVersionLabelDerivedSummary).toBe(schemaVersionSurfaceVersionLabelDerivedSummary);
     expect(surface.shallowImmutabilityWitness).toBe(shallowImmutabilityWitness);
+    expect(surface.schemaVersionShallowImmutabilityCheck).toBe(schemaVersionShallowImmutabilityCheck);
     expect(surface.schemaVersionSchemaStabilityWitness).toBe(schemaVersionSchemaStabilityWitness);
     expect(surface.schemaVersionBoundaryExport).toBe(schemaVersionBoundaryExport);
     expect(surface.schemaVersionBoundaryVersion).toBe(schemaVersionBoundaryVersion);
