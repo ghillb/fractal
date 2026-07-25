@@ -430,6 +430,11 @@ export type RepositoryCapabilitySurface = Readonly<{
     value: `repository-capability-surface-surface-immutability-fingerprint/v${typeof REPOSITORY_CAPABILITY_SURFACE_VERSION}`;
     derived: true;
   }>;
+  schemaVersionSurfaceVersionChecksum: Readonly<{
+    version: typeof REPOSITORY_CAPABILITY_SURFACE_VERSION;
+    value: `repository-capability-surface-surface-version-checksum/v${typeof REPOSITORY_CAPABILITY_SURFACE_VERSION}`;
+    derived: true;
+  }>;
 }>;
 
 const repositoryCapabilitySurface: RepositoryCapabilitySurface = Object.freeze({
@@ -516,6 +521,7 @@ const repositoryCapabilitySurface: RepositoryCapabilitySurface = Object.freeze({
   schemaVersionSchemaVersionMarker: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, schemaVersion: 4, readOnly: true, derived: true, stableShape: true }),
   schemaVersionSurfaceVersionLabel: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, value: `repository-capability-surface-surface-version-label/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`, derived: true }),
   schemaVersionSurfaceImmutabilityFingerprint: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, value: `repository-capability-surface-surface-immutability-fingerprint/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`, derived: true }),
+  schemaVersionSurfaceVersionChecksum: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, value: `repository-capability-surface-surface-version-checksum/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`, derived: true }),
   versionedSchemaStabilityFingerprint: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, schemaVersion: 4, readOnly: true, derived: true, stableShape: true }),
 });
 
@@ -579,5 +585,6 @@ export const schemaVersionBoundaryVersion = repositoryCapabilitySurface.schemaVe
 export const schemaVersionBoundaryStability = repositoryCapabilitySurface.schemaVersionBoundaryStability;
 export const schemaVersionSurfaceVersionLabel = repositoryCapabilitySurface.schemaVersionSurfaceVersionLabel;
 export const schemaVersionSurfaceImmutabilityFingerprint = repositoryCapabilitySurface.schemaVersionSurfaceImmutabilityFingerprint;
+export const schemaVersionSurfaceVersionChecksum = repositoryCapabilitySurface.schemaVersionSurfaceVersionChecksum;
 export const versionedSchemaFingerprintLabel = repositoryCapabilitySurface.versionedSchemaFingerprintLabel;
 export const versionedSchemaStabilityFingerprint = repositoryCapabilitySurface.versionedSchemaStabilityFingerprint;
