@@ -15,6 +15,7 @@ import {
   schemaVersionDerivedCapabilitySignal,
   schemaVersionSurfaceVersion,
   schemaVersionSurfaceVersionLabelDerivedSummary,
+  schemaVersionSurfaceVersionLabelDerivedAudit,
   shallowImmutabilityWitness,
   schemaVersionShallowImmutabilityCheck,
   schemaVersionSchemaStabilityWitness,
@@ -66,6 +67,7 @@ describe("repository capability surface", () => {
     expect(surface.schemaVersionSurfaceVersion).toBe(schemaVersionSurfaceVersion);
     expect(surface.schemaVersionSurfaceVersionLabelDerived).toBe(schemaVersionSurfaceVersionLabelDerived);
     expect(surface.schemaVersionSurfaceVersionLabelDerivedSummary).toBe(schemaVersionSurfaceVersionLabelDerivedSummary);
+    expect(surface.schemaVersionSurfaceVersionLabelDerivedAudit).toBe(schemaVersionSurfaceVersionLabelDerivedAudit);
     expect(surface.shallowImmutabilityWitness).toBe(shallowImmutabilityWitness);
     expect(surface.schemaVersionShallowImmutabilityCheck).toBe(schemaVersionShallowImmutabilityCheck);
     expect(surface.schemaVersionSchemaStabilityWitness).toBe(schemaVersionSchemaStabilityWitness);
@@ -103,6 +105,7 @@ describe("repository capability surface", () => {
     expect(Object.isFrozen(surface.schemaVersionVisibilityGuard)).toBe(true);
     expect(Object.isFrozen(surface.schemaVersionBoundarySchemaVersion)).toBe(true);
     expect(Object.isFrozen(surface.schemaVersionReadOnlyDerivedFieldSignature)).toBe(true);
+    expect(Object.isFrozen(surface.schemaVersionSurfaceVersionLabelDerivedAudit)).toBe(true);
     expect(Object.isFrozen(surface.versionedSchemaStabilityFingerprint)).toBe(true);
     expect(() => {
       (surface.schemaVersionBoundaryVersion as { value: string }).value = "mutated";
