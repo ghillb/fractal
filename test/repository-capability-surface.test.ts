@@ -31,6 +31,7 @@ import {
   schemaVersionInspectionStamp,
   schemaVersionSchemaFingerprint,
   schemaVersionSurfaceFingerprint,
+  schemaVersionSchemaShapeFingerprint,
   schemaVersionSurfaceVersionHash,
   schemaVersionSurfaceVersionLabelDerived,
   schemaVersionSurfaceStability,
@@ -86,6 +87,7 @@ describe("repository capability surface", () => {
     expect(surface.schemaVersionInspectionStamp).toBe(schemaVersionInspectionStamp);
     expect(surface.schemaVersionSchemaFingerprint).toBe(schemaVersionSchemaFingerprint);
     expect(surface.schemaVersionSurfaceFingerprint).toBe(schemaVersionSurfaceFingerprint);
+    expect(surface.schemaVersionSchemaShapeFingerprint).toBe(schemaVersionSchemaShapeFingerprint);
     expect(surface.schemaVersionSurfaceVersionHash).toBe(schemaVersionSurfaceVersionHash);
     expect(surface.schemaVersionSurfaceVersionLabelDerived).toBe(schemaVersionSurfaceVersionLabelDerived);
     expect(surface.schemaVersionSurfaceStability).toBe(schemaVersionSurfaceStability);
@@ -113,6 +115,7 @@ describe("repository capability surface", () => {
     expect(Object.isFrozen(surface.schemaVersionReadOnlyDerivedFieldSignature)).toBe(true);
     expect(Object.isFrozen(surface.schemaVersionSchemaStabilityFingerprintVersioned)).toBe(true);
     expect(Object.isFrozen(surface.schemaVersionSurfaceVersionLabelDerivedAudit)).toBe(true);
+    expect(Object.isFrozen(surface.schemaVersionSchemaShapeFingerprint)).toBe(true);
     expect(Object.isFrozen(surface.versionedSchemaStabilityFingerprint)).toBe(true);
     expect(() => {
       (surface.schemaVersionBoundaryVersion as { value: string }).value = "mutated";
@@ -140,6 +143,9 @@ describe("repository capability surface", () => {
     }).toThrow();
     expect(() => {
       (surface.schemaVersionSurfaceVersionLabelDerived as { value: string }).value = "mutated";
+    }).toThrow();
+    expect(() => {
+      (surface.schemaVersionSchemaShapeFingerprint as { value: string }).value = "mutated";
     }).toThrow();
     expect(() => {
       (surface.schemaVersionSchemaStabilityFingerprintVersioned as { schemaVersion: number }).schemaVersion = 5;
