@@ -495,6 +495,11 @@ export type RepositoryCapabilitySurface = Readonly<{
     value: `repository-capability-surface-versioned-metadata-field/v${typeof REPOSITORY_CAPABILITY_SURFACE_VERSION}`;
     derived: true;
   }>;
+  schemaVersionSchemaStabilityReport: Readonly<{
+    version: typeof REPOSITORY_CAPABILITY_SURFACE_VERSION;
+    value: `repository-capability-surface-schema-stability-report/v${typeof REPOSITORY_CAPABILITY_SURFACE_VERSION}`;
+    derived: true;
+  }>;
 }>;
 
 const repositoryCapabilitySurface: RepositoryCapabilitySurface = Object.freeze({
@@ -593,6 +598,7 @@ const repositoryCapabilitySurface: RepositoryCapabilitySurface = Object.freeze({
   schemaVersionSurfaceImmutabilitySummary: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, value: `repository-capability-surface-surface-immutability-summary/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`, derived: true }),
   schemaVersionInspectionStamp: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, value: `repository-capability-surface-inspection-stamp/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`, derived: true }),
   schemaVersionVersionedMetadataField: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, value: `repository-capability-surface-versioned-metadata-field/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`, derived: true }),
+  schemaVersionSchemaStabilityReport: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, value: `repository-capability-surface-schema-stability-report/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`, derived: true }),
   versionedSchemaStabilityFingerprint: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, schemaVersion: 4, readOnly: true, derived: true, stableShape: true }),
 });
 
@@ -666,6 +672,7 @@ export const schemaVersionSurfaceVersionChecksum = repositoryCapabilitySurface.s
 export const schemaVersionSurfaceImmutabilitySummary = repositoryCapabilitySurface.schemaVersionSurfaceImmutabilitySummary;
 export const schemaVersionInspectionStamp = repositoryCapabilitySurface.schemaVersionInspectionStamp;
 export const schemaVersionVersionedMetadataField = repositoryCapabilitySurface.schemaVersionVersionedMetadataField;
+export const schemaVersionSchemaStabilityReport = repositoryCapabilitySurface.schemaVersionSchemaStabilityReport;
 export const versionedSchemaFingerprintLabel = repositoryCapabilitySurface.versionedSchemaFingerprintLabel;
 export const versionedSchemaStabilityFingerprint = repositoryCapabilitySurface.versionedSchemaStabilityFingerprint;
 export const schemaVersionDerivedPublicBoundary = repositoryCapabilitySurface.schemaVersionDerivedPublicBoundary;
