@@ -30,6 +30,7 @@ import {
   schemaVersionSurfaceVersionChecksum,
   schemaVersionSurfaceImmutabilitySummary,
   schemaVersionInspectionStamp,
+  schemaVersionVersionedMetadataField,
   schemaVersionSchemaFingerprint,
   schemaVersionSurfaceFingerprint,
   schemaVersionSurfaceLineage,
@@ -88,6 +89,7 @@ describe("repository capability surface", () => {
     expect(surface.schemaVersionSurfaceVersionChecksum).toBe(schemaVersionSurfaceVersionChecksum);
     expect(surface.schemaVersionSurfaceImmutabilitySummary).toStrictEqual(schemaVersionSurfaceImmutabilitySummary);
     expect(surface.schemaVersionInspectionStamp).toBe(schemaVersionInspectionStamp);
+    expect(surface.schemaVersionVersionedMetadataField).toBe(schemaVersionVersionedMetadataField);
     expect(surface.schemaVersionSchemaFingerprint).toBe(schemaVersionSchemaFingerprint);
     expect(surface.schemaVersionSurfaceFingerprint).toBe(schemaVersionSurfaceFingerprint);
     expect(surface.schemaVersionSurfaceLineage).toBe(schemaVersionSurfaceLineage);
@@ -168,6 +170,9 @@ describe("repository capability surface", () => {
     }).toThrow();
     expect(() => {
       (surface.schemaVersionInspectionStamp as { value: string }).value = "mutated";
+    }).toThrow();
+    expect(() => {
+      (surface.schemaVersionVersionedMetadataField as { value: string }).value = "mutated";
     }).toThrow();
     expect(() => {
       (surface.schemaVersionSurfaceDerivedVersion as { value: string }).value = "mutated";
