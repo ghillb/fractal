@@ -17,6 +17,7 @@ import {
   schemaVersionSurfaceVersionLabelDerivedSummary,
   schemaVersionSchemaStabilityFingerprintVersioned,
   schemaVersionSurfaceVersionLabelDerivedAudit,
+  schemaVersionSurfaceVersionLabelDerivedStability,
   shallowImmutabilityWitness,
   schemaVersionShallowImmutabilityCheck,
   schemaVersionSchemaStabilityWitness,
@@ -77,6 +78,7 @@ describe("repository capability surface", () => {
     expect(surface.schemaVersionSurfaceVersionLabelDerivedSummary).toBe(schemaVersionSurfaceVersionLabelDerivedSummary);
     expect(surface.schemaVersionSchemaStabilityFingerprintVersioned).toBe(schemaVersionSchemaStabilityFingerprintVersioned);
     expect(surface.schemaVersionSurfaceVersionLabelDerivedAudit).toBe(schemaVersionSurfaceVersionLabelDerivedAudit);
+    expect(surface.schemaVersionSurfaceVersionLabelDerivedStability).toBe(schemaVersionSurfaceVersionLabelDerivedStability);
     expect(surface.shallowImmutabilityWitness).toBe(shallowImmutabilityWitness);
     expect(surface.schemaVersionShallowImmutabilityCheck).toBe(schemaVersionShallowImmutabilityCheck);
     expect(surface.schemaVersionSchemaStabilityWitness).toBe(schemaVersionSchemaStabilityWitness);
@@ -123,6 +125,7 @@ describe("repository capability surface", () => {
     expect(Object.isFrozen(surface.schemaVersionReadOnlyDerivedFieldSignature)).toBe(true);
     expect(Object.isFrozen(surface.schemaVersionSchemaStabilityFingerprintVersioned)).toBe(true);
     expect(Object.isFrozen(surface.schemaVersionSurfaceVersionLabelDerivedAudit)).toBe(true);
+    expect(Object.isFrozen(surface.schemaVersionSurfaceVersionLabelDerivedStability)).toBe(true);
     expect(Object.isFrozen(surface.schemaVersionSchemaShapeFingerprint)).toBe(true);
     expect(Object.isFrozen(surface.versionedSchemaStabilityFingerprint)).toBe(true);
     expect(() => {
