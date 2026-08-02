@@ -1,4 +1,4 @@
-export const REPOSITORY_CAPABILITY_SURFACE_VERSION = 24 as const;
+export const REPOSITORY_CAPABILITY_SURFACE_VERSION = 25 as const;
 
 export type RepositoryCapabilitySurface = Readonly<{
   version: typeof REPOSITORY_CAPABILITY_SURFACE_VERSION;
@@ -63,6 +63,11 @@ export type RepositoryCapabilitySurface = Readonly<{
   immutableDerivedSnapshot: Readonly<{
     version: typeof REPOSITORY_CAPABILITY_SURFACE_VERSION;
     value: "frozen-shallow-readonly";
+    derived: true;
+  }>;
+  exportStabilityWitness: Readonly<{
+    version: typeof REPOSITORY_CAPABILITY_SURFACE_VERSION;
+    value: `repository-capability-surface-export-stability/v${typeof REPOSITORY_CAPABILITY_SURFACE_VERSION}`;
     derived: true;
   }>;
   shallowImmutabilitySummary: Readonly<{
@@ -533,6 +538,7 @@ const repositoryCapabilitySurface: RepositoryCapabilitySurface = Object.freeze({
   schemaVersionSurfaceDerivedVersion: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, value: `repository-capability-surface-surface-derived-version/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`, derived: true }),
   schemaVersionSurfaceSchemaVersion: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, schemaVersion: 4, derived: true, stableShape: true }),
   immutableDerivedSnapshot: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, value: "frozen-shallow-readonly", derived: true }),
+  exportStabilityWitness: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, value: `repository-capability-surface-export-stability/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`, derived: true }),
   shallowImmutabilitySummary: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, value: "shallow-immutability-summary", derived: true }),
   schemaStability: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, stable: true, derived: true }),
   publicShape: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, shape: "versioned-readonly-derived-surface", derived: true }),
@@ -662,6 +668,7 @@ export const schemaVersionSchemaStabilityFingerprintVersioned = repositoryCapabi
 export const shallowImmutabilityWitness = repositoryCapabilitySurface.shallowImmutabilityWitness;
 export const schemaVersionShallowImmutabilityCheck = repositoryCapabilitySurface.schemaVersionShallowImmutabilityCheck;
 export const immutableDerivedSnapshot = repositoryCapabilitySurface.immutableDerivedSnapshot;
+export const exportStabilityWitness = repositoryCapabilitySurface.exportStabilityWitness;
 export const shallowImmutabilitySummary = repositoryCapabilitySurface.shallowImmutabilitySummary;
 export const schemaVersionSchemaStabilityWitness = repositoryCapabilitySurface.schemaVersionSchemaStabilityWitness;
 export const schemaVersionBoundaryExport = repositoryCapabilitySurface.schemaVersionBoundaryExport;
