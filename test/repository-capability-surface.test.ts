@@ -54,6 +54,7 @@ import {
   versionedSchemaFingerprintLabel,
   versionedSchemaStabilityFingerprint,
   immutableDerivedSnapshot,
+  shallowImmutabilitySummary,
   versionedSchemaSchemaVersion
 } from "../src/index.ts";
 
@@ -115,6 +116,7 @@ describe("repository capability surface", () => {
     expect(surface.versionedSchemaFingerprintLabel).toBe(versionedSchemaFingerprintLabel);
     expect(surface.versionedSchemaStabilityFingerprint).toBe(versionedSchemaStabilityFingerprint);
     expect(surface.immutableDerivedSnapshot).toBe(immutableDerivedSnapshot);
+    expect(surface.shallowImmutabilitySummary).toBe(shallowImmutabilitySummary);
     expect(surface.versionedSchemaSchemaVersion).toBe(versionedSchemaSchemaVersion);
 
 
@@ -136,6 +138,9 @@ describe("repository capability surface", () => {
     }).toThrow();
     expect(() => {
       (surface.immutableDerivedSnapshot as { value: string }).value = "mutated";
+    }).toThrow();
+    expect(() => {
+      (surface.shallowImmutabilitySummary as { value: string }).value = "mutated";
     }).toThrow();
     expect(() => {
       (surface.schemaVersionReadOnlyBoundary as { value: string }).value = "mutated";
