@@ -15,6 +15,7 @@ import {
   schemaVersionDerivedCapabilitySignal,
   schemaVersionSurfaceVersion,
   schemaVersionSurfaceVersionLabelDerivedSummary,
+  schemaVersionSurfaceVersionLabelDerivedSnapshot,
   schemaVersionSchemaStabilityFingerprintVersioned,
   schemaVersionSurfaceVersionLabelDerivedAudit,
   schemaVersionSurfaceVersionLabelDerivedStability,
@@ -79,6 +80,7 @@ describe("repository capability surface", () => {
     expect(surface.schemaVersionSurfaceVersion).toBe(schemaVersionSurfaceVersion);
     expect(surface.schemaVersionSurfaceVersionLabelDerived).toBe(schemaVersionSurfaceVersionLabelDerived);
     expect(surface.schemaVersionSurfaceVersionLabelDerivedSummary).toBe(schemaVersionSurfaceVersionLabelDerivedSummary);
+    expect(surface.schemaVersionSurfaceVersionLabelDerivedSnapshot).toBe(schemaVersionSurfaceVersionLabelDerivedSnapshot);
     expect(surface.schemaVersionSchemaStabilityFingerprintVersioned).toBe(schemaVersionSchemaStabilityFingerprintVersioned);
     expect(surface.schemaVersionSurfaceVersionLabelDerivedAudit).toBe(schemaVersionSurfaceVersionLabelDerivedAudit);
     expect(surface.schemaVersionSurfaceVersionLabelDerivedStability).toBe(schemaVersionSurfaceVersionLabelDerivedStability);
@@ -125,6 +127,7 @@ describe("repository capability surface", () => {
 
 
     expect(Object.isFrozen(surface)).toBe(true);
+    expect(Object.isFrozen(surface.schemaVersionSurfaceVersionLabelDerivedSnapshot)).toBe(true);
     expect(Object.isFrozen(surface.repositoryCapabilitySurfaceVersion)).toBe(true);
     expect(Object.isFrozen(surface.schemaVersionVisibilityGuard)).toBe(true);
     expect(Object.isFrozen(surface.schemaVersionBoundarySchemaVersion)).toBe(true);

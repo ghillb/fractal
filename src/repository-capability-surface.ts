@@ -354,6 +354,11 @@ export type RepositoryCapabilitySurface = Readonly<{
     value: `repository-capability-surface-surface-version-label-summary/v${typeof REPOSITORY_CAPABILITY_SURFACE_VERSION}`;
     derived: true;
   }>;
+  schemaVersionSurfaceVersionLabelDerivedSnapshot: Readonly<{
+    version: typeof REPOSITORY_CAPABILITY_SURFACE_VERSION;
+    value: `repository-capability-surface-surface-version-label-snapshot/v${typeof REPOSITORY_CAPABILITY_SURFACE_VERSION}`;
+    derived: true;
+  }>;
   schemaVersionSchemaStabilityFingerprintVersioned: Readonly<{
     version: typeof REPOSITORY_CAPABILITY_SURFACE_VERSION;
     schemaVersion: 4;
@@ -598,6 +603,7 @@ const repositoryCapabilitySurface: RepositoryCapabilitySurface = Object.freeze({
   schemaVersionSurfaceVersion: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, value: `repository-capability-surface-surface-version/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`, derived: true }),
   schemaVersionSurfaceVersionLabelDerived: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, value: `repository-capability-surface-surface-version-label-derived/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`, derived: true }),
   schemaVersionSurfaceVersionLabelDerivedSummary: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, value: `repository-capability-surface-surface-version-label-summary/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`, derived: true }),
+  schemaVersionSurfaceVersionLabelDerivedSnapshot: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, value: `repository-capability-surface-surface-version-label-snapshot/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`, derived: true }),
   schemaVersionSchemaStabilityFingerprintVersioned: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, schemaVersion: 4, readOnly: true, derived: true, stableShape: true }),
   schemaVersionSurfaceVersionLabelDerivedAudit: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, value: `repository-capability-surface-surface-version-label-derived-audit/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`, derived: true }),
   schemaVersionSurfaceVersionLabelDerivedStability: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, value: `repository-capability-surface-surface-version-label-derived-stability/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`, derived: true }),
@@ -670,6 +676,7 @@ export const schemaVersionDerivedInspectionSurface = repositoryCapabilitySurface
 export const schemaVersionSurfaceVersion = repositoryCapabilitySurface.schemaVersionSurfaceVersion;
 export const schemaVersionSurfaceVersionLabelDerived = repositoryCapabilitySurface.schemaVersionSurfaceVersionLabelDerived;
 export const schemaVersionSurfaceVersionLabelDerivedSummary = repositoryCapabilitySurface.schemaVersionSurfaceVersionLabelDerivedSummary;
+export const schemaVersionSurfaceVersionLabelDerivedSnapshot = repositoryCapabilitySurface.schemaVersionSurfaceVersionLabelDerivedSnapshot;
 export const schemaVersionSchemaStabilityFingerprintVersioned = repositoryCapabilitySurface.schemaVersionSchemaStabilityFingerprintVersioned;
 export const shallowImmutabilityWitness = repositoryCapabilitySurface.shallowImmutabilityWitness;
 export const schemaVersionShallowImmutabilityCheck = repositoryCapabilitySurface.schemaVersionShallowImmutabilityCheck;
