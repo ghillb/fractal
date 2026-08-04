@@ -55,6 +55,7 @@ import {
   schemaVersionDerivedPublicBoundary,
   schemaVersionSchemaStabilityFingerprint,
   schemaVersionSchemaStabilityChecksum,
+  schemaVersionSurfaceVersionLabelDerivedImmutableWitness,
   versionedSchemaFingerprintLabel,
   versionedSchemaStabilityFingerprint,
   immutableDerivedSnapshot,
@@ -123,6 +124,7 @@ describe("repository capability surface", () => {
     expect(surface.schemaVersionDerivedPublicBoundary).toBe(schemaVersionDerivedPublicBoundary);
     expect(surface.schemaVersionSchemaStabilityFingerprint).toBe(schemaVersionSchemaStabilityFingerprint);
     expect(surface.schemaVersionSchemaStabilityChecksum).toBe(schemaVersionSchemaStabilityChecksum);
+    expect(surface.schemaVersionSurfaceVersionLabelDerivedImmutableWitness).toBe(schemaVersionSurfaceVersionLabelDerivedImmutableWitness);
     expect(surface.versionedSchemaFingerprintLabel).toBe(versionedSchemaFingerprintLabel);
     expect(surface.versionedSchemaStabilityFingerprint).toBe(versionedSchemaStabilityFingerprint);
     expect(surface.immutableDerivedSnapshot).toBe(immutableDerivedSnapshot);
@@ -144,6 +146,7 @@ describe("repository capability surface", () => {
     expect(Object.isFrozen(surface.schemaVersionSurfaceVersionLabelDerivedVersionedField)).toBe(true);
     expect(Object.isFrozen(surface.schemaVersionSchemaShapeFingerprint)).toBe(true);
     expect(Object.isFrozen(surface.versionedSchemaStabilityFingerprint)).toBe(true);
+    expect(Object.isFrozen(surface.schemaVersionSurfaceVersionLabelDerivedImmutableWitness)).toBe(true);
     expect(() => {
       (surface.schemaVersionBoundaryVersion as { value: string }).value = "mutated";
     }).toThrow();
@@ -194,6 +197,9 @@ describe("repository capability surface", () => {
     }).toThrow();
     expect(() => {
       (surface.schemaVersionSurfaceImmutabilitySummary as { value: string }).value = "mutated";
+    }).toThrow();
+    expect(() => {
+      (surface.schemaVersionSurfaceVersionLabelDerivedImmutableWitness as { value: string }).value = "mutated";
     }).toThrow();
     expect(() => {
       (surface.schemaVersionInspectionStamp as { value: string }).value = "mutated";
