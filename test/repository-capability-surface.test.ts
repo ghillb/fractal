@@ -21,6 +21,7 @@ import {
   schemaVersionSurfaceVersionLabelDerivedAudit,
   schemaVersionSurfaceVersionLabelDerivedStability,
   schemaVersionSurfaceVersionLabelDerivedVersionedField,
+  schemaVersionSurfaceExportBoundaryVersionedField,
   shallowImmutabilityWitness,
   schemaVersionShallowImmutabilityCheck,
   schemaVersionSchemaStabilityWitness,
@@ -91,6 +92,7 @@ describe("repository capability surface", () => {
     expect(surface.schemaVersionSurfaceVersionLabelDerivedAudit).toBe(schemaVersionSurfaceVersionLabelDerivedAudit);
     expect(surface.schemaVersionSurfaceVersionLabelDerivedStability).toBe(schemaVersionSurfaceVersionLabelDerivedStability);
     expect(surface.schemaVersionSurfaceVersionLabelDerivedVersionedField).toBe(schemaVersionSurfaceVersionLabelDerivedVersionedField);
+    expect(surface.schemaVersionSurfaceExportBoundaryVersionedField).toBe(schemaVersionSurfaceExportBoundaryVersionedField);
     expect(surface.shallowImmutabilityWitness).toBe(shallowImmutabilityWitness);
     expect(surface.schemaVersionShallowImmutabilityCheck).toBe(schemaVersionShallowImmutabilityCheck);
     expect(surface.schemaVersionSchemaStabilityWitness).toBe(schemaVersionSchemaStabilityWitness);
@@ -146,6 +148,7 @@ describe("repository capability surface", () => {
     expect(Object.isFrozen(surface.schemaVersionSurfaceVersionLabelDerivedAudit)).toBe(true);
     expect(Object.isFrozen(surface.schemaVersionSurfaceVersionLabelDerivedStability)).toBe(true);
     expect(Object.isFrozen(surface.schemaVersionSurfaceVersionLabelDerivedVersionedField)).toBe(true);
+    expect(Object.isFrozen(surface.schemaVersionSurfaceExportBoundaryVersionedField)).toBe(true);
     expect(Object.isFrozen(surface.schemaVersionSchemaShapeFingerprint)).toBe(true);
     expect(Object.isFrozen(surface.versionedSchemaStabilityFingerprint)).toBe(true);
     expect(Object.isFrozen(surface.schemaVersionSurfaceVersionLabelDerivedImmutableWitness)).toBe(true);
@@ -205,6 +208,9 @@ describe("repository capability surface", () => {
     }).toThrow();
     expect(() => {
       (surface.schemaVersionSurfaceVersionLabelDerivedImmutableWitness as { value: string }).value = "mutated";
+    }).toThrow();
+    expect(() => {
+      (surface.schemaVersionSurfaceExportBoundaryVersionedField as { schemaVersion: number }).schemaVersion = 5;
     }).toThrow();
     expect(() => {
       (surface.schemaVersionInspectionStamp as { value: string }).value = "mutated";
