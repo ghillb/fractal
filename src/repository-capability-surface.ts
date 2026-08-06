@@ -399,6 +399,11 @@ export type RepositoryCapabilitySurface = Readonly<{
     value: `repository-capability-surface-surface-version-label-derived-versioned-field/v${typeof REPOSITORY_CAPABILITY_SURFACE_VERSION}`;
     derived: true;
   }>;
+  schemaVersionSurfaceVersionLabelDerivedVersionedImmutableField: Readonly<{
+    version: typeof REPOSITORY_CAPABILITY_SURFACE_VERSION;
+    value: `repository-capability-surface-surface-version-label-derived-versioned-immutable-field/v${typeof REPOSITORY_CAPABILITY_SURFACE_VERSION}`;
+    derived: true;
+  }>;
   shallowImmutabilityWitness: Readonly<{
     version: typeof REPOSITORY_CAPABILITY_SURFACE_VERSION;
     value: `repository-capability-surface-shallow-immutability-witness/v${typeof REPOSITORY_CAPABILITY_SURFACE_VERSION}`;
@@ -568,6 +573,12 @@ export const schemaVersionSurfaceExportBoundaryVersionedField = Object.freeze({
   stableShape: true
 });
 
+export const schemaVersionSurfaceVersionLabelDerivedVersionedImmutableField = Object.freeze({
+  version: REPOSITORY_CAPABILITY_SURFACE_VERSION,
+  value: `repository-capability-surface-surface-version-label-derived-versioned-immutable-field/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`,
+  derived: true
+});
+
 const repositoryCapabilitySurface: RepositoryCapabilitySurface = Object.freeze({
   version: REPOSITORY_CAPABILITY_SURFACE_VERSION,
   readOnly: true,
@@ -647,6 +658,7 @@ const repositoryCapabilitySurface: RepositoryCapabilitySurface = Object.freeze({
   schemaVersionSurfaceVersionLabelDerivedAudit: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, value: `repository-capability-surface-surface-version-label-derived-audit/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`, derived: true }),
   schemaVersionSurfaceVersionLabelDerivedStability: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, value: `repository-capability-surface-surface-version-label-derived-stability/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`, derived: true }),
   schemaVersionSurfaceVersionLabelDerivedVersionedField: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, value: `repository-capability-surface-surface-version-label-derived-versioned-field/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`, derived: true }),
+  schemaVersionSurfaceVersionLabelDerivedVersionedImmutableField: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, value: `repository-capability-surface-surface-version-label-derived-versioned-immutable-field/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`, derived: true }),
   shallowImmutabilityWitness: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, value: `repository-capability-surface-shallow-immutability-witness/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`, derived: true }),
   schemaVersionShallowImmutabilityCheck: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, value: `repository-capability-surface-shallow-immutability-check/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`, derived: true }),
   schemaVersionSchemaStabilityWitness: Object.freeze({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, value: `repository-capability-surface-schema-stability-witness/v${REPOSITORY_CAPABILITY_SURFACE_VERSION}`, derived: true }),
