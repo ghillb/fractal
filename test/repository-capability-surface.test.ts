@@ -22,6 +22,7 @@ import {
   schemaVersionSurfaceVersionLabelDerivedAudit,
   schemaVersionSurfaceVersionLabelDerivedStability,
   schemaVersionSurfaceVersionLabelDerivedVersionedField,
+  schemaVersionSurfaceVersionLabelDerivedVersionedFieldSnapshot,
   schemaVersionSurfaceVersionLabelDerivedVersionedImmutableField,
   schemaVersionSurfaceExportBoundaryVersionedField,
   schemaVersionSurfaceBoundarySignature,
@@ -152,6 +153,7 @@ describe("repository capability surface", () => {
     expect(Object.isFrozen(surface.schemaVersionSurfaceVersionLabelDerivedAudit)).toBe(true);
     expect(Object.isFrozen(surface.schemaVersionSurfaceVersionLabelDerivedStability)).toBe(true);
     expect(Object.isFrozen(surface.schemaVersionSurfaceVersionLabelDerivedVersionedField)).toBe(true);
+    expect(Object.isFrozen(surface.schemaVersionSurfaceVersionLabelDerivedVersionedFieldSnapshot)).toBe(true);
     expect(Object.isFrozen(surface.schemaVersionSurfaceVersionLabelDerivedVersionedImmutableField)).toBe(true);
     expect(Object.isFrozen(surface.schemaVersionSurfaceExportBoundaryVersionedField)).toBe(true);
     expect(Object.isFrozen(surface.schemaVersionSchemaShapeFingerprint)).toBe(true);
