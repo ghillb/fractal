@@ -25,6 +25,7 @@ import {
   schemaVersionSurfaceVersionLabelDerivedVersionedFieldSnapshot,
   schemaVersionSurfaceVersionLabelDerivedVersionedImmutableField,
   schemaVersionSurfaceExportBoundaryVersionedField,
+  schemaVersionSurfaceExportBoundaryVersionedFieldSnapshot,
   schemaVersionSurfaceBoundarySignature,
   shallowImmutabilityWitness,
   schemaVersionShallowImmutabilityCheck,
@@ -98,6 +99,7 @@ describe("repository capability surface", () => {
     expect(surface.schemaVersionSurfaceVersionLabelDerivedVersionedField).toBe(schemaVersionSurfaceVersionLabelDerivedVersionedField);
     expect(surface.schemaVersionSurfaceVersionLabelDerivedVersionedImmutableField).toStrictEqual(schemaVersionSurfaceVersionLabelDerivedVersionedImmutableField);
     expect(surface.schemaVersionSurfaceExportBoundaryVersionedField).toBe(schemaVersionSurfaceExportBoundaryVersionedField);
+    expect(surface.schemaVersionSurfaceExportBoundaryVersionedFieldSnapshot).toBe(schemaVersionSurfaceExportBoundaryVersionedFieldSnapshot);
     expect(surface.shallowImmutabilityWitness).toBe(shallowImmutabilityWitness);
     expect(surface.schemaVersionShallowImmutabilityCheck).toBe(schemaVersionShallowImmutabilityCheck);
     expect(surface.schemaVersionSchemaStabilityWitness).toBe(schemaVersionSchemaStabilityWitness);
@@ -156,6 +158,7 @@ describe("repository capability surface", () => {
     expect(Object.isFrozen(surface.schemaVersionSurfaceVersionLabelDerivedVersionedFieldSnapshot)).toBe(true);
     expect(Object.isFrozen(surface.schemaVersionSurfaceVersionLabelDerivedVersionedImmutableField)).toBe(true);
     expect(Object.isFrozen(surface.schemaVersionSurfaceExportBoundaryVersionedField)).toBe(true);
+    expect(Object.isFrozen(surface.schemaVersionSurfaceExportBoundaryVersionedFieldSnapshot)).toBe(true);
     expect(Object.isFrozen(surface.schemaVersionSchemaShapeFingerprint)).toBe(true);
     expect(Object.isFrozen(surface.versionedSchemaStabilityFingerprint)).toBe(true);
     expect(Object.isFrozen(surface.schemaVersionSurfaceVersionLabelDerivedImmutableWitness)).toBe(true);
