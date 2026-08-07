@@ -26,6 +26,7 @@ import {
   schemaVersionSurfaceVersionLabelDerivedVersionedImmutableField,
   schemaVersionSurfaceExportBoundaryVersionedField,
   schemaVersionSurfaceExportBoundaryVersionedFieldSnapshot,
+  schemaVersionSurfaceDerivedImmutabilityShape,
   schemaVersionSurfaceBoundarySignature,
   shallowImmutabilityWitness,
   schemaVersionShallowImmutabilityCheck,
@@ -101,6 +102,7 @@ describe("repository capability surface", () => {
     expect(surface.schemaVersionSurfaceVersionLabelDerivedVersionedImmutableField).toStrictEqual(schemaVersionSurfaceVersionLabelDerivedVersionedImmutableField);
     expect(surface.schemaVersionSurfaceExportBoundaryVersionedField).toBe(schemaVersionSurfaceExportBoundaryVersionedField);
     expect(surface.schemaVersionSurfaceExportBoundaryVersionedFieldSnapshot).toBe(schemaVersionSurfaceExportBoundaryVersionedFieldSnapshot);
+    expect(surface.schemaVersionSurfaceDerivedImmutabilityShape).toStrictEqual(schemaVersionSurfaceDerivedImmutabilityShape);
     expect(surface.shallowImmutabilityWitness).toBe(shallowImmutabilityWitness);
     expect(surface.schemaVersionShallowImmutabilityCheck).toBe(schemaVersionShallowImmutabilityCheck);
     expect(surface.schemaVersionSchemaStabilityWitness).toBe(schemaVersionSchemaStabilityWitness);
@@ -161,6 +163,7 @@ describe("repository capability surface", () => {
     expect(Object.isFrozen(surface.schemaVersionSurfaceVersionLabelDerivedVersionedImmutableField)).toBe(true);
     expect(Object.isFrozen(surface.schemaVersionSurfaceExportBoundaryVersionedField)).toBe(true);
     expect(Object.isFrozen(surface.schemaVersionSurfaceExportBoundaryVersionedFieldSnapshot)).toBe(true);
+    expect(Object.isFrozen(surface.schemaVersionSurfaceDerivedImmutabilityShape)).toBe(true);
     expect(Object.isFrozen(surface.schemaVersionSchemaShapeFingerprint)).toBe(true);
     expect(Object.isFrozen(surface.versionedSchemaStabilityFingerprint)).toBe(true);
     expect(Object.isFrozen(surface.schemaVersionSurfaceVersionLabelDerivedImmutableWitness)).toBe(true);
@@ -223,6 +226,9 @@ describe("repository capability surface", () => {
     }).toThrow();
     expect(() => {
       (surface.schemaVersionSurfaceExportBoundaryVersionedField as { schemaVersion: number }).schemaVersion = 5;
+    }).toThrow();
+    expect(() => {
+      (surface.schemaVersionSurfaceDerivedImmutabilityShape as { schemaVersion: number }).schemaVersion = 5;
     }).toThrow();
     expect(() => {
       (surface.schemaVersionInspectionStamp as { value: string }).value = "mutated";
