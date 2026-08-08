@@ -11,6 +11,7 @@
   "scripts": {
     "agent": "bun run src/agent/cli.ts",
     "evolve:cycle": "bun run src/evolve/cli.ts",
+    "evolve:fitness": "bun run src/evolve/fitness.ts",
     "lint": "bunx oxlint .",
     "typecheck": "bunx tsc --noEmit",
     "test": "bun test"

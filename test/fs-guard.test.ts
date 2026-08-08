@@ -57,7 +57,7 @@ describe("fs-guard", () => {
     expect(PROTECTED_PATH_RULES.paths).toEqual(FS_GUARD_PROTECTED_SELF_STATE_PATHS);
     assertSourcesDoNotContainPatterns(
       sourceExpectations,
-      FS_GUARD_PROTECTED_SELF_STATE_PATHS.map((path) => `\"${path}\"`)
+      FS_GUARD_PROTECTED_SELF_STATE_PATHS.map((path) => `"${path}"`)
     );
 
     const { writeFileTool } = await import("../src/tools/file-ops.ts");
@@ -87,7 +87,7 @@ describe("fs-guard", () => {
     expect(PROTECTED_PATH_RULES.segments).toEqual([".git", ".env", ".env.keys"]);
   });
 
-  test("readable helper allows protected reads while mutating helper blocks them", () => {
+  test("readable helper blocks secrets but still permits non-secret journal inspection", () => {
     const root = mkdtempSync(join(tmpdir(), "fractal-test-"));
 
     writeFileSync(join(root, ".env"), "KEY=value\n", "utf8");
@@ -102,14 +102,19 @@ describe("fs-guard", () => {
       expect(() => assertMutableWithinWorkspace(root, blockedPath)).toThrow(
         `Blocked protected path: ${blockedPath}`
       );
-      const readablePath = assertReadableWithinWorkspace(root, blockedPath);
-      expect(readablePath.endsWith(blockedPath)).toBe(true);
+    }
+
+    expect(() => assertReadableWithinWorkspace(root, ".env")).toThrow("Blocked secret path segment: .env");
+    expect(() => assertReadableWithinWorkspace(root, ".env.keys/active.json")).toThrow(
+      "Blocked secret path segment: .env.keys"
+    );
+
+    for (const readableSelfState of ["JOURNAL.md", "src/evolve/journal.ts"]) {
+      const readablePath = assertReadableWithinWorkspace(root, readableSelfState);
+      expect(readablePath.endsWith(readableSelfState)).toBe(true);
       const stats = statSync(readablePath);
-      if (stats.isFile()) {
-        expect(readFileSync(readablePath, "utf8").length).toBeGreaterThan(0);
-      } else {
-        expect(stats.isDirectory()).toBe(true);
-      }
+      expect(stats.isFile()).toBe(true);
+      expect(readFileSync(readablePath, "utf8").length).toBeGreaterThan(0);
     }
 
     expect(assertMutableWithinWorkspace(root, "README.md").endsWith("README.md")).toBe(true);

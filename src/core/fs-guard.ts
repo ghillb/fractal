@@ -17,15 +17,16 @@ const PROTECTED_CONFIG_PATHS = [
   ".env.keys" // Exact-root protection covers the repository's key/config companion file as self-state.
 ] as const;
 
+const READ_BLOCKED_SECRET_SEGMENTS = [".env.keys", ".env", ".git"] as const;
+
 // Keep this list short and explicit: it documents the protection contract for
 // repository state that should not be rewritten by autonomous edits.
 //
-// Access-mode contract: these rules are for mutating access only. Callers may
-// still inspect protected paths for legitimate read/non-mutating workflows, but
-// any write/create/delete/rename operation targeting these paths must be
-// rejected. `segments` guards sensitive names anywhere in the path, while
-// `paths` enumerates exact workspace-relative files that represent protected
-// self-state.
+// Access-mode contract: every listed path is immutable to autonomous tools.
+// Secret-bearing segments are also unreadable; journal source and history stay
+// readable so the evolution loop can inspect its own non-secret state.
+// `segments` guards sensitive names anywhere in the path, while `paths`
+// enumerates exact workspace-relative files that represent protected self-state.
 export const PROTECTED_PATH_RULES = {
   segments: PROTECTED_SELF_STATE_SEGMENTS,
   paths: [...PROTECTED_CONFIG_PATHS, ...PROTECTED_SELF_STATE_PATHS]
@@ -51,7 +52,14 @@ function resolveWithinWorkspace(workspaceRoot: string, targetPath: string): stri
 }
 
 export function assertReadableWithinWorkspace(workspaceRoot: string, targetPath: string): string {
-  return resolveWithinWorkspace(workspaceRoot, targetPath);
+  const resolved = resolveWithinWorkspace(workspaceRoot, targetPath);
+  const pathSegments = resolved.split(sep);
+  for (const segment of READ_BLOCKED_SECRET_SEGMENTS) {
+    if (pathSegments.includes(segment)) {
+      throw new Error(`Blocked secret path segment: ${segment}`);
+    }
+  }
+  return resolved;
 }
 
 export function assertMutableWithinWorkspace(workspaceRoot: string, targetPath: string): string {

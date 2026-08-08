@@ -1,6 +1,8 @@
 name: Evolve Meta Orchestrator
 
 on:
+  schedule:
+    - cron: "17 2 * * *"
   workflow_dispatch:
     inputs:
       baseline_ref:
@@ -10,7 +12,6 @@ on:
 
 permissions:
   contents: write
-  issues: write
   pull-requests: write
 
 jobs:
@@ -19,19 +20,20 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - candidate_name: reliability
-            goal: Become an entity that is ever more capable while improving safely. Optimize for validation robustness, clear failure traces, and conservative harness edits.
-          - candidate_name: precision
-            goal: Become an entity that is ever more capable while improving safely. Optimize for small, targeted harness changes and tighter prompt shape.
-          - candidate_name: throughput
-            goal: Become an entity that is ever more capable while improving safely. Optimize for fewer tool calls and faster convergence without losing safety.
+          - candidate_name: tools
+            goal: Improve one executable agent tool capability. Add a regression test that fails on the current baseline and keep the change bounded.
+          - candidate_name: planning
+            goal: Improve one observable planning, context, or recovery behavior. Add a regression test that fails on the current baseline.
+          - candidate_name: research
+            goal: Apply one technique from a primary technical source as a falsifiable, executable hypothesis. Cite the source in the journal rationale and add a baseline-failing regression test.
+          - candidate_name: simplify
+            goal: Remove obsolete or duplicative production code while preserving behavior. Prefer deletion and do not add a new abstraction.
     uses: ./.github/workflows/evolve-task.yml
     secrets: inherit
     with:
-      baseline_ref: ${{ inputs.baseline_ref }}
+      baseline_ref: ${{ inputs.baseline_ref || 'main' }}
       goal: ${{ matrix.goal }}
       candidate_name: ${{ matrix.candidate_name }}
-      push_commits: false
 
   promote:
     needs: candidate
@@ -87,17 +89,12 @@ jobs:
 
           const promotable = summaries
             .map(({ summary, full }) => ({ summary, full }))
-            .filter(({ summary }) => summary.workflowResult === "success" && summary.hasPatch);
+            .filter(({ summary }) => summary.workflowResult === "success" && summary.hasPatch && summary.fitness?.passed);
 
           if (promotable.length === 0) {
-            const successful = summaries.filter(({ summary }) => summary.workflowResult === "success");
-            if (successful.length === 0) {
-              throw new Error("No candidate run succeeded.");
-            }
-
-            const report = successful
+            const report = summaries
               .sort((a, b) => b.summary.score - a.summary.score)
-              .map(({ summary }) => `${summary.candidateName}:${summary.outcome}:${summary.score}`)
+              .map(({ summary }) => `${summary.candidateName}:${summary.outcome}:${summary.score}:${(summary.fitness?.reasons ?? []).join("|")}`)
               .join("\n");
             fs.writeFileSync(".fractal/winner.json", JSON.stringify({ promote: false, report }, null, 2));
             emit("promote", "false");
@@ -124,7 +121,7 @@ jobs:
         if: steps.winner.outputs.promote == 'true'
         uses: actions/checkout@v6
         with:
-          ref: ${{ inputs.baseline_ref }}
+          ref: ${{ inputs.baseline_ref || 'main' }}
           fetch-depth: 0
 
       - name: Promote winner patch
@@ -157,7 +154,7 @@ jobs:
           );
           EOF
           gh pr create \
-            --base "${{ inputs.baseline_ref }}" \
+            --base "${{ inputs.baseline_ref || 'main' }}" \
             --head "$BRANCH" \
             --title "evolve(meta): promote ${WINNER}" \
             --body-file .fractal/pr-body.md
