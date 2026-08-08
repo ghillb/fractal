@@ -25,7 +25,6 @@ import {
   schemaVersionSurfaceVersionLabelDerivedVersionedFieldSnapshot,
   schemaVersionSurfaceVersionLabelDerivedVersionedImmutableField,
   schemaVersionSurfaceExportBoundaryVersionedField,
-  schemaVersionSurfaceExportBoundaryVersionedFieldSnapshot,
     schemaVersionSurfaceDerivedImmutabilityShape,
   schemaVersionSurfaceBoundarySignature,
   shallowImmutabilityWitness,
@@ -101,7 +100,6 @@ describe("repository capability surface", () => {
     expect(surface.schemaVersionSurfaceVersionLabelDerivedVersionedField).toBe(schemaVersionSurfaceVersionLabelDerivedVersionedField);
     expect(surface.schemaVersionSurfaceVersionLabelDerivedVersionedImmutableField).toStrictEqual(schemaVersionSurfaceVersionLabelDerivedVersionedImmutableField);
     expect(surface.schemaVersionSurfaceExportBoundaryVersionedField).toBe(schemaVersionSurfaceExportBoundaryVersionedField);
-    expect(surface.schemaVersionSurfaceExportBoundaryVersionedFieldSnapshot).toBe(schemaVersionSurfaceExportBoundaryVersionedFieldSnapshot);
     expect(surface.schemaVersionSurfaceSchemaShapeVersionedField).toStrictEqual({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, schemaVersion: 4, readOnly: true, derived: true, stableShape: true });
     expect(surface.schemaVersionSurfaceDerivedImmutabilityShape).toStrictEqual(schemaVersionSurfaceDerivedImmutabilityShape);
     expect(surface.shallowImmutabilityWitness).toBe(shallowImmutabilityWitness);
@@ -163,7 +161,6 @@ describe("repository capability surface", () => {
     expect(Object.isFrozen(surface.schemaVersionSurfaceVersionLabelDerivedVersionedFieldSnapshot)).toBe(true);
     expect(Object.isFrozen(surface.schemaVersionSurfaceVersionLabelDerivedVersionedImmutableField)).toBe(true);
     expect(Object.isFrozen(surface.schemaVersionSurfaceExportBoundaryVersionedField)).toBe(true);
-    expect(Object.isFrozen(surface.schemaVersionSurfaceExportBoundaryVersionedFieldSnapshot)).toBe(true);
     expect(Object.isFrozen(surface.schemaVersionSurfaceSchemaShapeVersionedField)).toBe(true);
     expect(Object.isFrozen(surface.schemaVersionSurfaceDerivedImmutabilityShape)).toBe(true);
     expect(Object.isFrozen(surface.schemaVersionSchemaShapeFingerprint)).toBe(true);
