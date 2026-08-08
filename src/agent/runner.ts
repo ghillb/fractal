@@ -26,6 +26,16 @@ export type AgentRunResult = {
   toolCalls: number;
 };
 
+export function assertWithinAgentDeadline(
+  startedAtMs: number,
+  maxSeconds: number,
+  nowMs = Date.now()
+): void {
+  if (nowMs - startedAtMs >= maxSeconds * 1_000) {
+    throw new Error(`agent cycle time limit exceeded (${maxSeconds}s)`);
+  }
+}
+
 function formatAgentFailure(
   message: string,
   context: {
@@ -99,6 +109,7 @@ export async function runAgent(options: AgentRunOptions): Promise<AgentRunResult
   const logPath = `.fractal/logs/${logFile}`;
   const logger = new JsonLogger(".fractal/logs", logFile);
   const maxSteps = options.maxSteps ?? config.maxSteps;
+  const startedAtMs = Date.now();
 
   let step = 0;
   let toolCalls = 0;
@@ -129,6 +140,7 @@ export async function runAgent(options: AgentRunOptions): Promise<AgentRunResult
     ];
 
     while (step < maxSteps) {
+      assertWithinAgentDeadline(startedAtMs, config.maxCycleSeconds);
       step += 1;
 
       const completion = await openAiResponses(config.openAiApiKey, {
@@ -159,6 +171,7 @@ export async function runAgent(options: AgentRunOptions): Promise<AgentRunResult
       const toolOutputs: Array<{ type: "function_call_output"; call_id: string; output: string }> = [];
 
       for (const call of functionCalls) {
+        assertWithinAgentDeadline(startedAtMs, config.maxCycleSeconds);
         toolCalls += 1;
         if (toolCalls > (options.maxToolCalls ?? config.maxToolCalls)) {
           throw new Error("tool call limit exceeded");

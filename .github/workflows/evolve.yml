@@ -1,14 +1,10 @@
 name: Evolve Agent
 
 on:
-  schedule:
-    - cron: "0 */8 * * *"
   workflow_dispatch:
 
 permissions:
-  contents: write
-  issues: write
-  pull-requests: write
+  contents: read
 
 jobs:
   evolve:
@@ -18,4 +14,3 @@ jobs:
       baseline_ref: ${{ github.ref_name }}
       goal: Become an entity that is ever more capable while improving safely.
       candidate_name: primary-${{ github.run_id }}-${{ github.run_attempt }}
-      push_commits: true

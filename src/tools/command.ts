@@ -10,6 +10,28 @@ const BLOCKED_PATTERNS = [
   "> /dev/sda"
 ];
 
+const SECRET_ENV_NAME = /(?:^|_)(?:API_KEY|AUTH|CREDENTIALS?|PASS(?:WORD|WD)?|PRIVATE_KEY|SECRET|TOKEN)(?:_|$)/i;
+const DEFAULT_COMMAND_TIMEOUT_SECONDS = 120;
+const MAX_COMMAND_TIMEOUT_SECONDS = 300;
+
+export function buildCommandEnvironment(
+  source: Record<string, string | undefined> = process.env
+): Record<string, string> {
+  return Object.fromEntries(
+    Object.entries(source).filter(
+      (entry): entry is [string, string] => entry[1] !== undefined && !SECRET_ENV_NAME.test(entry[0])
+    )
+  );
+}
+
+function commandTimeoutMs(raw = process.env.FRACTAL_COMMAND_TIMEOUT_SECONDS): number {
+  const requested = Number.parseInt(raw ?? "", 10);
+  const seconds = Number.isFinite(requested)
+    ? Math.min(MAX_COMMAND_TIMEOUT_SECONDS, Math.max(1, requested))
+    : DEFAULT_COMMAND_TIMEOUT_SECONDS;
+  return seconds * 1_000;
+}
+
 export async function runCommandTool(input: ToolCallInput): Promise<Record<string, unknown>> {
   const command = String(input.command ?? "").trim();
   if (!command) {
@@ -21,7 +43,10 @@ export async function runCommandTool(input: ToolCallInput): Promise<Record<strin
     throw new Error("blocked command pattern");
   }
 
-  const result = exec(command);
+  const result = exec(command, {
+    env: buildCommandEnvironment(),
+    timeoutMs: commandTimeoutMs()
+  });
   return {
     code: result.code,
     stdout: result.stdout.slice(0, 20000),

@@ -54,7 +54,9 @@ function withDiagnostics(
 }
 
 function isAllowedMissingTarget(path: string): boolean {
-  return path.startsWith("test/") && path.endsWith(".ts");
+  if (path.includes("..") || path.startsWith("/")) return false;
+  return (path.startsWith("src/") && path.endsWith(".ts"))
+    || (path.startsWith("test/") && path.endsWith(".test.ts"));
 }
 
 export function buildTargetSignature(targetFiles: readonly string[]): string {

@@ -29,20 +29,20 @@ describe("evolve reliability controls", () => {
     }
   });
 
-  test("preflight allows new test files but rejects missing source files", () => {
+  test("preflight allows new source and test files only in bounded TypeScript paths", () => {
     const allowed = validateDecisionPreflight(
-      { targetFiles: ["test/new-reliability.test.ts"] },
+      { targetFiles: ["src/evolve/new-capability.ts", "test/new-reliability.test.ts"] },
       { recentFailedTargetSignatures: [] }
     );
     const rejected = validateDecisionPreflight(
-      { targetFiles: ["src/not-real.ts", "test/new-reliability.test.ts"] },
+      { targetFiles: ["outside/not-real.ts", "test/new-reliability.test.ts"] },
       { recentFailedTargetSignatures: [] }
     );
 
     expect(allowed.ok).toBe(true);
     expect(rejected.ok).toBe(false);
     if (!rejected.ok) {
-      expect(rejected.reason).toContain("src/not-real.ts");
+      expect(rejected.reason).toContain("outside/not-real.ts");
     }
   });
 
