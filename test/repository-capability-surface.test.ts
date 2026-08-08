@@ -26,8 +26,7 @@ import {
   schemaVersionSurfaceVersionLabelDerivedVersionedImmutableField,
   schemaVersionSurfaceExportBoundaryVersionedField,
   schemaVersionSurfaceExportBoundaryVersionedFieldSnapshot,
-  schemaVersionSurfaceSchemaShapeVersionedField,
-  schemaVersionSurfaceDerivedImmutabilityShape,
+    schemaVersionSurfaceDerivedImmutabilityShape,
   schemaVersionSurfaceBoundarySignature,
   shallowImmutabilityWitness,
   schemaVersionShallowImmutabilityCheck,
@@ -103,7 +102,7 @@ describe("repository capability surface", () => {
     expect(surface.schemaVersionSurfaceVersionLabelDerivedVersionedImmutableField).toStrictEqual(schemaVersionSurfaceVersionLabelDerivedVersionedImmutableField);
     expect(surface.schemaVersionSurfaceExportBoundaryVersionedField).toBe(schemaVersionSurfaceExportBoundaryVersionedField);
     expect(surface.schemaVersionSurfaceExportBoundaryVersionedFieldSnapshot).toBe(schemaVersionSurfaceExportBoundaryVersionedFieldSnapshot);
-    expect(surface.schemaVersionSurfaceSchemaShapeVersionedField).toStrictEqual(schemaVersionSurfaceSchemaShapeVersionedField);
+    expect(surface.schemaVersionSurfaceSchemaShapeVersionedField).toStrictEqual({ version: REPOSITORY_CAPABILITY_SURFACE_VERSION, schemaVersion: 4, readOnly: true, derived: true, stableShape: true });
     expect(surface.schemaVersionSurfaceDerivedImmutabilityShape).toStrictEqual(schemaVersionSurfaceDerivedImmutabilityShape);
     expect(surface.shallowImmutabilityWitness).toBe(shallowImmutabilityWitness);
     expect(surface.schemaVersionShallowImmutabilityCheck).toBe(schemaVersionShallowImmutabilityCheck);
@@ -226,6 +225,9 @@ describe("repository capability surface", () => {
     }).toThrow();
     expect(() => {
       (surface.schemaVersionSurfaceVersionLabelDerivedImmutableWitness as { value: string }).value = "mutated";
+    }).toThrow();
+    expect(() => {
+      (surface.schemaVersionSurfaceSchemaShapeVersionedField as { schemaVersion: number }).schemaVersion = 5;
     }).toThrow();
     expect(() => {
       (surface.schemaVersionSurfaceExportBoundaryVersionedField as { schemaVersion: number }).schemaVersion = 5;
